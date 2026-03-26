@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Realisasi Pajak Daerah - Kabupaten Lombok Tengah 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #3182ce 100%);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .header-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header-text h2 {
+            font-size: 1.1rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .header-text p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 3px;
+        }
+
+        /* Badge Tahun Sekarang */
+        .badge-now {
+            background: #48bb78;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(72,187,120,0.3);
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .info-banner h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .info-banner p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .info-banner .year-badge {
+            background: white;
+            color: #38a169;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: fadeInUp 0.6s ease backwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .stat-card.primary::before { background: linear-gradient(90deg, #3182ce, #63b3ed); }
+        .stat-card.success::before { background: linear-gradient(90deg, #38a169, #68d391); }
+        .stat-card.warning::before { background: linear-gradient(90deg, #d69e2e, #f6e05e); }
+        .stat-card.info::before { background: linear-gradient(90deg, #805ad5, #b794f4); }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .stat-card.primary .stat-icon { background: linear-gradient(135deg, #ebf8ff, #bee3f8); color: #3182ce; }
+        .stat-card.success .stat-icon { background: linear-gradient(135deg, #f0fff4, #c6f6d5); color: #38a169; }
+        .stat-card.warning .stat-icon { background: linear-gradient(135deg, #fffaf0, #feebc8); color: #d69e2e; }
+        .stat-card.info .stat-icon { background: linear-gradient(135deg, #faf5ff, #e9d8fd); color: #805ad5; }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+
+        .stat-subtitle {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        .stat-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .stat-card.primary .stat-badge { background: #ebf8ff; color: #3182ce; }
+        .stat-card.success .stat-badge { background: #f0fff4; color: #38a169; }
+        .stat-card.warning .stat-badge { background: #fffaf0; color: #d69e2e; }
+        .stat-card.info .stat-badge { background: #faf5ff; color: #805ad5; }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            animation: fadeInUp 0.8s ease backwards;
+        }
+
+        .chart-card:nth-child(1) { animation-delay: 0.5s; }
+        .chart-card:nth-child(2) { animation-delay: 0.6s; }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f4f8;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        /* Comparison Section */
+        .comparison-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease backwards;
+            animation-delay: 0.7s;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .comparison-item {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .comparison-item.highlight {
+            background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+            border: 2px solid #3182ce;
+        }
+
+        .comparison-item.current {
+            background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+            border: 2px solid #38a169;
+        }
+
+        .comparison-month {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .comparison-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 5px;
+        }
+
+        .comparison-change {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .comparison-change.positive {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+            color: #276749;
+        }
+
+        .comparison-change.negative {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #c53030;
+        }
+
+        /* Data Table */
+        .table-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease backwards;
+            animation-delay: 0.8s;
+            overflow-x: auto;
+        }
+
+        .table-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #1e3a5f, #2c5282);
+        }
+
+        .data-table th {
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: linear-gradient(135deg, #ebf8ff, #f0fff4);
+            transform: scale(1.01);
+        }
+
+        .data-table td {
+            padding: 15px 12px;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+
+        .data-table .number {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .data-table .tax-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .percentage-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .percentage-badge.excellent {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+            color: #276749;
+        }
+
+        .percentage-badge.good {
+            background: linear-gradient(135deg, #bee3f8, #90cdf4);
+            color: #2b6cb0;
+        }
+
+        .percentage-badge.warning {
+            background: linear-gradient(135deg, #feebc8, #fbd38d);
+            color: #975a16;
+        }
+
+        .percentage-badge.danger {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #c53030;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: #3182ce;
+            text-decoration: none;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .logo {
+                width: 60px;
+                height: 60px;
+            }
+
+            .header-text h1 {
+                font-size: 1.2rem;
+            }
+
+            .header-text h2 {
+                font-size: 0.95rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 280px;
+            }
+
+            .info-banner {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 10px 8px;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="https://lomboktengahkab.go.id/uploads/images/LOGO_KABUPATEN_LOMBOK_TENGAH.png" alt="Logo Lombok Tengah">
+            </div>
+            <div class="header-text">
+                <h1>BADAN PENDAPATAN DAERAH (BAPENDA) <span class="badge-now">2026</span></h1>
+                <h2>KABUPATEN LOMBOK TENGAH</h2>
+                <p>📅 Dashboard Monitoring Realisasi Pajak Daerah</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Info Banner -->
+        <section class="info-banner">
+            <div>
+                <h3>📊 Monitoring Kinerja BAPENDA Lombok Tengah</h3>
+                <p>Data Realisasi Pajak Daerah Periode Tahun 2026</p>
+            </div>
+            <div class="year-badge">TAHUN 2026</div>
+        </section>
+
+        <!-- Stats Cards -->
+        <section class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-badge">🎯 TARGET</div>
+                <div class="stat-icon">💰</div>
+                <div class="stat-label">Target Pajak Daerah 2026</div>
+                <div class="stat-value" id="target2026">Rp 0</div>
+                <div class="stat-subtitle">Total Target Tahun 2026</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-badge">📈 REALISASI</div>
+                <div class="stat-icon">📊</div>
+                <div class="stat-label">Realisasi Pajak Daerah</div>
+                <div class="stat-value" id="realisasi2026">Rp 0</div>
+                <div class="stat-subtitle">Periode Januari - Februari 2026</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-badge">🎯 CAPAIAN</div>
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Persentase Capaian</div>
+                <div class="stat-value" id="persen2026">0%</div>
+                <div class="stat-subtitle">Terhadap Target Tahun 2026</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-badge">🔄 vs 2025</div>
+                <div class="stat-icon">📊</div>
+                <div class="stat-label">Perbandingan dengan 2025</div>
+                <div class="stat-value" id="growthRate">0%</div>
+                <div class="stat-subtitle" id="comparisonLabel">Jan-Feb 2026 vs Jan-Feb 2025</div>
+            </div>
+        </section>
+
+        <!-- Charts -->
+        <section class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">📊 Perbandingan Realisasi Per Bulan</h3>
+                    <span style="font-size: 0.85rem; color: #718096;">Jan-Feb 2025 vs 2026</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">🥧 Komposisi Realisasi Pajak Daerah 2026</h3>
+                </div>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Section -->
+        <section class="comparison-section">
+            <div class="section-header">
+                <h3 class="section-title">📈 Analisis Perbandingan Periode Sama (Januari - Februari)</h3>
+            </div>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <div class="comparison-month">Januari 2025</div>
+                    <div class="comparison-value" id="jan2025">Rp 0</div>
+                </div>
+                <div class="comparison-item">
+                    <div class="comparison-month">Februari 2025</div>
+                    <div class="comparison-value" id="feb2025">Rp 0</div>
+                </div>
+                <div class="comparison-item current">
+                    <div class="comparison-month">Januari 2026</div>
+                    <div class="comparison-value" id="jan2026">Rp 0</div>
+                    <span class="comparison-change" id="changeJan">-</span>
+                </div>
+                <div class="comparison-item current">
+                    <div class="comparison-month">Februari 2026</div>
+                    <div class="comparison-value" id="feb2026">Rp 0</div>
+                    <span class="comparison-change" id="changeFeb">-</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Table 2026 -->
+        <section class="table-section">
+            <div class="table-title">📋 Detail Realisasi Pajak Daerah Tahun 2026</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Jenis Pajak</th>
+                        <th>Target 2026</th>
+                        <th>Januari</th>
+                        <th>Februari</th>
+                        <th>Total Realisasi</th>
+                        <th>% Capaian</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody2026">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Data Table 2025 (Pembanding) -->
+        <section class="table-section" style="margin-top: 30px;">
+            <div class="table-title">📋 Data Pembanding: Realisasi Pajak Daerah Tahun 2025</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Jenis Pajak</th>
+                        <th>Target 2025</th>
+                        <th>Total Realisasi 2025</th>
+                        <th>% Capaian</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody2025">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>💼 <strong>BAPENDA Kabupaten Lombok Tengah</strong></p>
+        <p>Dibuat dengan ❤️ menggunakan HTML, CSS & JavaScript</p>
+        <p style="margin-top: 10px;">© 2026 - Dashboard Monitoring Pajak Daerah</p>
+    </footer>
+
+    <script>
+        // ==================== DATA 2026 ====================
+        const data2026 = {
+            "Pajak Reklame": {
+                target: 2321570000,
+                bulan: [63891000, 35445000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "Pajak Air Tanah": {
+                target: 893973093,
+                bulan: [67951700, 75762983, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "Pajak Sarang Burung Walet": {
+                target: 2873078.23,
+                bulan: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "Pajak Mineral Bukan Logam": {
+                target: 1991234820.67,
+                bulan: [468300, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "PBBP2": {
+                target: 24082762000,
+                bulan: [308605931, 296099923, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "BPHTB": {
+                target: 46728037952,
+                bulan: [3021379302, 6248910929, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "PBJT Makanan & Minuman": {
+                target: 64201373150.59,
+                bulan: [3110425270.13, 3529479080.67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "PBJT Tenaga Listrik": {
+                target: 32155863711.83,
+                bulan: [3103934043, 3095434293, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "PBJT Jasa Perhotelan": {
+                target: 60320432586.68,
+                bulan: [4073391859, 3536260788.53, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "PBJT Jasa Parkir": {
+                target: 1896123589,
+                bulan: [157766323, 145629127, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "PBJT Jasa Kesenian & Hiburan": {
+                target: 4494532018,
+                bulan: [17067724, 159901764, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "Opsen PKB": {
+                target: 38655540000,
+                bulan: [2899519768, 2574529887, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            },
+            "Opsen BBNKB": {
+                target: 42584850000,
+                bulan: [4266639630, 4285633968, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }
+        };
+
+        // ==================== DATA 2025 (Pembanding) ====================
+        const data2025 = {
+            "Pajak Reklame": {
+                target: 2200000000,
+                bulan: [64144000, 177257600, 92481480, 91330000, 318803050, 99066750, 459577200, 65379600, 201231660, 184782750, 73690790, 197577000]
+            },
+            "Pajak Air Tanah": {
+                target: 361085293.75,
+                bulan: [23816900, 36495400, 24496900, 27737700, 26212709, 29079000, 35012600, 31531800, 31828500, 30887800, 34348400, 89663170]
+            },
+            "Pajak Sarang Burung Walet": {
+                target: 4867500,
+                bulan: [0, 0, 0, 0, 0, 0, 0, 500000, 0, 0, 0, 0]
+            },
+            "Pajak Mineral Bukan Logam": {
+                target: 4991234820.57,
+                bulan: [47457032, 14219589, 48257507, 5589692, 808760, 0, 3442475515, 219910443, 149299704, 189086664, 127301808, 522575317.75]
+            },
+            "PBBP2": {
+                target: 22082761379,
+                bulan: [327309810, 258102200, 224898288, 300404150, 684002908, 1310931771, 2026694536, 1890652654, 4279659384, 3770005274, 987617310, 810997450]
+            },
+            "BPHTB": {
+                target: 41500000000,
+                bulan: [5095137987, 7235441297, 3955469170, 3342900850, 3132796772, 4359716727, 4319974761, 3564238121, 4351215421, 5985698334, 9467834529, 6942717296]
+            },
+            "PBJT Makanan & Minuman": {
+                target: 43267383724.35,
+                bulan: [3150749995.73, 3331327030.68, 2519068709.59, 3459767011.36, 3807516608.58, 3414033429.34, 7696992428.25, 6061134171.38, 6907494010.94, 3807951805.48, 9484119041.67, 4701086402]
+            },
+            "PBJT Tenaga Listrik": {
+                target: 31555863711.83,
+                bulan: [2678229880, 2687349040, 2160803116, 1915230721, 2460152844, 2741555755, 2741509587, 2716532840, 2805542721, 2897668148, 3053475587, 3092978412]
+            },
+            "PBJT Jasa Perhotelan": {
+                target: 46336116863.77,
+                bulan: [3329224385.64, 3678758102.41, 2641753904.67, 2563466218.76, 3313954340.41, 4121604725.15, 5387840570.22, 8138491811.54, 8881205112.49, 5061469739.48, 11949160666.23, 3444418769.91]
+            },
+            "PBJT Jasa Parkir": {
+                target: 1762629507.45,
+                bulan: [138924782, 144386695, 136827886, 108128570, 125030632, 117684682, 116345105, 136625391, 146755814, 133657682, 178015050, 127498650]
+            },
+            "PBJT Jasa Kesenian & Hiburan": {
+                target: 4261124473.18,
+                bulan: [89715637, 191313920, 218006216, 137502723, 174921000, 387582963, 632496902.99, 284291660, 315784267.01, 235419304, 2801321663.40, 186793894]
+            },
+            "Opsen PKB": {
+                target: 38333255000,
+                bulan: [2426271854, 2799258386, 2484996090, 3125274843, 2871549698, 2711782127, 3668204004, 3299791675, 3285178544, 3026087566, 3116915858, 3636647465]
+            },
+            "Opsen BBNKB": {
+                target: 39672835000,
+                bulan: [2624737971, 2993068758, 3176614881, 3144891717, 3079328967, 3382822872, 3516381990, 3926619180, 3900912345, 4470260105, 4108561380, 4934803500]
+            }
+        };
+
+        // ==================== FORMATTERS ====================
+        function formatRupiahFull(num) {
+            if (num >= 1000000000) {
+                return 'Rp ' + (num / 1000000000).toFixed(2) + ' M';
+            } else if (num >= 1000000) {
+                return 'Rp ' + (num / 1000000).toFixed(2) + ' Jt';
+            }
+            return 'Rp ' + num.toLocaleString('id-ID');
+        }
+
+        function formatRupiahFullNumber(num) {
+            return num.toLocaleString('id-ID');
+        }
+
+        // ==================== CALCULATIONS ====================
+        function getTotalRealisasi(data) {
+            return Object.values(data).reduce((sum, item) => {
+                return sum + item.bulan.reduce((a, b) => a + b, 0);
+            }, 0);
+        }
+
+        function getTotalTarget(data) {
+            return Object.values(data).reduce((sum, item) => sum + item.target, 0);
+        }
+
+        function getMonthTotal(data, monthIndex) {
+            return Object.values(data).reduce((sum, item) => sum + (item.bulan[monthIndex] || 0), 0);
+        }
+
+        // ==================== ANIMATED COUNTER ====================
+        function animateCounter(element, target, duration = 2000) {
+            let start = 0;
+            const increment = target / (duration / 16);
+            
+            function updateCounter() {
+                start += increment;
+                if (start < target) {
+                    element.textContent = formatRupiahFull(Math.floor(start));
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = formatRupiahFull(target);
+                }
+            }
+            
+            updateCounter();
+        }
+
+        // ==================== INITIALIZE STATS ====================
+        function initStats() {
+            const totalTarget2026 = getTotalTarget(data2026);
+            const totalRealisasi2026 = getTotalRealisasi(data2026);
+            const percentage2026 = (totalRealisasi2026 / totalTarget2026 * 100).toFixed(2);
+            
+            const totalJanFeb2025 = getMonthTotal(data2025, 0) + getMonthTotal(data2025, 1);
+            const totalJanFeb2026 = getMonthTotal(data2026, 0) + getMonthTotal(data2026, 1);
+            const growthRate = ((totalJanFeb2026 - totalJanFeb2025) / totalJanFeb2025 * 100).toFixed(1);
+            
+            setTimeout(() => {
+                animateCounter(document.getElementById('target2026'), totalTarget2026);
+                animateCounter(document.getElementById('realisasi2026'), totalRealisasi2026);
+                document.getElementById('persen2026').textContent = percentage2026 + '%';
+                
+                const growthElement = document.getElementById('growthRate');
+                growthElement.textContent = (growthRate >= 0 ? '+' : '') + growthRate + '%';
+                growthElement.style.color = growthRate >= 0 ? '#38a169' : '#e53e3e';
+            }, 500);
+        }
+
+        // ==================== COMPARISON DATA ====================
+        function initComparison() {
+            const jan2025 = getMonthTotal(data2025, 0);
+            const feb2025 = getMonthTotal(data2025, 1);
+            const jan2026 = getMonthTotal(data2026, 0);
+            const feb2026 = getMonthTotal(data2026, 1);
+            
+            document.getElementById('jan2025').textContent = formatRupiahFull(jan2025);
+            document.getElementById('feb2025').textContent = formatRupiahFull(feb2025);
+            document.getElementById('jan2026').textContent = formatRupiahFull(jan2026);
+            document.getElementById('feb2026').textContent = formatRupiahFull(feb2026);
+            
+            const changeJan = ((jan2026 - jan2025) / jan2025 * 100).toFixed(1);
+            const changeFeb = ((feb2026 - feb2025) / feb2025 * 100).toFixed(1);
+            
+            document.getElementById('changeJan').textContent = (changeJan >= 0 ? '↑' : '↓') + Math.abs(changeJan) + '%';
+            document.getElementById('changeJan').className = 'comparison-change ' + (changeJan >= 0 ? 'positive' : 'negative');
+            
+            document.getElementById('changeFeb').textContent = (changeFeb >= 0 ? '↑' : '↓') + Math.abs(changeFeb) + '%';
+            document.getElementById('changeFeb').className = 'comparison-change ' + (changeFeb >= 0 ? 'positive' : 'negative');
+        }
+
+        // ==================== CHARTS ====================
+        let comparisonChart, pieChart;
+
+        function initCharts() {
+            // Comparison Chart
+            const ctx1 = document.getElementById('comparisonChart').getContext('2d');
+            comparisonChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Januari', 'Februari'],
+                    datasets: [
+                        {
+                            label: '2025',
+                            data: [getMonthTotal(data2025, 0), getMonthTotal(data2025, 1)],
+                            backgroundColor: 'rgba(113, 128, 150, 0.8)',
+                            borderColor: 'rgba(113, 128, 150, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8,
+                        },
+                        {
+                            label: '2026',
+                            data: [getMonthTotal(data2026, 0), getMonthTotal(data2026, 1)],
+                            backgroundColor: 'rgba(56, 161, 105, 0.8)',
+                            borderColor: 'rgba(56, 161, 105, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatRupiahFull(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1000000000) return (value/1000000000).toFixed(1) + ' M';
+                                    if (value >= 1000000) return (value/1000000).toFixed(0) + ' Jt';
+                                    return value;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+
+            // Pie Chart
+            const ctx2 = document.getElementById('pieChart').getContext('2d');
+            const taxNames2026 = Object.keys(data2026);
+            const taxValues2026 = taxNames2026.map(name => data2026[name].bulan.reduce((a, b) => a + b, 0));
+            const colors = [
+                '#3182ce', '#38a169', '#d69e2e', '#e53e3e', '#805ad5',
+                '#319795', '#dd6b20', '#d53f8c', '#667eea', '#48bb78',
+                '#f56565', '#9f7aea', '#4fd1c5'
+            ];
+            
+            pieChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: taxNames2026,
+                    datasets: [{
+                        data: taxValues2026,
+                        backgroundColor: colors,
+                        borderColor: '#fff',
+                        borderWidth: 3,
+                        hoverOffset: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.raw / total) * 100).toFixed(1);
+                                    return context.label + ': ' + formatRupiahFull(context.raw) + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+        // ==================== TABLES ====================
+        function initTables() {
+            // Table 2026
+            const tbody2026 = document.getElementById('tableBody2026');
+            tbody2026.innerHTML = '';
+            
+            let no = 1;
+            for (const [name, data] of Object.entries(data2026)) {
+                const totalRealisasi = data.bulan.reduce((a, b) => a + b, 0);
+                const percentage = (totalRealisasi / data.target * 100).toFixed(2);
+                
+                let percentageClass = 'good';
+                if (percentage >= 100) percentageClass = 'excellent';
+                else if (percentage >= 50) percentageClass = 'good';
+                else if (percentage >= 25) percentageClass = 'warning';
+                else percentageClass = 'danger';
+                
+                const row = `
+                    <tr>
+                        <td>${no}</td>
+                        <td class="tax-name">${name}</td>
+                        <td class="number">${formatRupiahFull(data.target)}</td>
+                        <td class="number">${formatRupiahFull(data.bulan[0])}</td>
+                        <td class="number">${formatRupiahFull(data.bulan[1])}</td>
+                        <td class="number" style="font-weight: 600; color: #2b6cb0;">${formatRupiahFull(totalRealisasi)}</td>
+                        <td><span class="percentage-badge ${percentageClass}">${percentage}%</span></td>
+                    </tr>
+                `;
+                tbody2026.innerHTML += row;
+                no++;
+            }
+
+            // Table 2025 (Pembanding)
+            const tbody2025 = document.getElementById('tableBody2025');
+            tbody2025.innerHTML = '';
+            
+            no = 1;
+            for (const [name, data] of Object.entries(data2025)) {
+                const totalRealisasi = data.bulan.reduce((a, b) => a + b, 0);
+                const percentage = (totalRealisasi / data.target * 100).toFixed(2);
+                
+                let percentageClass = 'good';
+                if (percentage >= 100) percentageClass = 'excellent';
+                else if (percentage >= 50) percentageClass = 'good';
+                else if (percentage >= 25) percentageClass = 'warning';
+                else percentageClass = 'danger';
+                
+                const row = `
+                    <tr>
+                        <td>${no}</td>
+                        <td class="tax-name">${name}</td>
+                        <td class="number">${formatRupiahFull(data.target)}</td>
+                        <td class="number" style="font-weight: 600; color: #4a5568;">${formatRupiahFull(totalRealisasi)}</td>
+                        <td><span class="percentage-badge ${percentageClass}">${percentage}%</span></td>
+                    </tr>
+                `;
+                tbody2025.innerHTML += row;
+                no++;
+            }
+        }
+
+        // ==================== INITIALIZE ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            initStats();
+            initComparison();
+            initCharts();
+            initTables();
+        });
+    </script>
+</body>
+</html>
