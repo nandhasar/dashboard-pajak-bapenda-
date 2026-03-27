@@ -121,22 +121,22 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
         th {
             background: #1a202c;
             color: white;
-            padding: 12px 8px;
+            padding: 10px 5px;
             text-align: center;
             white-space: nowrap;
         }
 
-        th:first-child, td:first-child { text-align: center; width: 40px; }
-        th:nth-child(2), td:nth-child(2) { text-align: left; min-width: 200px; }
+        th:first-child, td:first-child { text-align: center; width: 30px; }
+        th:nth-child(2), td:nth-child(2) { text-align: left; min-width: 180px; }
 
         td {
-            padding: 8px 5px;
+            padding: 6px 3px;
             border-bottom: 1px solid #e2e8f0;
             text-align: center;
         }
@@ -145,13 +145,13 @@
 
         .edit-input {
             width: 100%;
-            max-width: 95px;
-            padding: 6px 8px;
+            max-width: 85px;
+            padding: 5px 5px;
             border: 1px solid #e2e8f0;
             border-radius: 5px;
             text-align: right;
             font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
 
         .edit-input:focus {
@@ -170,10 +170,10 @@
             background: #48bb78;
             color: white;
             border: none;
-            padding: 6px 15px;
+            padding: 5px 12px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
         }
 
@@ -254,7 +254,7 @@
     <div class="container">
         <!-- Status Alert -->
         <div id="statusAlert" class="alert alert-info">
-            🔄 Inisialisasi...
+            🔄 Memuat data...
         </div>
 
         <!-- Main Card -->
@@ -314,11 +314,10 @@
 
     <script>
         // ============================================================
-        // KONFIGURASI
+        // KONFIGURASI - URL BARU!
         // ============================================================
         
-        // ✅ URL Web App Anda
-        const WEB_APP_URL = '';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyHLEPqaP0BKWuiLoYiTBvtYlq2HWWUJz0yNpAKTNucP1BiwBFsDZa2-qbcgz4u253u/exec';
 
         // ============================================================
         // STATUS
@@ -353,7 +352,6 @@
             showLoading(true, 'Memuat data dari server...');
             
             try {
-                // Ambil data dari Apps Script
                 const url = `${WEB_APP_URL}?action=getData&sheetIndex=${currentSheetIndex}`;
                 
                 const response = await fetch(url);
@@ -368,8 +366,6 @@
                     throw new Error(result.message || 'Gagal mengambil data');
                 }
                 
-                console.log('Data received:', result);
-                
                 // Parse data
                 const data = result.data;
                 currentSheetName = result.sheetName;
@@ -380,17 +376,23 @@
                 // Set raw data (mulai baris 2)
                 rawData = [];
                 for (let i = 1; i < data.length; i++) {
-                    if (data[i][0]) { // Skip baris kosong
+                    if (data[i] && data[i][0]) { // Skip baris kosong
                         rawData.push(data[i]);
                     }
                 }
                 
                 renderTable();
-                showToast(`✅ Data berhasil dimuat! (${rawData.length} baris)`, 'success');
+                showToast(`✅ Data berhasil dimuat! (${rawData.length} pajak)`, 'success');
+                
+                document.getElementById('statusAlert').className = 'alert alert-success';
+                document.getElementById('statusAlert').innerHTML = `✅ <strong>Connected!</strong> Sheet: <strong>${currentSheetName}</strong> | ${rawData.length} data`;
                 
             } catch (error) {
                 console.error('Error:', error);
                 showToast('Error: ' + error.message, 'error');
+                
+                document.getElementById('statusAlert').className = 'alert alert-danger';
+                document.getElementById('statusAlert').innerHTML = `❌ <strong>Error:</strong> ${error.message}`;
             }
             
             showLoading(false);
@@ -409,21 +411,16 @@
             
             if (rawData.length === 0) {
                 thead.innerHTML = '<tr><th>No</th><th>Data</th></tr>';
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="2" style="text-align: center; padding: 30px; color: #999;">
-                            Tidak ada data
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 30px; color: #999;">Tidak ada data</td></tr>';
                 return;
             }
             
-            // Render header
-            let headerHtml = '<tr><th>No</th>';
-            for (let i = 0; i < headers.length; i++) {
-                headerHtml += `<th>${headers[i] || ''}</th>`;
-            }
+            // Render header - tampilkan 14 kolom (Target + 12 Bulan)
+            let headerHtml = '<tr><th>#</th><th>Jenis Pajak</th>';
+            const displayHeaders = ['Target', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            displayHeaders.forEach(h => {
+                headerHtml += `<th>${h}</th>`;
+            });
             headerHtml += '<th>Aksi</th></tr>';
             thead.innerHTML = headerHtml;
             
@@ -434,15 +431,16 @@
                 const rowNum = index + 2; // Row 2 karena header di row 1
                 
                 bodyHtml += `<tr>`;
-                bodyHtml += `<td>${index + 1}</td>`;
+                bodyHtml += `<td><strong>${index + 1}</strong></td>`;
                 
                 // Kolom pertama = nama/jenis pajak
                 bodyHtml += `<td style="text-align: left; font-weight: 500;">${row[0] || ''}</td>`;
                 
-                // Kolom lain = data (Target + 12 bulan)
-                for (let col = 1; col < Math.min(row.length, 14); col++) {
+                // Kolom 1 = Target, Kolom 2-13 = 12 Bulan
+                // Row array: [0]=Nama, [1]=Target, [2]=Jan, [3]=Feb, ... [13]=Des
+                for (let col = 1; col <= 13; col++) {
                     const colNum = col + 1; // Column number (1-indexed, A=1)
-                    const value = row[col];
+                    const value = row[col] || 0;
                     
                     bodyHtml += `<td>
                         <input type="text" 
@@ -452,12 +450,6 @@
                                value="${formatNumber(value)}"
                                oninput="onInputChange(this)">
                     </td>`;
-                }
-                
-                // Fill empty cells if less than 14 columns
-                const emptyCols = 14 - Math.min(row.length, 14);
-                for (let i = 0; i < emptyCols; i++) {
-                    bodyHtml += `<td><input type="text" class="edit-input" data-row="${rowNum}" data-col="${14 - emptyCols + i + 1}" value="0" oninput="onInputChange(this)"></td>`;
                 }
                 
                 // Action
@@ -490,7 +482,7 @@
             
             const originalValue = rawData[rowIndex] ? (parseFloat(rawData[rowIndex][colIndex]) || 0) : 0;
             
-            if (newValue !== originalValue) {
+            if (Math.abs(newValue - originalValue) > 0.01) {
                 changes[key] = newValue;
                 input.classList.add('changed');
             } else {
@@ -500,7 +492,7 @@
         }
 
         // ============================================================
-        // SAVE ROW - KIRIM KE GOOGLE APPS SCRIPT
+        // SAVE ROW
         // ============================================================
         
         async function saveRow(rowIndex) {
@@ -536,7 +528,7 @@
                 for (const [colStr, value] of Object.entries(rowChanges)) {
                     const col = parseInt(colStr);
                     
-                    const response = await fetch(WEB_APP_URL, {
+                    await fetch(WEB_APP_URL, {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
@@ -549,9 +541,8 @@
                     });
                     
                     successCount++;
-                    console.log(`Saved: Row ${rowNum}, Col ${col} = ${value}`);
+                    console.log(`✅ Saved: Row ${rowNum}, Col ${col} = ${value}`);
                     
-                    // Small delay
                     await new Promise(r => setTimeout(r, 100));
                 }
                 
@@ -629,10 +620,6 @@
         // INIT
         // ============================================================
         
-        document.getElementById('statusAlert').className = 'alert alert-success';
-        document.getElementById('statusAlert').innerHTML = '✅ <strong>API Ready!</strong> Koneksi ke server aktif.';
-        
-        // Auto load on page ready
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
         });
