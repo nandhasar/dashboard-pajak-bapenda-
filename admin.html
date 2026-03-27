@@ -237,21 +237,6 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .debug-log {
-            background: #1a1a2e;
-            color: #10b981;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 20px;
-            font-family: monospace;
-            font-size: 0.8rem;
-            max-height: 150px;
-            overflow-y: auto;
-            display: none;
-        }
-
-        .debug-log.show { display: block; }
-
         @media (max-width: 768px) {
             .header-content { flex-direction: column; gap: 10px; }
             .edit-input { width: 70px; font-size: 0.7rem; }
@@ -275,7 +260,7 @@
         <!-- Main Card -->
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">📝 Edit Data Pajak - <span id="currentSheetName">Data_Pajak_2026</span></h2>
+                <h2 class="card-title">📝 Edit Data Pajak - <span id="currentSheetName">Loading...</span></h2>
                 <div>
                     <button class="btn btn-primary" onclick="loadData()">
                         🔄 Load Ulang
@@ -296,38 +281,20 @@
             <!-- Table -->
             <div class="table-responsive">
                 <table>
-                    <thead>
+                    <thead id="tableHead">
                         <tr>
-                            <th>No</th>
-                            <th>Jenis Pajak</th>
-                            <th>Target</th>
-                            <th>Jan</th>
-                            <th>Feb</th>
-                            <th>Mar</th>
-                            <th>Apr</th>
-                            <th>Mei</th>
-                            <th>Jun</th>
-                            <th>Jul</th>
-                            <th>Agu</th>
-                            <th>Sep</th>
-                            <th>Okt</th>
-                            <th>Nov</th>
-                            <th>Des</th>
-                            <th>Aksi</th>
+                            <th>Loading...</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
                         <tr>
                             <td colspan="16" style="text-align: center; padding: 40px; color: #999;">
-                                Klik "Load Ulang" untuk memuat data
+                                Memuat data...
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
-            <!-- Debug Log -->
-            <div class="debug-log" id="debugLog"></div>
         </div>
     </div>
 
@@ -351,10 +318,7 @@
         // ============================================================
         
         // ✅ URL Web App Anda
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxScrI-w2hSCw0Rq96YVP_rvxgeaWRv3O5Vhrd-MVQkYnKqmAnC3t_FTbWexlGxF4kM/exec';
-        
-        // ✅ Spreadsheet ID
-        const SHEET_ID = '1BE7gPYSSlCnaIZ4Q7RvGx_L_2v46fQjkEnK3EC3VQz4';
+        const WEB_APP_URL = '';
 
         // ============================================================
         // STATUS
@@ -363,21 +327,8 @@
         let currentSheetIndex = 0;
         let currentSheetName = 'Data_Pajak_2026';
         let rawData = [];
+        let headers = [];
         let changes = {};
-        let debugMode = true; // Set false untuk production
-
-        // ============================================================
-        // DEBUG LOG
-        // ============================================================
-        
-        function debug(message) {
-            if (!debugMode) return;
-            const log = document.getElementById('debugLog');
-            const time = new Date().toLocaleTimeString();
-            log.innerHTML += `<div>[${time}] ${message}</div>`;
-            log.classList.add('show');
-            log.scrollTop = log.scrollHeight;
-        }
 
         // ============================================================
         // FORMAT
@@ -395,22 +346,15 @@
         }
 
         // ============================================================
-        // LOAD DATA DARI CSV
+        // LOAD DATA DARI APPS SCRIPT
         // ============================================================
         
         async function loadData() {
-            showLoading(true, 'Memuat data...');
-            debug(`📥 Loading sheet index: ${currentSheetIndex}`);
+            showLoading(true, 'Memuat data dari server...');
             
             try {
-                // GID untuk export CSV
-                // GID 0 = sheet pertama
-                // Untuk sheet lain, kita perlu GID yang benar
-                // Karena kita tidak tahu GID sheet kedua, coba dengan GID = sheetIndex
-                const gid = currentSheetIndex;
-                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
-                
-                debug(`📡 Fetching: ${url}`);
+                // Ambil data dari Apps Script
+                const url = `${WEB_APP_URL}?action=getData&sheetIndex=${currentSheetIndex}`;
                 
                 const response = await fetch(url);
                 
@@ -418,14 +362,27 @@
                     throw new Error(`HTTP Error: ${response.status}`);
                 }
                 
-                const csv = await response.text();
-                debug(`📄 CSV received: ${csv.length} characters`);
+                const result = await response.json();
                 
-                rawData = parseCSV(csv);
-                debug(`📊 Parsed: ${rawData.length} rows`);
+                if (result.status !== 'success') {
+                    throw new Error(result.message || 'Gagal mengambil data');
+                }
                 
-                if (rawData.length === 0) {
-                    throw new Error('Tidak ada data ditemukan');
+                console.log('Data received:', result);
+                
+                // Parse data
+                const data = result.data;
+                currentSheetName = result.sheetName;
+                
+                // Set headers (baris pertama)
+                headers = data[0] || [];
+                
+                // Set raw data (mulai baris 2)
+                rawData = [];
+                for (let i = 1; i < data.length; i++) {
+                    if (data[i][0]) { // Skip baris kosong
+                        rawData.push(data[i]);
+                    }
                 }
                 
                 renderTable();
@@ -433,53 +390,10 @@
                 
             } catch (error) {
                 console.error('Error:', error);
-                debug(`❌ Error: ${error.message}`);
                 showToast('Error: ' + error.message, 'error');
             }
             
             showLoading(false);
-        }
-
-        function parseCSV(csv) {
-            const lines = csv.split('\n');
-            const result = [];
-            
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                
-                // Parse CSV
-                const values = [];
-                let current = '';
-                let inQuotes = false;
-                
-                for (let char of lines[i]) {
-                    if (char === '"') {
-                        inQuotes = !inQuotes;
-                    } else if (char === ',' && !inQuotes) {
-                        values.push(current.trim());
-                        current = '';
-                    } else {
-                        current += char;
-                    }
-                }
-                values.push(current.trim());
-                
-                if (!values[0] || values[0].trim() === '') continue;
-                
-                const row = {
-                    name: values[0].trim(),
-                    target: parseFloat(values[1]) || 0,
-                    bulan: []
-                };
-                
-                for (let j = 2; j <= 13; j++) {
-                    row.bulan.push(parseFloat(values[j]) || 0);
-                }
-                
-                result.push(row);
-            }
-            
-            return result;
         }
 
         // ============================================================
@@ -487,12 +401,17 @@
         // ============================================================
         
         function renderTable() {
+            const thead = document.getElementById('tableHead');
             const tbody = document.getElementById('tableBody');
+            const sheetNameEl = document.getElementById('currentSheetName');
+            
+            sheetNameEl.textContent = currentSheetName;
             
             if (rawData.length === 0) {
+                thead.innerHTML = '<tr><th>No</th><th>Data</th></tr>';
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="16" style="text-align: center; padding: 30px; color: #999;">
+                        <td colspan="2" style="text-align: center; padding: 30px; color: #999;">
                             Tidak ada data
                         </td>
                     </tr>
@@ -500,52 +419,59 @@
                 return;
             }
             
-            let html = '';
+            // Render header
+            let headerHtml = '<tr><th>No</th>';
+            for (let i = 0; i < headers.length; i++) {
+                headerHtml += `<th>${headers[i] || ''}</th>`;
+            }
+            headerHtml += '<th>Aksi</th></tr>';
+            thead.innerHTML = headerHtml;
             
-            rawData.forEach((item, index) => {
+            // Render body
+            let bodyHtml = '';
+            
+            rawData.forEach((row, index) => {
                 const rowNum = index + 2; // Row 2 karena header di row 1
                 
-                html += `<tr data-row="${rowNum}">`;
-                html += `<td>${index + 1}</td>`;
-                html += `<td style="text-align: left; font-weight: 500;">${item.name}</td>`;
+                bodyHtml += `<tr>`;
+                bodyHtml += `<td>${index + 1}</td>`;
                 
-                // Target (Kolom B = 2)
-                html += `<td>
-                    <input type="text" 
-                           class="edit-input" 
-                           data-row="${rowNum}" 
-                           data-col="2" 
-                           value="${formatNumber(item.target)}"
-                           oninput="onInputChange(this)">
-                </td>`;
+                // Kolom pertama = nama/jenis pajak
+                bodyHtml += `<td style="text-align: left; font-weight: 500;">${row[0] || ''}</td>`;
                 
-                // Bulan (Kolom C-N = 3-14)
-                for (let i = 0; i < 12; i++) {
-                    const colNum = i + 3;
-                    html += `<td>
+                // Kolom lain = data (Target + 12 bulan)
+                for (let col = 1; col < Math.min(row.length, 14); col++) {
+                    const colNum = col + 1; // Column number (1-indexed, A=1)
+                    const value = row[col];
+                    
+                    bodyHtml += `<td>
                         <input type="text" 
                                class="edit-input" 
                                data-row="${rowNum}" 
                                data-col="${colNum}" 
-                               value="${formatNumber(item.bulan[i])}"
+                               value="${formatNumber(value)}"
                                oninput="onInputChange(this)">
                     </td>`;
                 }
                 
+                // Fill empty cells if less than 14 columns
+                const emptyCols = 14 - Math.min(row.length, 14);
+                for (let i = 0; i < emptyCols; i++) {
+                    bodyHtml += `<td><input type="text" class="edit-input" data-row="${rowNum}" data-col="${14 - emptyCols + i + 1}" value="0" oninput="onInputChange(this)"></td>`;
+                }
+                
                 // Action
-                html += `<td>
+                bodyHtml += `<td>
                     <button class="btn-save" onclick="saveRow(${index})">
                         💾 Save
                     </button>
                 </td>`;
                 
-                html += `</tr>`;
+                bodyHtml += `</tr>`;
             });
             
-            tbody.innerHTML = html;
+            tbody.innerHTML = bodyHtml;
             changes = {};
-            
-            debug(`✅ Table rendered: ${rawData.length} rows`);
         }
 
         // ============================================================
@@ -558,15 +484,11 @@
             const key = `${row}-${col}`;
             const newValue = parseNumber(input.value);
             
+            // Find original value
             const rowIndex = parseInt(row) - 2;
-            const colIndex = parseInt(col) - 2;
+            const colIndex = parseInt(col) - 1; // 0-indexed
             
-            let originalValue;
-            if (colIndex === 0) {
-                originalValue = rawData[rowIndex].target;
-            } else {
-                originalValue = rawData[rowIndex].bulan[colIndex - 1];
-            }
+            const originalValue = rawData[rowIndex] ? (parseFloat(rawData[rowIndex][colIndex]) || 0) : 0;
             
             if (newValue !== originalValue) {
                 changes[key] = newValue;
@@ -587,7 +509,7 @@
             // Collect changes
             const rowChanges = {};
             
-            for (let col = 2; col <= 14; col++) {
+            for (let col = 1; col <= 14; col++) {
                 const key = `${rowNum}-${col}`;
                 if (changes[key] !== undefined) {
                     rowChanges[col] = changes[key];
@@ -600,13 +522,12 @@
             }
             
             // Find and disable button
-            const btn = document.querySelector(`tr[data-row="${rowNum}"] .btn-save`);
+            const btn = event.target;
             btn.disabled = true;
             btn.classList.add('saving');
-            btn.textContent = '⏳ Menyimpan...';
+            btn.textContent = '⏳...';
             
             showLoading(true, `Menyimpan ${Object.keys(rowChanges).length} data...`);
-            debug(`💾 Saving row ${rowIndex} (row ${rowNum})`);
             
             let successCount = 0;
             
@@ -614,8 +535,6 @@
                 // Save each cell
                 for (const [colStr, value] of Object.entries(rowChanges)) {
                     const col = parseInt(colStr);
-                    
-                    debug(`📤 POST: sheetIndex=${currentSheetIndex}, row=${rowNum}, col=${col}, value=${value}`);
                     
                     const response = await fetch(WEB_APP_URL, {
                         method: 'POST',
@@ -630,7 +549,7 @@
                     });
                     
                     successCount++;
-                    debug(`✅ Saved: Col ${col} = ${value}`);
+                    console.log(`Saved: Row ${rowNum}, Col ${col} = ${value}`);
                     
                     // Small delay
                     await new Promise(r => setTimeout(r, 100));
@@ -639,11 +558,10 @@
                 // Update local data
                 for (const [colStr, value] of Object.entries(rowChanges)) {
                     const col = parseInt(colStr);
+                    const colIndex = col - 1;
                     
-                    if (col === 2) {
-                        rawData[rowIndex].target = value;
-                    } else {
-                        rawData[rowIndex].bulan[col - 3] = value;
+                    if (rawData[rowIndex]) {
+                        rawData[rowIndex][colIndex] = value;
                     }
                 }
                 
@@ -655,11 +573,9 @@
                 renderTable();
                 
                 showToast(`✅ ${successCount} data berhasil disimpan!`, 'success');
-                debug(`✅ Save complete: ${successCount} cells`);
                 
             } catch (error) {
                 console.error('Error:', error);
-                debug(`❌ Error: ${error.message}`);
                 showToast('Gagal menyimpan: ' + error.message, 'error');
             }
             
@@ -678,8 +594,6 @@
                 tab.classList.remove('active');
             });
             event.target.classList.add('active');
-            
-            document.getElementById('currentSheetName').textContent = name;
             
             loadData();
         }
@@ -716,11 +630,10 @@
         // ============================================================
         
         document.getElementById('statusAlert').className = 'alert alert-success';
-        document.getElementById('statusAlert').innerHTML = '✅ <strong>API Ready!</strong> Web App URL sudah dikonfigurasi.';
+        document.getElementById('statusAlert').innerHTML = '✅ <strong>API Ready!</strong> Koneksi ke server aktif.';
         
         // Auto load on page ready
         document.addEventListener('DOMContentLoaded', () => {
-            debug('🚀 Page loaded, auto loading data...');
             loadData();
         });
     </script>
