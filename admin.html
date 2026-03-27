@@ -2,1327 +2,679 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin KAS - Kelola Data</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Edit Data Pajak BAPENDA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     
     <style>
-        :root {
-            --primary: #4361ee;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --info: #06b6d4;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --sidebar-width: 260px;
-        }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--light);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
         }
 
-        /* ========== SIDEBAR ========== */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--sidebar-width);
-            height: 100vh;
-            background: linear-gradient(180deg, var(--dark) 0%, #0f172a 100%);
-            color: white;
-            z-index: 1000;
-            transition: transform 0.3s ease;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .sidebar-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .sidebar-logo i { font-size: 1.75rem; color: var(--info); }
-
-        .sidebar-logo h1 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .sidebar-logo span {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.6);
-        }
-
-        .sidebar-nav { padding: 1rem 0; flex: 1; }
-
-        .nav-item {
-            padding: 0.75rem 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            transition: all 0.2s;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-        .nav-item.active {
-            border-left: 3px solid var(--info);
-            background: rgba(6, 182, 212, 0.15);
-        }
-
-        .nav-item i { font-size: 1.1rem; width: 24px; text-align: center; }
-
-        /* ========== MAIN CONTENT ========== */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            min-height: 100vh;
-            transition: margin-left 0.3s ease;
-        }
-
-        /* ========== HEADER ========== */
         .header {
-            background: white;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e2e8f0;
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+            padding: 15px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 0.75rem;
         }
 
-        .header-left { display: flex; align-items: center; gap: 1rem; }
-
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--dark);
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        .header-title h2 {
+        .header h1 {
             font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin: 0;
-        }
-
-        .header-title p { font-size: 0.75rem; color: #64748b; margin: 0; }
-
-        .header-right { display: flex; align-items: center; gap: 0.75rem; }
-
-        .btn-action {
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
+            gap: 10px;
         }
 
-        .btn-primary-custom {
-            background: var(--primary);
+        .btn-back {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .btn-back:hover { background: rgba(255,255,255,0.3); color: white; }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Alert */
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover { background: #2c5282; }
+
+        /* Sheet Tabs */
+        .sheet-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sheet-tab {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .sheet-tab.active {
+            background: #3182ce;
             color: white;
         }
 
-        .btn-primary-custom:hover { background: #3651d4; }
-
-        .btn-refresh { background: #f1f5f9; color: var(--dark); }
-        .btn-refresh:hover { background: #e2e8f0; }
-
-        /* ========== CONTENT ========== */
-        .content { padding: 1.25rem 1.5rem; }
-
-        /* ========== AUTH SECTION ========== */
-        .auth-section {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            max-width: 500px;
-            margin: 2rem auto;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .sheet-tab:not(.active) {
+            background: #e2e8f0;
+            color: #4a5568;
         }
 
-        .auth-section i { font-size: 3rem; color: var(--primary); margin-bottom: 1rem; }
-        .auth-section h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
-        .auth-section p { color: #64748b; margin-bottom: 1.5rem; font-size: 0.9rem; }
-
-        .btn-google {
-            background: white;
-            border: 2px solid #e2e8f0;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-google:hover { border-color: var(--primary); background: #f8faff; }
-        .btn-google img { width: 20px; height: 20px; }
-
-        /* ========== DATA TABLE ========== */
-        .data-section { display: none; }
-
-        .table-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .table-header {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-        }
-
-        .table-header h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .search-box {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 0.5rem 0.75rem;
-        }
-
-        .search-box input {
-            border: none;
-            background: transparent;
-            outline: none;
-            font-size: 0.85rem;
-            width: 200px;
-        }
-
-        .search-box i { color: #94a3b8; }
-
+        /* Table */
         .table-responsive { overflow-x: auto; }
 
-        .data-table {
+        table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.85rem;
         }
 
-        .data-table thead { background: #f8fafc; }
-
-        .data-table th {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: #475569;
+        th {
+            background: #1a202c;
+            color: white;
+            padding: 12px 10px;
+            text-align: center;
             white-space: nowrap;
-            border-bottom: 2px solid #e2e8f0;
         }
 
-        .data-table td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #f1f5f9;
-            vertical-align: middle;
+        th:first-child, td:first-child { text-align: center; width: 40px; }
+        th:nth-child(2), td:nth-child(2) { text-align: left; min-width: 200px; }
+
+        td {
+            padding: 8px 5px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
         }
 
-        .data-table tbody tr:hover { background: #f8fafc; }
+        tr:hover { background: #f7fafc; }
 
-        .badge {
-            padding: 0.35rem 0.65rem;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .badge-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-
-        .action-btn {
-            padding: 0.4rem 0.6rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
+        /* Editable Input */
+        .edit-input {
+            width: 100%;
+            max-width: 100px;
+            padding: 5px 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
             font-size: 0.8rem;
-            transition: all 0.2s;
         }
 
-        .btn-edit {
-            background: rgba(99, 102, 241, 0.1);
-            color: var(--primary);
+        .edit-input:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 2px rgba(49,130,206,0.2);
         }
 
-        .btn-edit:hover { background: rgba(99, 102, 241, 0.2); }
-
-        .btn-delete {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
+        .edit-input.changed {
+            background: #fef3c7;
+            border-color: #f59e0b;
         }
 
-        .btn-delete:hover { background: rgba(239, 68, 68, 0.2); }
+        /* Button */
+        .btn-save {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
 
-        /* ========== MODAL ========== */
-        .modal-overlay {
+        .btn-save:hover { background: #38a169; }
+
+        .btn-save:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
             display: none;
+        }
+
+        .toast.show { display: flex; align-items: center; gap: 10px; }
+        .toast.success { background: #48bb78; }
+        .toast.error { background: #e53e3e; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Loading */
+        .loading {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-        }
-
-        .modal-overlay.show { display: flex; }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalIn 0.3s ease;
-        }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .modal-header {
-            padding: 1.25rem;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: #64748b;
-            padding: 0.25rem;
-        }
-
-        .modal-body { padding: 1.25rem; }
-
-        .form-group { margin-bottom: 1rem; }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 0.4rem;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 0.65rem 0.85rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: border-color 0.2s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-        }
-
-        .modal-footer {
-            padding: 1rem 1.25rem;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-        }
-
-        .btn-modal {
-            padding: 0.6rem 1.25rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-cancel { background: #f1f5f9; color: #475569; }
-        .btn-cancel:hover { background: #e2e8f0; }
-
-        .btn-save { background: var(--primary); color: white; }
-        .btn-save:hover { background: #3651d4; }
-
-        /* ========== TOAST ========== */
-        .toast-container {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            z-index: 3000;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .toast {
-            background: white;
-            padding: 1rem 1.25rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            animation: toastIn 0.3s ease;
-            min-width: 280px;
-        }
-
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateX(100%); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .toast.success .toast-icon { color: var(--success); }
-        .toast.error .toast-icon { color: var(--danger); }
-        .toast.warning .toast-icon { color: var(--warning); }
-
-        .toast-icon { font-size: 1.25rem; }
-        .toast-message { flex: 1; font-size: 0.9rem; }
-
-        /* ========== LOADING ========== */
-        .loading-overlay {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.9);
-            z-index: 2500;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
-            gap: 1rem;
+            z-index: 999;
         }
 
-        .loading-overlay.show { display: flex; }
+        .loading.show { display: flex; }
+
+        .loading-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
 
         .spinner {
             width: 40px;
             height: 40px;
             border: 4px solid #e2e8f0;
-            border-top-color: var(--primary);
+            border-top: 4px solid #3182ce;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ========== MOBILE ========== */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .menu-toggle {
-                display: block;
-            }
-
-            .header-title h2 { font-size: 1rem; }
-
-            .stats-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .data-table { font-size: 0.8rem; }
-
-            .search-box input { width: 150px; }
-
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.5);
-                z-index: 999;
-            }
-
-            .sidebar-overlay.show { display: block; }
+            .header-content { flex-direction: column; gap: 10px; }
+            .edit-input { width: 70px; font-size: 0.7rem; }
         }
-
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
-            .table-header { flex-direction: column; align-items: stretch; }
-            .search-box { width: 100%; }
-            .search-box input { width: 100%; }
-        }
-
-        /* ========== CONFIG SECTION ========== */
-        .config-section {
-            display: none;
-        }
-
-        .config-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .config-card h4 {
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .config-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem;
-            background: #f8fafc;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-        }
-
-        .config-item i { color: var(--primary); }
-        .config-item .info { flex: 1; }
-        .config-item .info strong { display: block; font-size: 0.9rem; }
-        .config-item .info small { color: #64748b; font-size: 0.8rem; }
     </style>
 </head>
 <body>
-    <!-- Sidebar Overlay for Mobile -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <!-- Sidebar -->
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <i class="bi bi-wallet2"></i>
-                <div>
-                    <h1>Dashboard KAS</h1>
-                    <span>Admin Panel</span>
-                </div>
-            </div>
+    <header class="header">
+        <div class="header-content">
+            <h1>⚙️ Admin Panel - Edit Data Pajak BAPENDA</h1>
+            <a href="dashboard.html" class="btn-back">← Dashboard</a>
         </div>
-        <div class="sidebar-nav">
-            <a class="nav-item" href="dashboard.html">
-                <i class="bi bi-grid-1x2"></i>
-                <span>Dashboard</span>
-            </a>
-            <a class="nav-item active" href="#" onclick="showSection('data')">
-                <i class="bi bi-table"></i>
-                <span>Kelola Data</span>
-            </a>
-            <a class="nav-item" href="#" onclick="showSection('config')">
-                <i class="bi bi-gear"></i>
-                <span>Konfigurasi</span>
-            </a>
-            <a class="nav-item" href="#" onclick="logout()">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Logout</span>
-            </a>
+    </header>
+
+    <div class="container">
+        <!-- Warning -->
+        <div class="alert-warning" id="apiAlert">
+            ⚠️ <strong>URL API belum diset!</strong><br>
+            <small>Buka source code, cari <code>WEB_APP_URL</code> dan ganti dengan URL Google Apps Script Anda.</small>
         </div>
-    </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-left">
-                <button class="menu-toggle" onclick="toggleSidebar()">
-                    <i class="bi bi-list"></i>
-                </button>
-                <div class="header-title">
-                    <h2>Panel Administrator</h2>
-                    <p>Kelola data keuangan kas Anda</p>
-                </div>
-            </div>
-            <div class="header-right">
-                <button class="btn-action btn-refresh" onclick="loadData()">
-                    <i class="bi bi-arrow-clockwise"></i>
-                    Refresh
-                </button>
-            </div>
-        </header>
-
-        <!-- Content -->
-        <div class="content">
-            <!-- Auth Section -->
-            <div class="auth-section" id="authSection">
-                <i class="bi bi-shield-lock"></i>
-                <h2>Autentikasi Diperlukan</h2>
-                <p>Anda perlu login dengan Google untuk mengakses dan mengelola data.</p>
-                <button class="btn-google" onclick="handleAuthClick()">
-                    <svg width="20" height="20" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    Masuk dengan Google
-                </button>
-                <p style="margin-top: 1rem; font-size: 0.8rem; color: #94a3b8;">
-                    Atau gunakan API Key untuk akses langsung
-                </p>
-                <button class="btn-google" onclick="showConfig()" style="border-color: var(--primary);">
-                    <i class="bi bi-key" style="color: var(--primary);"></i>
-                    Gunakan API Key
+        <!-- Main Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📝 Edit Data Pajak</h2>
+                <button class="btn-primary" onclick="loadData()">
+                    🔄 Load Data
                 </button>
             </div>
 
-            <!-- Data Section -->
-            <div class="data-section" id="dataSection">
-                <div class="table-card">
-                    <div class="table-header">
-                        <h3>
-                            <i class="bi bi-list-ul"></i>
-                            Data Transaksi
-                        </h3>
-                        <div style="display: flex; gap: 0.5rem; align-items: center;">
-                            <div class="search-box">
-                                <i class="bi bi-search"></i>
-                                <input type="text" id="searchInput" placeholder="Cari transaksi..." oninput="filterData()">
-                            </div>
-                            <select id="filterType" onchange="filterData()" style="padding: 0.5rem; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.85rem;">
-                                <option value="">Semua</option>
-                                <option value="Pemasukan">Pemasukan</option>
-                                <option value="Pengeluaran">Pengeluaran</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Tanggal</th>
-                                    <th>Keterangan</th>
-                                    <th>Kategori</th>
-                                    <th>Jenis</th>
-                                    <th>Jumlah</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dataTableBody">
-                                <!-- Data akan dimuat di sini -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <!-- Sheet Tabs -->
+            <div class="sheet-tabs">
+                <button class="sheet-tab active" onclick="switchSheet('2026')">📅 2026</button>
+                <button class="sheet-tab" onclick="switchSheet('2025')">📅 2025</button>
             </div>
 
-            <!-- Config Section -->
-            <div class="config-section" id="configSection">
-                <div class="config-card">
-                    <h4><i class="bi bi-key"></i> Konfigurasi API</h4>
-                    <div class="form-group">
-                        <label>Spreadsheet ID</label>
-                        <input type="text" id="spreadsheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms">
-                    </div>
-                    <div class="form-group">
-                        <label>Sheet Name</label>
-                        <input type="text" id="sheetName" placeholder="Sheet1">
-                    </div>
-                    <div class="form-group">
-                        <label>API Key (Opsional - untuk akses langsung)</label>
-                        <input type="text" id="apiKey" placeholder="Masukkan API Key Google">
-                    </div>
-                    <button class="btn-action btn-primary-custom" onclick="saveConfig()">
-                        <i class="bi bi-check-lg"></i> Simpan Konfigurasi
-                    </button>
-                </div>
-
-                <div class="config-card">
-                    <h4><i class="bi bi-info-circle"></i> Petunjuk Setup</h4>
-                    <div style="font-size: 0.85rem; color: #64748b; line-height: 1.6;">
-                        <p><strong>Metode 1 - OAuth2 (Recommended):</strong></p>
-                        <ol style="margin-left: 1.25rem; margin-bottom: 1rem;">
-                            <li>Buka Google Cloud Console</li>
-                            <li>Aktifkan Google Sheets API</li>
-                            <li>Buat OAuth 2.0 Client ID</li>
-                            <li>Download JSON credentials</li>
-                            <li>Gunakan tombol "Masuk dengan Google"</li>
-                        </ol>
-                        
-                        <p><strong>Metode 2 - API Key:</strong></p>
-                        <ol style="margin-left: 1.25rem;">
-                            <li>Buka Google Cloud Console</li>
-                            <li>Aktifkan Google Sheets API</li>
-                            <li>Buat API Key (dengan batasan aplikasi)</li>
-                            <li>Bagikan spreadsheet dengan "Anyone with link"</li>
-                            <li>Masukkan API Key di field di atas</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Edit Modal -->
-    <div class="modal-overlay" id="editModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="bi bi-pencil-square"></i> Edit Transaksi</h3>
-                <button class="modal-close" onclick="closeEditModal()">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="editForm">
-                    <input type="hidden" id="editRowIndex">
-                    <div class="form-group">
-                        <label>Tanggal</label>
-                        <input type="date" id="editDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Keterangan</label>
-                        <input type="text" id="editDescription" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Kategori</label>
-                        <select id="editCategory" required>
-                            <option value="">Pilih Kategori</option>
-                            <option value="Kasbon">Kasbon</option>
-                            <option value="Makan">Makan</option>
-                            <option value="Transport">Transport</option>
-                            <option value="ATK">ATK</option>
-                            <option value="Internet">Internet</option>
-                            <option value="Listrik">Listrik</option>
-                            <option value="Air">Air</option>
-                            <option value="Lainnya">Lainnya</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Jenis</label>
-                        <select id="editType" required>
-                            <option value="Pemasukan">Pemasukan</option>
-                            <option value="Pengeluaran">Pengeluaran</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Jumlah (Rp)</label>
-                        <input type="number" id="editAmount" min="0" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-modal btn-cancel" onclick="closeEditModal()">Batal</button>
-                <button class="btn-modal btn-save" onclick="saveEdit()">
-                    <i class="bi bi-check-lg"></i> Simpan Perubahan
-                </button>
+            <!-- Table -->
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Jenis Pajak</th>
+                            <th>Target</th>
+                            <th>Jan</th>
+                            <th>Feb</th>
+                            <th>Mar</th>
+                            <th>Apr</th>
+                            <th>Mei</th>
+                            <th>Jun</th>
+                            <th>Jul</th>
+                            <th>Agu</th>
+                            <th>Sep</th>
+                            <th>Okt</th>
+                            <th>Nov</th>
+                            <th>Des</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="16" style="text-align: center; padding: 30px; color: #999;">
+                                Klik "Load Data" untuk memuat data
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <p style="color: #64748b;">Memproses data...</p>
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span id="toastIcon">✅</span>
+        <span id="toastMessage">Berhasil!</span>
     </div>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="loading-box">
+            <div class="spinner"></div>
+            <p>Memproses...</p>
+        </div>
+    </div>
 
-    <!-- Google API -->
-    <script src="https://apis.google.com/js/api.js"></script>
     <script>
-        // ========== CONFIGURATION ==========
-        const CONFIG_KEY = 'kas_admin_config';
-        const TOKEN_KEY = 'kas_google_token';
+        // ============================================================
+        // KONFIGURASI - GANTI INI!
+        // ============================================================
+        
+        // ⬇️ PASTE URL WEB APP ANDA DI SINI! ⬇️
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbypCmYxuHeQmY1UlChLyD4o2duS9hUC3t3zH4A3ZVY/dev';
+        
+        const SHEET_ID = '1BE7gPYSSlCnaIZ4Q7RvGx_L_2v46fQjkEnK3EC3VQz4';
 
-        let allData = [];
-        let currentEditRow = null;
-        let gapiInited = false;
-        let tokenClient = null;
+        // ============================================================
+        // STATUS
+        // ============================================================
+        
+        let currentSheet = '2026';
+        let rawData = [];        // Data dari CSV
+        let changes = {};        // Perubahan yang belum disimpan
 
-        // ========== INITIALIZATION ==========
-        function init() {
-            loadConfig();
-            
-            // Check if already authenticated
-            const token = localStorage.getItem(TOKEN_KEY);
-            if (token) {
-                showDataSection();
-            }
+        // Cek API URL
+        if (WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbypCmYxuHeQmY1UlChLyD4o2duS9hUC3t3zH4A3ZVY/dev' || !WEB_APP_URL) {
+            document.getElementById('apiAlert').style.display = 'block';
+        } else {
+            document.getElementById('apiAlert').style.display = 'none';
         }
 
-        // ========== CONFIG MANAGEMENT ==========
-        function loadConfig() {
-            const config = localStorage.getItem(CONFIG_KEY);
-            if (config) {
-                const parsed = JSON.parse(config);
-                document.getElementById('spreadsheetId').value = parsed.spreadsheetId || '';
-                document.getElementById('sheetName').value = parsed.sheetName || 'Sheet1';
-                document.getElementById('apiKey').value = parsed.apiKey || '';
-            }
+        // ============================================================
+        // FORMAT
+        // ============================================================
+        
+        function formatNumber(num) {
+            if (!num) return '0';
+            return parseFloat(num).toLocaleString('id-ID');
         }
 
-        function saveConfig() {
-            const config = {
-                spreadsheetId: document.getElementById('spreadsheetId').value,
-                sheetName: document.getElementById('sheetName').value || 'Sheet1',
-                apiKey: document.getElementById('apiKey').value
-            };
-            localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
-            showToast('Konfigurasi disimpan!', 'success');
-            
-            // If has API key, try to load data
-            if (config.apiKey || config.spreadsheetId) {
-                loadData();
-            }
+        function parseNumber(str) {
+            if (!str) return 0;
+            const cleaned = str.toString().replace(/[^\d.-]/g, '');
+            return parseFloat(cleaned) || 0;
         }
 
-        function getConfig() {
-            const config = localStorage.getItem(CONFIG_KEY);
-            return config ? JSON.parse(config) : {
-                spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
-                sheetName: 'Sheet1',
-                apiKey: ''
-            };
-        }
-
-        // ========== AUTHENTICATION ==========
-        function handleAuthClick() {
-            const config = getConfig();
-            
-            if (!config.spreadsheetId) {
-                showToast('Masukkan Spreadsheet ID terlebih dahulu!', 'error');
-                showSection('config');
-                return;
-            }
-
-            // Initialize Google API
-            if (!gapiInited) {
-                gapiInited = true;
-                
-                // Use simple OAuth flow
-                initiateOAuth();
-            } else {
-                initiateOAuth();
-            }
-        }
-
-        function initiateOAuth() {
-            const config = getConfig();
-            
-            // For demo purposes, we'll use a simplified approach
-            // In production, you would use proper OAuth2
-            
-            // Create a prompt for user to manually get access token
-            const userToken = prompt(
-                'Untuk autentikasi OAuth2, Anda perlu:\n\n' +
-                '1. Buka Google Cloud Console\n' +
-                '2. Buat OAuth 2.0 Client ID\n' +
-                '3. Gunakan OAuth Playground (https://developers.google.com/oauthplayground)\n' +
-                '4. Authorize Google Sheets API\n' +
-                '5. Salin Access Token di bawah ini:\n\n' +
-                'Atau gunakan metode API Key dengan membagikan spreadsheet Anda.'
-            );
-
-            if (userToken) {
-                localStorage.setItem(TOKEN_KEY, userToken);
-                showDataSection();
-                showToast('Autentikasi berhasil!', 'success');
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem(TOKEN_KEY);
-            showAuthSection();
-            showToast('Anda telah logout', 'warning');
-        }
-
-        // ========== SECTIONS ==========
-        function showSection(section) {
-            document.getElementById('authSection').style.display = 'none';
-            document.getElementById('dataSection').style.display = 'none';
-            document.getElementById('configSection').style.display = 'none';
-
-            if (section === 'data') {
-                document.getElementById('dataSection').style.display = 'block';
-            } else if (section === 'config') {
-                document.getElementById('configSection').style.display = 'block';
-            }
-
-            // Update nav active state
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.target.closest('.nav-item')?.classList.add('active');
-        }
-
-        function showAuthSection() {
-            document.getElementById('authSection').style.display = 'block';
-            document.getElementById('dataSection').style.display = 'none';
-        }
-
-        function showDataSection() {
-            document.getElementById('authSection').style.display = 'none';
-            document.getElementById('dataSection').style.display = 'block';
-            loadData();
-        }
-
-        function showConfig() {
-            document.getElementById('authSection').style.display = 'none';
-            document.getElementById('configSection').style.display = 'block';
-        }
-
-        // ========== DATA LOADING ==========
+        // ============================================================
+        // LOAD DATA
+        // ============================================================
+        
         async function loadData() {
             showLoading(true);
             
             try {
-                const config = getConfig();
+                // Tentukan GID berdasarkan sheet
+                const gid = currentSheet === '2026' ? '0' : '757965445';
                 
-                if (!config.spreadsheetId) {
-                    showToast('Spreadsheet ID belum dikonfigurasi!', 'error');
-                    showSection('config');
-                    showLoading(false);
-                    return;
-                }
-
-                // Try to fetch data from Google Sheets
-                const token = localStorage.getItem(TOKEN_KEY);
+                // Fetch CSV dari Google Sheets
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+                const response = await fetch(url);
                 
-                if (token && token.length > 50) {
-                    // Has valid token
-                    await fetchWithOAuth(token, config);
-                } else {
-                    // Try with public access (if spreadsheet is shared)
-                    await fetchPublicData(config);
-                }
+                if (!response.ok) throw new Error('Gagal mengambil data');
+                
+                const csv = await response.text();
+                rawData = parseCSV(csv);
+                
+                renderTable();
+                showToast('Data berhasil dimuat!', 'success');
+                
             } catch (error) {
-                console.error('Error loading data:', error);
-                
-                // Use demo data if API fails
-                loadDemoData();
-                showToast('Menggunakan data contoh. Update data tidak tersedia.', 'warning');
+                console.error('Error:', error);
+                showToast('Error: ' + error.message, 'error');
             }
             
             showLoading(false);
         }
 
-        async function fetchWithOAuth(token, config) {
-            const range = `${config.sheetName}!A:F`;
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${config.spreadsheetId}/values/${range}?access_token=${token}`;
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const result = [];
             
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                throw new Error('OAuth request failed');
-            }
-            
-            const data = await response.json();
-            processSheetData(data.values);
-        }
-
-        async function fetchPublicData(config) {
-            // For public spreadsheets, use the export URL
-            const exportUrl = `https://docs.google.com/spreadsheets/d/${config.spreadsheetId}/export?format=csv&gid=0`;
-            
-            try {
-                const response = await fetch(exportUrl);
-                const csvText = await response.text();
-                const rows = csvText.split('\n').map(row => row.split(','));
-                processSheetData(rows);
-            } catch (error) {
-                throw new Error('Cannot fetch public data');
-            }
-        }
-
-        function processSheetData(rows) {
-            if (!rows || rows.length < 2) {
-                showToast('Tidak ada data ditemukan', 'warning');
-                return;
-            }
-
-            // Skip header row, process data rows
-            allData = [];
-            
-            for (let i = 1; i < rows.length; i++) {
-                const row = rows[i];
-                if (row && row.length >= 5 && row[0]) {
-                    allData.push({
-                        rowIndex: i + 1,
-                        date: row[0] || '',
-                        description: row[1] || '',
-                        category: row[2] || '',
-                        type: row[3] || '',
-                        amount: row[4] || '0'
-                    });
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                // Parse CSV dengan handle quotes
+                const values = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let char of lines[i]) {
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
                 }
+                values.push(current.trim());
+                
+                // Skip if first column empty
+                if (!values[0] || values[0].trim() === '') continue;
+                
+                // Parse row data
+                const row = {
+                    name: values[0].trim(),
+                    target: parseFloat(values[1]) || 0,
+                    bulan: []
+                };
+                
+                for (let j = 2; j <= 13; j++) {
+                    row.bulan.push(parseFloat(values[j]) || 0);
+                }
+                
+                result.push(row);
             }
-
-            renderTable(allData);
-            showToast(`Data berhasil dimuat: ${allData.length} transaksi`, 'success');
+            
+            return result;
         }
 
-        function loadDemoData() {
-            // Demo data for testing
-            const today = new Date();
-            const formatDate = (d) => d.toISOString().split('T')[0];
+        // ============================================================
+        // RENDER TABLE
+        // ============================================================
+        
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
             
-            allData = [
-                { rowIndex: 2, date: formatDate(today), description: 'Iuran Bulanan', category: 'Kasbon', type: 'Pemasukan', amount: '50000' },
-                { rowIndex: 3, date: formatDate(new Date(today - 86400000)), description: 'Makan Siang', category: 'Makan', type: 'Pengeluaran', amount: '15000' },
-                { rowIndex: 4, date: formatDate(new Date(today - 86400000 * 2)), description: 'Bensin Motor', category: 'Transport', type: 'Pengeluaran', amount: '25000' },
-                { rowIndex: 5, date: formatDate(new Date(today - 86400000 * 3)), description: 'ATK Kantor', category: 'ATK', type: 'Pengeluaran', amount: '35000' },
-                { rowIndex: 6, date: formatDate(new Date(today - 86400000 * 4)), description: 'Bayar WiFi', category: 'Internet', type: 'Pengeluaran', amount: '100000' },
-            ];
-            
-            renderTable(allData);
-        }
-
-        // ========== TABLE RENDERING ==========
-        function renderTable(data) {
-            const tbody = document.getElementById('dataTableBody');
-            
-            if (data.length === 0) {
+            if (rawData.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 2rem; color: #94a3b8;">
-                            <i class="bi bi-inbox" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
-                            Tidak ada data ditemukan
+                        <td colspan="16" style="text-align: center; padding: 30px; color: #999;">
+                            Tidak ada data
                         </td>
                     </tr>
                 `;
                 return;
             }
-
-            tbody.innerHTML = data.map((item, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${formatDate(item.date)}</td>
-                    <td>${escapeHtml(item.description)}</td>
-                    <td>${escapeHtml(item.category)}</td>
-                    <td>
-                        <span class="badge ${item.type === 'Pemasukan' ? 'badge-success' : 'badge-danger'}">
-                            ${item.type}
-                        </span>
-                    </td>
-                    <td>Rp ${formatNumber(item.amount)}</td>
-                    <td>
-                        <button class="action-btn btn-edit" onclick="editData(${index})">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="action-btn btn-delete" onclick="deleteData(${index})">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // ========== FILTER ==========
-        function filterData() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const typeFilter = document.getElementById('filterType').value;
             
-            const filtered = allData.filter(item => {
-                const matchSearch = 
-                    item.description.toLowerCase().includes(searchTerm) ||
-                    item.category.toLowerCase().includes(searchTerm) ||
-                    item.date.includes(searchTerm);
+            let html = '';
+            
+            rawData.forEach((item, index) => {
+                const rowNum = index + 2; // Row 1 = header
                 
-                const matchType = !typeFilter || item.type === typeFilter;
+                html += `<tr data-row="${rowNum}">`;
+                html += `<td>${index + 1}</td>`;
+                html += `<td style="text-align: left; font-weight: 500;">${item.name}</td>`;
                 
-                return matchSearch && matchType;
+                // Target (Kolom B = column 2)
+                html += `<td>
+                    <input type="text" 
+                           class="edit-input" 
+                           data-row="${rowNum}" 
+                           data-col="2" 
+                           value="${formatNumber(item.target)}"
+                           onchange="onInputChange(this)">
+                </td>`;
+                
+                // Bulan (Kolom C-N = column 3-14)
+                for (let i = 0; i < 12; i++) {
+                    const colNum = i + 3;
+                    html += `<td>
+                        <input type="text" 
+                               class="edit-input" 
+                               data-row="${rowNum}" 
+                               data-col="${colNum}" 
+                               value="${formatNumber(item.bulan[i])}"
+                               onchange="onInputChange(this)">
+                    </td>`;
+                }
+                
+                // Action
+                html += `<td>
+                    <button class="btn-save" onclick="saveRow(${index})">
+                        💾 Save
+                    </button>
+                </td>`;
+                
+                html += `</tr>`;
             });
             
-            renderTable(filtered);
+            tbody.innerHTML = html;
+            changes = {}; // Reset changes
         }
 
-        // ========== EDIT FUNCTIONS ==========
-        function editData(index) {
-            const item = allData[index];
-            currentEditRow = index;
+        // ============================================================
+        // INPUT CHANGE
+        // ============================================================
+        
+        function onInputChange(input) {
+            const row = input.dataset.row;
+            const col = input.dataset.col;
+            const key = `${row}-${col}`;
+            const newValue = parseNumber(input.value);
             
-            document.getElementById('editRowIndex').value = item.rowIndex;
-            document.getElementById('editDate').value = item.date;
-            document.getElementById('editDescription').value = item.description;
-            document.getElementById('editCategory').value = item.category;
-            document.getElementById('editType').value = item.type;
-            document.getElementById('editAmount').value = item.amount;
+            // Get original value
+            const rowIndex = parseInt(row) - 2;
+            const colIndex = parseInt(col) - 2;
             
-            document.getElementById('editModal').classList.add('show');
+            let originalValue;
+            if (colIndex === 0) {
+                originalValue = rawData[rowIndex].target;
+            } else {
+                originalValue = rawData[rowIndex].bulan[colIndex - 1];
+            }
+            
+            // Check if changed
+            if (newValue !== originalValue) {
+                changes[key] = newValue;
+                input.classList.add('changed');
+            } else {
+                delete changes[key];
+                input.classList.remove('changed');
+            }
         }
 
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('show');
-            currentEditRow = null;
-        }
-
-        async function saveEdit() {
-            if (currentEditRow === null) return;
+        // ============================================================
+        // SAVE ROW
+        // ============================================================
+        
+        async function saveRow(rowIndex) {
+            if (WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbypCmYxuHeQmY1UlChLyD4o2duS9hUC3t3zH4A3ZVY/dev' || !WEB_APP_URL) {
+                showToast('Masukkan URL API terlebih dahulu!', 'error');
+                return;
+            }
+            
+            const rowNum = rowIndex + 2;
+            const item = rawData[rowIndex];
+            
+            // Collect all changes for this row
+            const rowChanges = {};
+            
+            for (let col = 2; col <= 14; col++) {
+                const key = `${rowNum}-${col}`;
+                if (changes[key] !== undefined) {
+                    rowChanges[col] = changes[key];
+                }
+            }
+            
+            if (Object.keys(rowChanges).length === 0) {
+                showToast('Tidak ada perubahan untuk disimpan', 'error');
+                return;
+            }
             
             showLoading(true);
             
-            const updatedData = {
-                date: document.getElementById('editDate').value,
-                description: document.getElementById('editDescription').value,
-                category: document.getElementById('editCategory').value,
-                type: document.getElementById('editType').value,
-                amount: document.getElementById('editAmount').value,
-                rowIndex: parseInt(document.getElementById('editRowIndex').value)
-            };
+            let successCount = 0;
+            let errorCount = 0;
             
             try {
-                const config = getConfig();
-                const token = localStorage.getItem(TOKEN_KEY);
-                
-                if (token && token.length > 50) {
-                    // Update via OAuth
-                    await updateViaOAuth(token, config, updatedData);
-                } else {
-                    // Update locally (demo mode)
-                    updateLocally(updatedData);
+                // Update each changed cell
+                for (const [colStr, value] of Object.entries(rowChanges)) {
+                    const col = parseInt(colStr);
+                    
+                    const response = await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sheetName: currentSheet,
+                            row: rowNum,
+                            column: col,
+                            value: value
+                        })
+                    });
+                    
+                    successCount++;
                 }
                 
-                closeEditModal();
-                showToast('Data berhasil diperbarui!', 'success');
+                // Update local data
+                for (const [colStr, value] of Object.entries(rowChanges)) {
+                    const col = parseInt(colStr);
+                    
+                    if (col === 2) {
+                        rawData[rowIndex].target = value;
+                    } else {
+                        rawData[rowIndex].bulan[col - 3] = value;
+                    }
+                }
                 
-                // Refresh data
-                await loadData();
+                // Clear changes for this row
+                for (const colStr of Object.keys(rowChanges)) {
+                    delete changes[`${rowNum}-${colStr}`];
+                }
+                
+                // Re-render to show updated values
+                renderTable();
+                
+                showToast(`✅ ${successCount} data berhasil disimpan!`, 'success');
+                
             } catch (error) {
-                console.error('Error saving edit:', error);
-                showToast('Gagal menyimpan perubahan. Update secara lokal.', 'warning');
-                updateLocally(updatedData);
+                console.error('Error:', error);
+                showToast('Gagal menyimpan: ' + error.message, 'error');
             }
             
             showLoading(false);
         }
 
-        async function updateViaOAuth(token, config, data) {
-            const range = `${config.sheetName}!A${data.rowIndex}:F${data.rowIndex}`;
-            const values = [[
-                data.date,
-                data.description,
-                data.category,
-                data.type,
-                data.amount,
-                ''
-            ]];
+        // ============================================================
+        // SWITCH SHEET
+        // ============================================================
+        
+        function switchSheet(sheet) {
+            currentSheet = sheet;
             
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${config.spreadsheetId}/values/${encodeURIComponent(range)}?valueInputOption=RAW&access_token=${token}`;
-            
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ values: values })
-            });
-            
-            if (!response.ok) {
-                throw new Error('Failed to update via OAuth');
-            }
-        }
-
-        function updateLocally(data) {
-            // Update in local array
-            const index = allData.findIndex(item => item.rowIndex === data.rowIndex);
-            if (index !== -1) {
-                allData[index] = {
-                    ...allData[index],
-                    date: data.date,
-                    description: data.description,
-                    category: data.category,
-                    type: data.type,
-                    amount: data.amount
-                };
-            }
-            
-            renderTable(allData);
-        }
-
-        // ========== DELETE FUNCTION ==========
-        async function deleteData(index) {
-            if (!confirm('Yakin ingin menghapus transaksi ini?')) return;
-            
-            showLoading(true);
-            
-            const item = allData[index];
-            
-            try {
-                const config = getConfig();
-                const token = localStorage.getItem(TOKEN_KEY);
-                
-                if (token && token.length > 50) {
-                    // Delete via OAuth - clear the row
-                    await deleteViaOAuth(token, config, item.rowIndex);
-                } else {
-                    // Delete locally
-                    allData.splice(index, 1);
+            // Update tabs
+            document.querySelectorAll('.sheet-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.includes(sheet)) {
+                    tab.classList.add('active');
                 }
-                
-                showToast('Data berhasil dihapus!', 'success');
-                await loadData();
-            } catch (error) {
-                console.error('Error deleting:', error);
-                // Delete locally anyway
-                allData.splice(index, 1);
-                renderTable(allData);
-                showToast('Dihapus dari tampilan lokal', 'warning');
-            }
-            
-            showLoading(false);
-        }
-
-        async function deleteViaOAuth(token, config, rowIndex) {
-            // Clear the row by setting empty values
-            const range = `${config.sheetName}!A${rowIndex}:F${rowIndex}`;
-            const values = [['', '', '', '', '', '']];
-            
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${config.spreadsheetId}/values/${encodeURIComponent(range)}?valueInputOption=RAW&access_token=${token}`;
-            
-            await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ values: values })
             });
+            
+            loadData();
         }
 
-        // ========== UTILITY FUNCTIONS ==========
-        function showLoading(show) {
-            document.getElementById('loadingOverlay').classList.toggle('show', show);
-        }
-
+        // ============================================================
+        // TOAST
+        // ============================================================
+        
         function showToast(message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
             
-            const icons = {
-                success: 'bi-check-circle-fill',
-                error: 'bi-x-circle-fill',
-                warning: 'bi-exclamation-circle-fill'
-            };
-            
-            toast.innerHTML = `
-                <i class="bi ${icons[type]} toast-icon"></i>
-                <span class="toast-message">${message}</span>
-            `;
-            
-            container.appendChild(toast);
+            toastIcon.textContent = type === 'success' ? '✅' : '❌';
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} show`;
             
             setTimeout(() => {
-                toast.remove();
+                toast.classList.remove('show');
             }, 3000);
         }
 
-        function formatDate(dateStr) {
-            if (!dateStr) return '-';
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            });
+        // ============================================================
+        // LOADING
+        // ============================================================
+        
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('show', show);
         }
-
-        function formatNumber(num) {
-            if (!num) return '0';
-            return parseInt(num).toLocaleString('id-ID');
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('sidebarOverlay').classList.toggle('show');
-        }
-
-        // Close sidebar on overlay click
-        document.getElementById('sidebarOverlay')?.addEventListener('click', toggleSidebar);
-
-        // Close modal on escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeEditModal();
-            }
-        });
-
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
