@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard PAD - BAPENDA Lombok Tengah 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-home {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .btn-home:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-refresh {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-refresh:hover {
+            background: #45a049;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .summary-card .value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+        
+        .summary-card.target .value {
+            color: #2196F3;
+        }
+        
+        .summary-card.realization .value {
+            color: #4CAF50;
+        }
+        
+        .summary-card.percentage .value {
+            color: #FF9800;
+        }
+        
+        .summary-card.comparison .value {
+            color: #9C27B0;
+        }
+        
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-container h3 {
+            margin-bottom: 20px;
+            color: #1a1a2e;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        
+        .table-container h3 {
+            margin-bottom: 20px;
+            color: #1a1a2e;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #f8f9fa;
+            color: #666;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        td {
+            font-size: 0.9rem;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .percentage-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .percentage-high {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .percentage-medium {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        .percentage-low {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1a1a2e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 1024px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <span style="font-size: 2rem;">🏛️</span>
+            <div>
+                <h1>Dashboard PAD Lombok Tengah</h1>
+                <div class="status">
+                    <span class="status-dot"></span>
+                    <span id="lastUpdate">Memuat data...</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-refresh" onclick="loadData()">🔄 Refresh</button>
+            <a href="index.html" class="btn btn-home">🏠 Home</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Memuat data dari Google Sheets...</p>
+        </div>
+        
+        <div id="error" class="error-message" style="display: none;">
+            ⚠️ Gagal memuat data. Pastikan Google Sheets sudah dipublish!
+        </div>
+        
+        <div id="content" style="display: none;">
+            <div class="summary-cards">
+                <div class="summary-card target">
+                    <h3>💰 Target PAD 2026</h3>
+                    <div class="value" id="totalTarget">-</div>
+                </div>
+                <div class="summary-card realization">
+                    <h3>📈 Realisasi S/D Bulan Ini</h3>
+                    <div class="value" id="totalRealization">-</div>
+                </div>
+                <div class="summary-card percentage">
+                    <h3>📊 Persentase Capaian</h3>
+                    <div class="value" id="totalPercentage">-</div>
+                </div>
+                <div class="summary-card comparison">
+                    <h3>📉 Dibanding 2025</h3>
+                    <div class="value" id="comparison">-</div>
+                </div>
+            </div>
+            
+            <div class="charts-row">
+                <div class="chart-container">
+                    <h3>📊 Perbandingan Target vs Realisasi per Jenis Pajak</h3>
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>🥧 Proporsi Realisasi per Pajak</h3>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <h3>📋 Detail Realisasi PAD per Jenis Pajak (S/D Febuari 2026)</h3>
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Jenis Pajak</th>
+                            <th>Target</th>
+                            <th>S/D Bulan Lalu</th>
+                            <th>Bulan Ini</th>
+                            <th>S/D Bulan Ini</th>
+                            <th>% Capaian</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Configuration
+        const SHEET_ID = '1BE7gPYSSlCnaIZ4Q7RvGx_L_2v46fQjkEnK3EC3VQz4';
+        const GID_2026 = '0';
+        const GID_2025 = '757965445';
+        const API_KEY = 'AIzaSyDOeG8VE0A6xV12Sz_8g0Y2mCe7LqN8Y4U'; // Public API key
+        
+        let data2026 = [];
+        let data2025 = [];
+        let comparisonChart = null;
+        let pieChart = null;
+        
+        // Format currency
+        function formatCurrency(num) {
+            if (num >= 1e12) return 'Rp ' + (num / 1e12).toFixed(2) + ' T';
+            if (num >= 1e9) return 'Rp ' + (num / 1e9).toFixed(2) + ' M';
+            if (num >= 1e6) return 'Rp ' + (num / 1e6).toFixed(2) + ' Jt';
+            if (num >= 1e3) return 'Rp ' + (num / 1e3).toFixed(2) + ' Rb';
+            return 'Rp ' + num.toLocaleString('id-ID');
+        }
+        
+        // Format percentage
+        function formatPercentage(num) {
+            return num.toFixed(2) + '%';
+        }
+        
+        // Parse CSV data
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const result = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
+                
+                const values = lines[i].split(',');
+                const row = {
+                    name: values[0] ? values[0].trim() : '',
+                    target: parseFloat(values[1]) || 0,
+                    months: []
+                };
+                
+                // Months are from index 2 to 13 (Jan to Dec)
+                for (let j = 2; j <= 13; j++) {
+                    row.months.push(parseFloat(values[j]) || 0);
+                }
+                
+                // Calculate total
+                row.total = row.months.reduce((a, b) => a + b, 0);
+                
+                // Calculate percentage
+                row.percentage = row.target > 0 ? (row.total / row.target) * 100 : 0;
+                
+                // Calculate SD bulan lalu (total - bulan ini)
+                const currentMonth = new Date().getMonth();
+                row.sdBulanIni = row.total;
+                row.bulanIni = row.months[currentMonth] || 0;
+                row.sdBulanLalu = row.sdBulanIni - row.bulanIni;
+                
+                if (row.name) result.push(row);
+            }
+            
+            return result;
+        }
+        
+        // Fetch data from Google Sheets
+        async function fetchSheet(gid) {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const text = await response.text();
+                return parseCSV(text);
+            } catch (error) {
+                console.error('Error fetching sheet:', error);
+                throw error;
+            }
+        }
+        
+        // Load all data
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const content = document.getElementById('content');
+            
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            content.style.display = 'none';
+            
+            try {
+                [data2026, data2025] = await Promise.all([
+                    fetchSheet(GID_2026),
+                    fetchSheet(GID_2025)
+                ]);
+                
+                updateUI();
+                
+                loading.style.display = 'none';
+                content.style.display = 'block';
+                
+                document.getElementById('lastUpdate').textContent = 
+                    `Terakhir diperbarui: ${new Date().toLocaleString('id-ID')}`;
+                
+            } catch (error) {
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                console.error('Failed to load data:', error);
+            }
+        }
+        
+        // Update UI
+        function updateUI() {
+            // Calculate totals
+            const totalTarget2026 = data2026.reduce((sum, item) => sum + item.target, 0);
+            const totalRealization2026 = data2026.reduce((sum, item) => sum + item.sdBulanIni, 0);
+            const totalPercentage2026 = totalTarget2026 > 0 ? (totalRealization2026 / totalTarget2026) * 100 : 0;
+            
+            const totalRealization2025 = data2025.reduce((sum, item) => sum + item.total, 0);
+            const comparison = totalRealization2026 - totalRealization2025;
+            const comparisonPercentage = totalRealization2025 > 0 ? (comparison / totalRealization2025) * 100 : 0;
+            
+            // Update summary cards
+            document.getElementById('totalTarget').textContent = formatCurrency(totalTarget2026);
+            document.getElementById('totalRealization').textContent = formatCurrency(totalRealization2026);
+            document.getElementById('totalPercentage').textContent = formatPercentage(totalPercentage2026);
+            
+            const comparisonEl = document.getElementById('comparison');
+            if (comparison >= 0) {
+                comparisonEl.textContent = '+' + formatCurrency(comparison) + ' (+' + comparisonPercentage.toFixed(1) + '%)';
+                comparisonEl.style.color = '#2e7d32';
+            } else {
+                comparisonEl.textContent = formatCurrency(comparison) + ' (' + comparisonPercentage.toFixed(1) + '%)';
+                comparisonEl.style.color = '#c62828';
+            }
+            
+            // Update table
+            updateTable();
+            
+            // Update charts
+            updateCharts();
+        }
+        
+        // Update table
+        function updateTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            data2026.forEach((item, index) => {
+                const row = document.createElement('tr');
+                
+                const percentageClass = item.percentage >= 100 ? 'percentage-high' : 
+                                        item.percentage >= 50 ? 'percentage-medium' : 'percentage-low';
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${item.name}</strong></td>
+                    <td>${formatCurrency(item.target)}</td>
+                    <td>${formatCurrency(item.sdBulanLalu)}</td>
+                    <td>${formatCurrency(item.bulanIni)}</td>
+                    <td>${formatCurrency(item.sdBulanIni)}</td>
+                    <td><span class="percentage-badge ${percentageClass}">${formatPercentage(item.percentage)}</span></td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Add total row
+            const totalTarget = data2026.reduce((sum, item) => sum + item.target, 0);
+            const totalSDBulanLalu = data2026.reduce((sum, item) => sum + item.sdBulanLalu, 0);
+            const totalBulanIni = data2026.reduce((sum, item) => sum + item.bulanIni, 0);
+            const totalSDBulanIni = data2026.reduce((sum, item) => sum + item.sdBulanIni, 0);
+            const totalPercentage = totalTarget > 0 ? (totalSDBulanIni / totalTarget) * 100 : 0;
+            
+            const totalRow = document.createElement('tr');
+            totalRow.style.fontWeight = 'bold';
+            totalRow.style.background = '#f8f9fa';
+            totalRow.innerHTML = `
+                <td colspan="2"><strong>TOTAL</strong></td>
+                <td>${formatCurrency(totalTarget)}</td>
+                <td>${formatCurrency(totalSDBulanLalu)}</td>
+                <td>${formatCurrency(totalBulanIni)}</td>
+                <td>${formatCurrency(totalSDBulanIni)}</td>
+                <td><span class="percentage-badge ${totalPercentage >= 100 ? 'percentage-high' : 'percentage-medium'}">${formatPercentage(totalPercentage)}</span></td>
+            `;
+            tbody.appendChild(totalRow);
+        }
+        
+        // Update charts
+        function updateCharts() {
+            const labels = data2026.map(item => item.name);
+            const targets = data2026.map(item => item.target);
+            const realizations = data2026.map(item => item.sdBulanIni);
+            
+            // Comparison Chart (Bar)
+            const ctxComparison = document.getElementById('comparisonChart').getContext('2d');
+            
+            if (comparisonChart) comparisonChart.destroy();
+            
+            comparisonChart = new Chart(ctxComparison, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Target',
+                            data: targets,
+                            backgroundColor: 'rgba(33, 150, 243, 0.5)',
+                            borderColor: 'rgba(33, 150, 243, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Realisasi',
+                            data: realizations,
+                            backgroundColor: 'rgba(76, 175, 80, 0.5)',
+                            borderColor: 'rgba(76, 175, 80, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value >= 1e9) return (value / 1e9).toFixed(1) + ' B';
+                                    if (value >= 1e6) return (value / 1e6).toFixed(1) + ' M';
+                                    return value;
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatCurrency(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Pie Chart
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            
+            if (pieChart) pieChart.destroy();
+            
+            const colors = [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384',
+                '#36A2EB', '#FFCE56', '#9966FF', '#FF9F40'
+            ];
+            
+            pieChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: realizations,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.raw / total) * 100).toFixed(1);
+                                    return `${context.label}: ${formatCurrency(context.raw)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadData);
+        
+        // Auto refresh every 5 minutes
+        setInterval(loadData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
