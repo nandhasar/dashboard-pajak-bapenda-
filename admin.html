@@ -3,515 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Data PAD - BAPENDA Lombok Tengah</title>
+    <title>Admin - Edit Data Pajak BAPENDA Lombok Tengah</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
         }
-        
+
         .header {
-            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
             color: white;
-            padding: 20px 40px;
+            padding: 15px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
-        .header-left {
+
+        .header h1 {
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-        
-        .header h1 {
-            font-size: 1.5rem;
-        }
-        
-        .header-right {
-            display: flex;
             gap: 10px;
         }
-        
-        .btn {
-            padding: 10px 20px;
+
+        .btn-back {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 15px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
         }
-        
-        .btn-home {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+
+        .btn-back:hover {
+            background: rgba(255,255,255,0.3);
         }
-        
-        .btn-home:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .btn-save {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .btn-save:hover {
-            background: #45a049;
-        }
-        
-        .btn-export {
-            background: #2196F3;
-            color: white;
-        }
-        
-        .btn-export:hover {
-            background: #1976D2;
-        }
-        
+
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 30px;
-        }
-        
-        .info-box {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 10px;
             padding: 20px;
-            margin-bottom: 30px;
         }
-        
-        .info-box h3 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-        
-        .info-box p {
-            color: #856404;
-            font-size: 0.9rem;
-        }
-        
-        .form-container {
+
+        .card {
             background: white;
             border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
-        
-        .form-header {
+
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
+            border-bottom: 2px solid #e2e8f0;
         }
-        
-        .form-header h3 {
-            color: #1a1a2e;
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            color: #666;
+
+        .card-title {
+            font-size: 1.2rem;
             font-weight: 600;
-            font-size: 0.9rem;
+            color: #1a202c;
         }
-        
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #FF9800;
-        }
-        
-        .month-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
+
+        .year-tabs {
+            display: flex;
             gap: 10px;
         }
-        
-        .month-input {
-            position: relative;
-        }
-        
-        .month-input label {
-            display: block;
-            font-size: 0.75rem;
-            color: #888;
-            margin-bottom: 3px;
-        }
-        
-        .month-input input {
-            padding: 8px;
-            font-size: 0.85rem;
-        }
-        
-        .summary-section {
-            background: #e8f5e9;
+
+        .year-tab {
+            padding: 10px 20px;
+            border: none;
             border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
         }
-        
-        .summary-section h4 {
-            color: #2e7d32;
-            margin-bottom: 15px;
+
+        .year-tab.active {
+            background: #3182ce;
+            color: white;
         }
-        
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
+
+        .year-tab:not(.active) {
+            background: #e2e8f0;
+            color: #4a5568;
         }
-        
-        .summary-item {
-            text-align: center;
+
+        .table-responsive {
+            overflow-x: auto;
         }
-        
-        .summary-item .label {
-            font-size: 0.8rem;
-            color: #666;
-        }
-        
-        .summary-item .value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #1a1a2e;
-        }
-        
-        .data-table {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .data-table h3 {
-            margin-bottom: 20px;
-            color: #1a1a2e;
-        }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 900px;
         }
-        
-        th, td {
-            padding: 10px 8px;
+
+        th {
+            background: #1a202c;
+            color: white;
+            padding: 12px 10px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
             font-size: 0.85rem;
         }
-        
-        th {
-            background: #f8f9fa;
-            color: #666;
-            font-weight: 600;
+
+        tr:hover {
+            background: #f7fafc;
         }
-        
-        .edit-btn {
-            padding: 5px 12px;
-            background: #FF9800;
+
+        .input-group {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .input-month {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .input-month:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(49,130,206,0.2);
+        }
+
+        .input-target {
+            width: 120px;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             color: white;
             border: none;
-            border-radius: 5px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        
-        .edit-btn:hover {
-            background: #F57C00;
+
+        .btn-save:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(72,187,120,0.4);
         }
-        
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #666;
+
+        .btn-save:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
         }
-        
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #FF9800;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+
+        .btn-save.saving {
+            background: #d69e2e;
         }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .success-toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #4CAF50;
+
+        .status-bar {
+            background: #48bb78;
             color: white;
-            padding: 15px 25px;
+            padding: 15px 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
             display: none;
-            z-index: 1000;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
         }
-        
-        .modal {
-            display: none;
+
+        .status-bar.error {
+            background: #e53e3e;
+        }
+
+        .status-bar.show {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #718096;
+            font-size: 0.8rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .year-tabs {
+                width: 100%;
+            }
+            
+            .year-tab {
+                flex: 1;
+                padding: 8px 10px;
+                font-size: 0.8rem;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .input-month {
+                width: 65px;
+                font-size: 0.7rem;
+            }
+            
+            .input-target {
+                width: 100px;
+            }
+        }
+
+        /* Loading */
+        .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 100;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 800px;
-            margin: 50px auto;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #eee;
+            z-index: 1000;
         }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
+
+        .loading-overlay.show {
+            display: flex;
         }
-        
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .month-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
-            .summary-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+
+        .loading-box {
+            background: white;
+            padding: 30px 50px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #3182ce;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-left">
-            <span style="font-size: 2rem;">✏️</span>
-            <div>
-                <h1>Edit Data PAD</h1>
-                <span style="font-size: 0.9rem; opacity: 0.9;">BAPENDA Lombok Tengah 2026</span>
-            </div>
+    <header class="header">
+        <div class="header-content">
+            <h1>⚙️ Admin Panel - Edit Data Pajak</h1>
+            <a href="dashboard.html" class="btn-back">← Kembali ke Dashboard</a>
         </div>
-        <div class="header-right">
-            <a href="index.html" class="btn btn-home">🏠 Home</a>
-        </div>
-    </div>
-    
+    </header>
+
     <div class="container">
-        <div class="info-box">
-            <h3>⚠️ Petunjuk Penggunaan</h3>
-            <p>
-                1. Klik tombol "Edit" pada baris pajak yang ingin diubah<br>
-                2. Isi nominal tanpa tanda titik atau koma (contoh: 5000000)<br>
-                3. Tekan "Simpan" untuk menyimpan perubahan<br>
-                4. Data akan langsung tersimpan ke Google Sheets<br>
-                5. Buka Dashboard untuk melihat perubahan
-            </p>
+        <!-- Status Bar -->
+        <div id="statusBar" class="status-bar">
+            <span id="statusIcon">✅</span>
+            <span id="statusText">Data berhasil disimpan!</span>
         </div>
-        
-        <div id="loading" class="loading">
-            <div class="loading-spinner"></div>
-            <p>Memuat data...</p>
-        </div>
-        
-        <div id="content" style="display: none;">
-            <div class="data-table">
-                <h3>📋 Daftar Jenis Pajak</h3>
+
+        <!-- Main Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">📝 Edit Data Realisasi Pajak</h2>
+                <div class="year-tabs">
+                    <button class="year-tab active" onclick="switchYear(2026)">📅 2026</button>
+                    <button class="year-tab" onclick="switchYear(2025)">📅 2025</button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
                             <th>No</th>
                             <th>Jenis Pajak</th>
                             <th>Target</th>
-                            <th>Total Realisasi</th>
-                            <th>% Capaian</th>
+                            <th>Jan</th>
+                            <th>Feb</th>
+                            <th>Mar</th>
+                            <th>Apr</th>
+                            <th>Mei</th>
+                            <th>Jun</th>
+                            <th>Jul</th>
+                            <th>Agu</th>
+                            <th>Sep</th>
+                            <th>Okt</th>
+                            <th>Nov</th>
+                            <th>Des</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
+                        <!-- Will be populated by JavaScript -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-    
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Edit Data Pajak</h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-            </div>
-            
-            <form id="editForm">
-                <input type="hidden" id="editIndex">
-                
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Jenis Pajak</label>
-                        <input type="text" id="editName" readonly style="background: #f5f5f5;">
-                    </div>
-                    <div class="form-group">
-                        <label>Target (Rp)</label>
-                        <input type="text" id="editTarget" placeholder="Contoh: 2200000000">
-                    </div>
-                </div>
-                
-                <h4 style="margin: 20px 0 15px; color: #666;">📅 Realisasi per Bulan</h4>
-                
-                <div class="month-grid">
-                    <div class="month-input">
-                        <label>Januari</label>
-                        <input type="text" id="month1" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>Februari</label>
-                        <input type="text" id="month2" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>Maret</label>
-                        <input type="text" id="month3" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>April</label>
-                        <input type="text" id="month4" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>Mei</label>
-                        <input type="text" id="month5" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>Juni</label>
-                        <input type="text" id="month6" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>Juli</label>
-                        <input type="text" id="month7" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>Agustus</label>
-                        <input type="text" id="month8" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>September</label>
-                        <input type="text" id="month9" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>Oktober</label>
-                        <input type="text" id="month10" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>November</label>
-                        <input type="text" id="month11" placeholder="0">
-                    </div>
-                    <div class="month-input">
-                        <label>Desember</label>
-                        <input type="text" id="month12" placeholder="0">
-                    </div>
-                </div>
-                
-                <div class="summary-section">
-                    <h4>📊 Ringkasan</h4>
-                    <div class="summary-grid">
-                        <div class="summary-item">
-                            <div class="label">Total Realisasi</div>
-                            <div class="value" id="summaryTotal">Rp 0</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="label">% Capaian</div>
-                            <div class="value" id="summaryPercentage">0%</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                    <button type="button" class="btn btn-home" onclick="closeModal()">Batal</button>
-                    <button type="submit" class="btn btn-save">💾 Simpan</button>
-                </div>
-            </form>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-box">
+            <div class="loading-spinner"></div>
+            <p>Menyimpan data...</p>
         </div>
     </div>
-    
-    <!-- Success Toast -->
-    <div id="successToast" class="success-toast">
-        ✅ Data berhasil disimpan!
-    </div>
-    
+
+    <footer class="footer">
+        <p>⚙️ Admin Panel BAPENDA Lombok Tengah | © 2026</p>
+    </footer>
+
     <script>
-        // Configuration
+        // ==================== KONFIGURASI ====================
+        
+        // ⚠️ GANTI DENGAN URL GOOGLE APPS SCRIPT ANDA!
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyN7yQyZcKNo5NR0ooBeow2HxWEvoR59xT0XW7YhRMuc0fsVEHv5blpSx7vxgHSdzCfFw/exec';
+        
         const SHEET_ID = '1BE7gPYSSlCnaIZ4Q7RvGx_L_2v46fQjkEnK3EC3VQz4';
         const GID_2026 = '0';
-        
+        const GID_2025 = '757965445';
+
+        let currentYear = 2026;
         let data2026 = [];
-        
-        // Format currency
-        function formatCurrency(num) {
-            if (num >= 1e12) return 'Rp ' + (num / 1e12).toFixed(2) + ' T';
-            if (num >= 1e9) return 'Rp ' + (num / 1e9).toFixed(2) + ' M';
-            if (num >= 1e6) return 'Rp ' + (num / 1e6).toFixed(2) + ' Jt';
-            if (num >= 1e3) return 'Rp ' + (num / 1e3).toFixed(2) + ' Rb';
-            return 'Rp ' + num.toLocaleString('id-ID');
+        let data2025 = [];
+        let originalData = {};
+
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        // ==================== FORMAT ====================
+        function formatRupiah(num) {
+            return num.toLocaleString('id-ID');
         }
-        
-        // Parse CSV
+
+        function parseNumber(str) {
+            if (!str) return 0;
+            const cleaned = str.toString().replace(/[^\d.-]/g, '');
+            return parseFloat(cleaned) || 0;
+        }
+
+        // ==================== FETCH DATA ====================
+        async function fetchSheetData(gid) {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network error');
+                const csv = await response.text();
+                return parseCSV(csv);
+            } catch (error) {
+                console.error('Error:', error);
+                showStatus('Gagal memuat data!', true);
+                return [];
+            }
+        }
+
         function parseCSV(csv) {
             const lines = csv.split('\n');
             const result = [];
@@ -519,168 +427,182 @@
             for (let i = 1; i < lines.length; i++) {
                 if (lines[i].trim() === '') continue;
                 
-                const values = lines[i].split(',');
+                const values = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let char of lines[i]) {
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim());
+                
+                if (!values[0] || values[0].trim() === '') continue;
+                
                 const row = {
-                    name: values[0] ? values[0].trim() : '',
+                    name: values[0].trim(),
                     target: parseFloat(values[1]) || 0,
-                    months: []
+                    bulan: []
                 };
                 
                 for (let j = 2; j <= 13; j++) {
-                    row.months.push(parseFloat(values[j]) || 0);
+                    row.bulan.push(parseFloat(values[j]) || 0);
                 }
                 
-                row.total = row.months.reduce((a, b) => a + b, 0);
-                row.percentage = row.target > 0 ? (row.total / row.target) * 100 : 0;
-                
-                if (row.name) result.push(row);
+                result.push(row);
             }
             
             return result;
         }
-        
-        // Fetch data
-        async function fetchData() {
-            const loading = document.getElementById('loading');
-            const content = document.getElementById('content');
+
+        // ==================== LOAD DATA ====================
+        async function loadData() {
+            [data2026, data2025] = await Promise.all([
+                fetchSheetData(GID_2026),
+                fetchSheetData(GID_2025)
+            ]);
             
-            loading.style.display = 'block';
-            content.style.display = 'none';
+            // Simpan data original untuk reset
+            originalData = {
+                2026: JSON.parse(JSON.stringify(data2026)),
+                2025: JSON.parse(JSON.stringify(data2025))
+            };
             
-            try {
-                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID_2026}`;
-                const response = await fetch(url);
-                const text = await response.text();
-                data2026 = parseCSV(text);
-                
-                updateTable();
-                
-                loading.style.display = 'none';
-                content.style.display = 'block';
-            } catch (error) {
-                console.error('Error:', error);
-                loading.innerHTML = '<p style="color: red;">Gagal memuat data!</p>';
-            }
+            renderTable();
         }
-        
-        // Update table
-        function updateTable() {
+
+        // ==================== RENDER TABLE ====================
+        function renderTable() {
+            const data = currentYear === 2026 ? data2026 : data2025;
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
             
-            data2026.forEach((item, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td><strong>${item.name}</strong></td>
-                    <td>${formatCurrency(item.target)}</td>
-                    <td>${formatCurrency(item.total)}</td>
-                    <td>${item.percentage.toFixed(2)}%</td>
-                    <td><button class="edit-btn" onclick="openEditModal(${index})">Edit</button></td>
-                `;
-                tbody.appendChild(row);
+            data.forEach((item, index) => {
+                const rowNum = index + 2; // Row 2 karena header di row 1
+                
+                let row = `<tr>`;
+                row += `<td>${index + 1}</td>`;
+                row += `<td style="font-weight: 600; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</td>`;
+                row += `<td><input type="text" class="input-target" value="${formatRupiah(item.target)}" data-row="${rowNum}" data-field="target"></td>`;
+                
+                for (let i = 0; i < 12; i++) {
+                    const value = item.bulan[i] || 0;
+                    row += `<td><input type="text" class="input-month" value="${formatRupiah(value)}" data-row="${rowNum}" data-month="${i}"></td>`;
+                }
+                
+                row += `<td><button class="btn-save" onclick="saveRow(${index})">💾 Simpan</button></td>`;
+                row += `</tr>`;
+                
+                tbody.innerHTML += row;
+            });
+
+            // Add event listeners
+            document.querySelectorAll('.input-target, .input-month').forEach(input => {
+                input.addEventListener('input', function(e) {
+                    // Allow only numbers and common separators
+                    this.value = this.value.replace(/[^\d.]/g, '');
+                });
             });
         }
-        
-        // Open edit modal
-        function openEditModal(index) {
-            const item = data2026[index];
-            document.getElementById('editIndex').value = index;
-            document.getElementById('editName').value = item.name;
-            document.getElementById('editTarget').value = item.target;
+
+        // ==================== SAVE SINGLE ROW ====================
+        async function saveRow(index) {
+            const data = currentYear === 2026 ? data2026 : data2025;
+            const item = data[index];
+            const rowNum = index + 2;
             
-            for (let i = 1; i <= 12; i++) {
-                document.getElementById('month' + i).value = item.months[i - 1];
+            // Show loading
+            document.getElementById('loadingOverlay').classList.add('show');
+            
+            // Ambil nilai dari input
+            const targetInput = document.querySelector(`input[data-row="${rowNum}"][data-field="target"]`);
+            const newTarget = parseNumber(targetInput.value);
+            
+            const bulan = [];
+            for (let i = 0; i < 12; i++) {
+                const input = document.querySelector(`input[data-row="${rowNum}"][data-month="${i}"]`);
+                bulan.push(parseNumber(input.value));
             }
             
-            updateSummary();
-            document.getElementById('editModal').style.display = 'block';
-        }
-        
-        // Close modal
-        function closeModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
-        
-        // Update summary
-        function updateSummary() {
-            const target = parseFloat(document.getElementById('editTarget').value) || 0;
-            let total = 0;
+            const saveData = {
+                year: currentYear.toString(),
+                row: rowNum,
+                data: {
+                    target: newTarget,
+                    bulan: bulan
+                }
+            };
             
-            for (let i = 1; i <= 12; i++) {
-                total += parseFloat(document.getElementById('month' + i).value) || 0;
+            try {
+                // Kirim ke Google Apps Script
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Penting untuk Google Apps Script
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(saveData)
+                });
+                
+                // Update local data
+                item.target = newTarget;
+                item.bulan = bulan;
+                
+                // Update original data
+                originalData[currentYear][index] = JSON.parse(JSON.stringify(item));
+                
+                showStatus('✅ Data berhasil disimpan ke spreadsheet!');
+                
+                // Refresh data
+                setTimeout(() => {
+                    loadData();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error saving:', error);
+                showStatus('❌ Gagal menyimpan data: ' + error.message, true);
+            } finally {
+                document.getElementById('loadingOverlay').classList.remove('show');
             }
-            
-            const percentage = target > 0 ? (total / target) * 100 : 0;
-            
-            document.getElementById('summaryTotal').textContent = formatCurrency(total);
-            document.getElementById('summaryPercentage').textContent = percentage.toFixed(2) + '%';
         }
-        
-        // Add event listeners for real-time calculation
-        for (let i = 1; i <= 12; i++) {
-            document.getElementById('month' + i).addEventListener('input', updateSummary);
-        }
-        document.getElementById('editTarget').addEventListener('input', updateSummary);
-        
-        // Submit form
-        document.getElementById('editForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+
+        // ==================== SWITCH YEAR ====================
+        function switchYear(year) {
+            currentYear = year;
             
-            const index = parseInt(document.getElementById('editIndex').value);
-            const item = data2026[index];
-            
-            // Update data
-            item.target = parseFloat(document.getElementById('editTarget').value) || 0;
-            for (let i = 1; i <= 12; i++) {
-                item.months[i - 1] = parseFloat(document.getElementById('month' + i).value) || 0;
-            }
-            item.total = item.months.reduce((a, b) => a + b, 0);
-            item.percentage = item.target > 0 ? (item.total / item.target) * 100 : 0;
-            
-            // Build CSV content
-            let csv = 'JENIS PAJAK,TARGET,JANUARI,FEBRUARI,MARET,APRIL,MEI,JUNI,JULI,AGUSTUS,SEPTEMBER,OKTOBER,NOVEMBER,DESEMBER\n';
-            
-            data2026.forEach(row => {
-                csv += row.name + ',' + row.target + ',' + row.months.join(',') + '\n';
+            // Update tabs
+            document.querySelectorAll('.year-tab').forEach(tab => {
+                tab.classList.remove('active');
             });
+            event.target.classList.add('active');
             
-            // Convert to base64
-            const blob = new Blob([csv], { type: 'text/csv' });
+            // Render table
+            renderTable();
+        }
+
+        // ==================== STATUS ====================
+        function showStatus(message, isError = false) {
+            const statusBar = document.getElementById('statusBar');
+            const statusText = document.getElementById('statusText');
+            const statusIcon = document.getElementById('statusIcon');
             
-            // Note: Direct save to Google Sheets requires authentication
-            // For demo, we'll show success and provide download option
-            const downloadUrl = URL.createObjectURL(blob);
-            
-            // Show success toast
-            const toast = document.getElementById('successToast');
-            toast.style.display = 'block';
-            
-            // Auto-download CSV
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = 'Data_PAD_2026_updated.csv';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            statusText.textContent = message;
+            statusIcon.textContent = isError ? '❌' : '✅';
+            statusBar.className = 'status-bar show' + (isError ? ' error' : '');
             
             setTimeout(() => {
-                toast.style.display = 'none';
-                closeModal();
-                updateTable();
-            }, 2000);
-        });
-        
-        // Close modal on outside click
-        window.onclick = function(event) {
-            const modal = document.getElementById('editModal');
-            if (event.target === modal) {
-                closeModal();
-            }
+                statusBar.classList.remove('show');
+            }, 4000);
         }
-        
-        // Initialize
-        document.addEventListener('DOMContentLoaded', fetchData);
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
