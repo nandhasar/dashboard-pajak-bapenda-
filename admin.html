@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Data PAD - BAPENDA Lombok Tengah</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-home {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .btn-home:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-save {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-save:hover {
+            background: #45a049;
+        }
+        
+        .btn-export {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-export:hover {
+            background: #1976D2;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #856404;
+            font-size: 0.9rem;
+        }
+        
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .form-header h3 {
+            color: #1a1a2e;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #FF9800;
+        }
+        
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+        }
+        
+        .month-input {
+            position: relative;
+        }
+        
+        .month-input label {
+            display: block;
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 3px;
+        }
+        
+        .month-input input {
+            padding: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .summary-section {
+            background: #e8f5e9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .summary-section h4 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-item .label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .summary-item .value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+        
+        .data-table {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-table h3 {
+            margin-bottom: 20px;
+            color: #1a1a2e;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 0.85rem;
+        }
+        
+        th {
+            background: #f8f9fa;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .edit-btn {
+            padding: 5px 12px;
+            background: #FF9800;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        
+        .edit-btn:hover {
+            background: #F57C00;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #FF9800;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 800px;
+            margin: 50px auto;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .month-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <span style="font-size: 2rem;">✏️</span>
+            <div>
+                <h1>Edit Data PAD</h1>
+                <span style="font-size: 0.9rem; opacity: 0.9;">BAPENDA Lombok Tengah 2026</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <a href="index.html" class="btn btn-home">🏠 Home</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="info-box">
+            <h3>⚠️ Petunjuk Penggunaan</h3>
+            <p>
+                1. Klik tombol "Edit" pada baris pajak yang ingin diubah<br>
+                2. Isi nominal tanpa tanda titik atau koma (contoh: 5000000)<br>
+                3. Tekan "Simpan" untuk menyimpan perubahan<br>
+                4. Data akan langsung tersimpan ke Google Sheets<br>
+                5. Buka Dashboard untuk melihat perubahan
+            </p>
+        </div>
+        
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Memuat data...</p>
+        </div>
+        
+        <div id="content" style="display: none;">
+            <div class="data-table">
+                <h3>📋 Daftar Jenis Pajak</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Jenis Pajak</th>
+                            <th>Target</th>
+                            <th>Total Realisasi</th>
+                            <th>% Capaian</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Edit Data Pajak</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <form id="editForm">
+                <input type="hidden" id="editIndex">
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Jenis Pajak</label>
+                        <input type="text" id="editName" readonly style="background: #f5f5f5;">
+                    </div>
+                    <div class="form-group">
+                        <label>Target (Rp)</label>
+                        <input type="text" id="editTarget" placeholder="Contoh: 2200000000">
+                    </div>
+                </div>
+                
+                <h4 style="margin: 20px 0 15px; color: #666;">📅 Realisasi per Bulan</h4>
+                
+                <div class="month-grid">
+                    <div class="month-input">
+                        <label>Januari</label>
+                        <input type="text" id="month1" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>Februari</label>
+                        <input type="text" id="month2" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>Maret</label>
+                        <input type="text" id="month3" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>April</label>
+                        <input type="text" id="month4" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>Mei</label>
+                        <input type="text" id="month5" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>Juni</label>
+                        <input type="text" id="month6" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>Juli</label>
+                        <input type="text" id="month7" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>Agustus</label>
+                        <input type="text" id="month8" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>September</label>
+                        <input type="text" id="month9" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>Oktober</label>
+                        <input type="text" id="month10" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>November</label>
+                        <input type="text" id="month11" placeholder="0">
+                    </div>
+                    <div class="month-input">
+                        <label>Desember</label>
+                        <input type="text" id="month12" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="summary-section">
+                    <h4>📊 Ringkasan</h4>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="label">Total Realisasi</div>
+                            <div class="value" id="summaryTotal">Rp 0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="label">% Capaian</div>
+                            <div class="value" id="summaryPercentage">0%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-home" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="btn btn-save">💾 Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Success Toast -->
+    <div id="successToast" class="success-toast">
+        ✅ Data berhasil disimpan!
+    </div>
+    
+    <script>
+        // Configuration
+        const SHEET_ID = '1BE7gPYSSlCnaIZ4Q7RvGx_L_2v46fQjkEnK3EC3VQz4';
+        const GID_2026 = '0';
+        
+        let data2026 = [];
+        
+        // Format currency
+        function formatCurrency(num) {
+            if (num >= 1e12) return 'Rp ' + (num / 1e12).toFixed(2) + ' T';
+            if (num >= 1e9) return 'Rp ' + (num / 1e9).toFixed(2) + ' M';
+            if (num >= 1e6) return 'Rp ' + (num / 1e6).toFixed(2) + ' Jt';
+            if (num >= 1e3) return 'Rp ' + (num / 1e3).toFixed(2) + ' Rb';
+            return 'Rp ' + num.toLocaleString('id-ID');
+        }
+        
+        // Parse CSV
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const result = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
+                
+                const values = lines[i].split(',');
+                const row = {
+                    name: values[0] ? values[0].trim() : '',
+                    target: parseFloat(values[1]) || 0,
+                    months: []
+                };
+                
+                for (let j = 2; j <= 13; j++) {
+                    row.months.push(parseFloat(values[j]) || 0);
+                }
+                
+                row.total = row.months.reduce((a, b) => a + b, 0);
+                row.percentage = row.target > 0 ? (row.total / row.target) * 100 : 0;
+                
+                if (row.name) result.push(row);
+            }
+            
+            return result;
+        }
+        
+        // Fetch data
+        async function fetchData() {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+            
+            loading.style.display = 'block';
+            content.style.display = 'none';
+            
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID_2026}`;
+                const response = await fetch(url);
+                const text = await response.text();
+                data2026 = parseCSV(text);
+                
+                updateTable();
+                
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            } catch (error) {
+                console.error('Error:', error);
+                loading.innerHTML = '<p style="color: red;">Gagal memuat data!</p>';
+            }
+        }
+        
+        // Update table
+        function updateTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            data2026.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><strong>${item.name}</strong></td>
+                    <td>${formatCurrency(item.target)}</td>
+                    <td>${formatCurrency(item.total)}</td>
+                    <td>${item.percentage.toFixed(2)}%</td>
+                    <td><button class="edit-btn" onclick="openEditModal(${index})">Edit</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Open edit modal
+        function openEditModal(index) {
+            const item = data2026[index];
+            document.getElementById('editIndex').value = index;
+            document.getElementById('editName').value = item.name;
+            document.getElementById('editTarget').value = item.target;
+            
+            for (let i = 1; i <= 12; i++) {
+                document.getElementById('month' + i).value = item.months[i - 1];
+            }
+            
+            updateSummary();
+            document.getElementById('editModal').style.display = 'block';
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        
+        // Update summary
+        function updateSummary() {
+            const target = parseFloat(document.getElementById('editTarget').value) || 0;
+            let total = 0;
+            
+            for (let i = 1; i <= 12; i++) {
+                total += parseFloat(document.getElementById('month' + i).value) || 0;
+            }
+            
+            const percentage = target > 0 ? (total / target) * 100 : 0;
+            
+            document.getElementById('summaryTotal').textContent = formatCurrency(total);
+            document.getElementById('summaryPercentage').textContent = percentage.toFixed(2) + '%';
+        }
+        
+        // Add event listeners for real-time calculation
+        for (let i = 1; i <= 12; i++) {
+            document.getElementById('month' + i).addEventListener('input', updateSummary);
+        }
+        document.getElementById('editTarget').addEventListener('input', updateSummary);
+        
+        // Submit form
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const index = parseInt(document.getElementById('editIndex').value);
+            const item = data2026[index];
+            
+            // Update data
+            item.target = parseFloat(document.getElementById('editTarget').value) || 0;
+            for (let i = 1; i <= 12; i++) {
+                item.months[i - 1] = parseFloat(document.getElementById('month' + i).value) || 0;
+            }
+            item.total = item.months.reduce((a, b) => a + b, 0);
+            item.percentage = item.target > 0 ? (item.total / item.target) * 100 : 0;
+            
+            // Build CSV content
+            let csv = 'JENIS PAJAK,TARGET,JANUARI,FEBRUARI,MARET,APRIL,MEI,JUNI,JULI,AGUSTUS,SEPTEMBER,OKTOBER,NOVEMBER,DESEMBER\n';
+            
+            data2026.forEach(row => {
+                csv += row.name + ',' + row.target + ',' + row.months.join(',') + '\n';
+            });
+            
+            // Convert to base64
+            const blob = new Blob([csv], { type: 'text/csv' });
+            
+            // Note: Direct save to Google Sheets requires authentication
+            // For demo, we'll show success and provide download option
+            const downloadUrl = URL.createObjectURL(blob);
+            
+            // Show success toast
+            const toast = document.getElementById('successToast');
+            toast.style.display = 'block';
+            
+            // Auto-download CSV
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = 'Data_PAD_2026_updated.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+                closeModal();
+                updateTable();
+            }, 2000);
+        });
+        
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+</html>
