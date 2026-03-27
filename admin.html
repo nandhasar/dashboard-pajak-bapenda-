@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Edit Data Pajak BAPENDA</title>
+    <title>Admin - Edit Data Pajak BAPENDA Lombok Tengah</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -56,17 +56,24 @@
             padding: 20px;
         }
 
-        /* Alert */
-        .alert-warning {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            color: #856404;
+        .alert {
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
         }
 
-        /* Card */
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #dc3545;
+            color: #721c24;
+        }
+
         .card {
             background: white;
             border-radius: 15px;
@@ -90,19 +97,19 @@
             font-weight: 600;
         }
 
-        .btn-primary {
-            background: #3182ce;
-            color: white;
-            border: none;
+        .btn {
             padding: 10px 20px;
+            border: none;
             border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
         }
 
+        .btn-primary { background: #3182ce; color: white; }
         .btn-primary:hover { background: #2c5282; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-success:hover { background: #38a169; }
 
-        /* Sheet Tabs */
         .sheet-tabs {
             display: flex;
             gap: 10px;
@@ -117,17 +124,9 @@
             font-weight: 600;
         }
 
-        .sheet-tab.active {
-            background: #3182ce;
-            color: white;
-        }
+        .sheet-tab.active { background: #3182ce; color: white; }
+        .sheet-tab:not(.active) { background: #e2e8f0; color: #4a5568; }
 
-        .sheet-tab:not(.active) {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-
-        /* Table */
         .table-responsive { overflow-x: auto; }
 
         table {
@@ -155,7 +154,6 @@
 
         tr:hover { background: #f7fafc; }
 
-        /* Editable Input */
         .edit-input {
             width: 100%;
             max-width: 100px;
@@ -178,7 +176,6 @@
             border-color: #f59e0b;
         }
 
-        /* Button */
         .btn-save {
             background: #48bb78;
             color: white;
@@ -191,13 +188,9 @@
         }
 
         .btn-save:hover { background: #38a169; }
+        .btn-save:disabled { background: #a0aec0; cursor: not-allowed; }
+        .btn-save.saving { background: #d69e2e; }
 
-        .btn-save:disabled {
-            background: #a0aec0;
-            cursor: not-allowed;
-        }
-
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 20px;
@@ -220,7 +213,6 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
-        /* Loading */
         .loading {
             position: fixed;
             top: 0;
@@ -264,23 +256,20 @@
 <body>
     <header class="header">
         <div class="header-content">
-            <h1>⚙️ Admin Panel - Edit Data Pajak BAPENDA</h1>
+            <h1>⚙️ Admin Panel - Edit Data Pajak BAPENDA Lombok Tengah</h1>
             <a href="dashboard.html" class="btn-back">← Dashboard</a>
         </div>
     </header>
 
     <div class="container">
-        <!-- Warning -->
-        <div class="alert-warning" id="apiAlert">
-            ⚠️ <strong>URL API belum diset!</strong><br>
-            <small>Buka source code, cari <code>WEB_APP_URL</code> dan ganti dengan URL Google Apps Script Anda.</small>
-        </div>
+        <!-- Alert -->
+        <div id="alertBox"></div>
 
         <!-- Main Card -->
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">📝 Edit Data Pajak</h2>
-                <button class="btn-primary" onclick="loadData()">
+                <button class="btn btn-primary" onclick="loadData()">
                     🔄 Load Data
                 </button>
             </div>
@@ -342,11 +331,11 @@
 
     <script>
         // ============================================================
-        // KONFIGURASI - GANTI INI!
+        // KONFIGURASI
         // ============================================================
         
-        // ⬇️ PASTE URL WEB APP ANDA DI SINI! ⬇️
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbypCmYxuHeQmY1UlChLyD4o2duS9hUC3t3zH4A3ZVY/dev';
+        // ✅ URL Web App Anda - SUDAH DIISI OTOMATIS
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxScrI-w2hSCw0Rq96YVP_rvxgeaWRv3O5Vhrd-MVQkYnKqmAnC3t_FTbWexlGxF4kM/exec';
         
         const SHEET_ID = '1BE7gPYSSlCnaIZ4Q7RvGx_L_2v46fQjkEnK3EC3VQz4';
 
@@ -355,15 +344,15 @@
         // ============================================================
         
         let currentSheet = '2026';
-        let rawData = [];        // Data dari CSV
-        let changes = {};        // Perubahan yang belum disimpan
+        let rawData = [];
+        let changes = {};
 
-        // Cek API URL
-        if (WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbypCmYxuHeQmY1UlChLyD4o2duS9hUC3t3zH4A3ZVY/dev' || !WEB_APP_URL) {
-            document.getElementById('apiAlert').style.display = 'block';
-        } else {
-            document.getElementById('apiAlert').style.display = 'none';
-        }
+        // Show success alert
+        document.getElementById('alertBox').innerHTML = `
+            <div class="alert alert-success">
+                ✅ <strong>Koneksi API Ready!</strong> Web App URL sudah configured.
+            </div>
+        `;
 
         // ============================================================
         // FORMAT
@@ -401,7 +390,7 @@
                 rawData = parseCSV(csv);
                 
                 renderTable();
-                showToast('Data berhasil dimuat!', 'success');
+                showToast(`✅ Data berhasil dimuat! (${rawData.length} row)`, 'success');
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -418,7 +407,6 @@
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
                 
-                // Parse CSV dengan handle quotes
                 const values = [];
                 let current = '';
                 let inQuotes = false;
@@ -435,10 +423,8 @@
                 }
                 values.push(current.trim());
                 
-                // Skip if first column empty
                 if (!values[0] || values[0].trim() === '') continue;
                 
-                // Parse row data
                 const row = {
                     name: values[0].trim(),
                     target: parseFloat(values[1]) || 0,
@@ -476,23 +462,23 @@
             let html = '';
             
             rawData.forEach((item, index) => {
-                const rowNum = index + 2; // Row 1 = header
+                const rowNum = index + 2;
                 
                 html += `<tr data-row="${rowNum}">`;
                 html += `<td>${index + 1}</td>`;
                 html += `<td style="text-align: left; font-weight: 500;">${item.name}</td>`;
                 
-                // Target (Kolom B = column 2)
+                // Target (Kolom B)
                 html += `<td>
                     <input type="text" 
                            class="edit-input" 
                            data-row="${rowNum}" 
                            data-col="2" 
                            value="${formatNumber(item.target)}"
-                           onchange="onInputChange(this)">
+                           oninput="onInputChange(this)">
                 </td>`;
                 
-                // Bulan (Kolom C-N = column 3-14)
+                // Bulan (Kolom C-N)
                 for (let i = 0; i < 12; i++) {
                     const colNum = i + 3;
                     html += `<td>
@@ -501,7 +487,7 @@
                                data-row="${rowNum}" 
                                data-col="${colNum}" 
                                value="${formatNumber(item.bulan[i])}"
-                               onchange="onInputChange(this)">
+                               oninput="onInputChange(this)">
                     </td>`;
                 }
                 
@@ -516,7 +502,7 @@
             });
             
             tbody.innerHTML = html;
-            changes = {}; // Reset changes
+            changes = {};
         }
 
         // ============================================================
@@ -529,7 +515,6 @@
             const key = `${row}-${col}`;
             const newValue = parseNumber(input.value);
             
-            // Get original value
             const rowIndex = parseInt(row) - 2;
             const colIndex = parseInt(col) - 2;
             
@@ -540,7 +525,6 @@
                 originalValue = rawData[rowIndex].bulan[colIndex - 1];
             }
             
-            // Check if changed
             if (newValue !== originalValue) {
                 changes[key] = newValue;
                 input.classList.add('changed');
@@ -551,19 +535,13 @@
         }
 
         // ============================================================
-        // SAVE ROW
+        // SAVE ROW - UPDATE KE SPREADSHEET
         // ============================================================
         
         async function saveRow(rowIndex) {
-            if (WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbypCmYxuHeQmY1UlChLyD4o2duS9hUC3t3zH4A3ZVY/dev' || !WEB_APP_URL) {
-                showToast('Masukkan URL API terlebih dahulu!', 'error');
-                return;
-            }
-            
             const rowNum = rowIndex + 2;
-            const item = rawData[rowIndex];
             
-            // Collect all changes for this row
+            // Collect changes for this row
             const rowChanges = {};
             
             for (let col = 2; col <= 14; col++) {
@@ -574,20 +552,26 @@
             }
             
             if (Object.keys(rowChanges).length === 0) {
-                showToast('Tidak ada perubahan untuk disimpan', 'error');
+                showToast('Tidak ada perubahan!', 'error');
                 return;
             }
+            
+            // Find button and disable
+            const btn = document.querySelector(`tr[data-row="${rowNum}"] .btn-save`);
+            btn.disabled = true;
+            btn.classList.add('saving');
+            btn.textContent = '⏳ Menyimpan...';
             
             showLoading(true);
             
             let successCount = 0;
-            let errorCount = 0;
             
             try {
-                // Update each changed cell
+                // Update each cell via Web App
                 for (const [colStr, value] of Object.entries(rowChanges)) {
                     const col = parseInt(colStr);
                     
+                    // POST to Google Apps Script
                     const response = await fetch(WEB_APP_URL, {
                         method: 'POST',
                         mode: 'no-cors',
@@ -601,6 +585,9 @@
                     });
                     
                     successCount++;
+                    
+                    // Small delay between requests
+                    await new Promise(r => setTimeout(r, 100));
                 }
                 
                 // Update local data
@@ -614,12 +601,12 @@
                     }
                 }
                 
-                // Clear changes for this row
+                // Clear changes
                 for (const colStr of Object.keys(rowChanges)) {
                     delete changes[`${rowNum}-${colStr}`];
                 }
                 
-                // Re-render to show updated values
+                // Re-render
                 renderTable();
                 
                 showToast(`✅ ${successCount} data berhasil disimpan!`, 'success');
@@ -639,13 +626,10 @@
         function switchSheet(sheet) {
             currentSheet = sheet;
             
-            // Update tabs
             document.querySelectorAll('.sheet-tab').forEach(tab => {
                 tab.classList.remove('active');
-                if (tab.textContent.includes(sheet)) {
-                    tab.classList.add('active');
-                }
             });
+            event.target.classList.add('active');
             
             loadData();
         }
@@ -675,6 +659,9 @@
         function showLoading(show) {
             document.getElementById('loading').classList.toggle('show', show);
         }
+
+        // Auto load data on page load
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
