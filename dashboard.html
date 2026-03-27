@@ -3,366 +3,1021 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard PAD - BAPENDA Lombok Tengah 2026</title>
+    <title>Dashboard Realisasi Pajak Daerah - Kabupaten Lombok Tengah 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
         }
-        
+
+        /* Header */
         .header {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #3182ce 100%);
             color: white;
             padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        
-        .header-left {
+
+        .header-content {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        
-        .header h1 {
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .header-text h1 {
             font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
         }
-        
+
+        .header-text h2 {
+            font-size: 1.1rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .header-text p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 3px;
+        }
+
+        .badge-now {
+            background: #48bb78;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+
         .header-right {
+            margin-left: auto;
             display: flex;
             gap: 10px;
         }
-        
+
         .btn {
             padding: 10px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-home {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        
-        .btn-home:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .btn-refresh {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .btn-refresh:hover {
-            background: #45a049;
-        }
-        
-        .status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #a0a0a0;
+            font-weight: 600;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
         }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #4CAF50;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
+
+        .btn-home {
+            background: rgba(255,255,255,0.2);
+            color: white;
         }
-        
+
+        .btn-home:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn-refresh {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-refresh:hover {
+            background: #38a169;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            50% { opacity: 0.7; }
         }
-        
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 30px;
+            padding: 30px 20px;
         }
-        
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+
+        /* Loading */
+        .loading-overlay {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px;
+            color: #718096;
         }
-        
-        .summary-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .summary-card h3 {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
-        }
-        
-        .summary-card .value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #1a1a2e;
-        }
-        
-        .summary-card.target .value {
-            color: #2196F3;
-        }
-        
-        .summary-card.realization .value {
-            color: #4CAF50;
-        }
-        
-        .summary-card.percentage .value {
-            color: #FF9800;
-        }
-        
-        .summary-card.comparison .value {
-            color: #9C27B0;
-        }
-        
-        .charts-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .chart-container h3 {
-            margin-bottom: 20px;
-            color: #1a1a2e;
-        }
-        
-        .table-container {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-        }
-        
-        .table-container h3 {
-            margin-bottom: 20px;
-            color: #1a1a2e;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        th {
-            background: #f8f9fa;
-            color: #666;
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-        }
-        
-        td {
-            font-size: 0.9rem;
-        }
-        
-        tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .percentage-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        .percentage-high {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-        
-        .percentage-medium {
-            background: #fff3e0;
-            color: #ef6c00;
-        }
-        
-        .percentage-low {
-            background: #ffebee;
-            color: #c62828;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-        }
-        
+
         .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #1a1a2e;
+            width: 60px;
+            height: 60px;
+            border: 5px solid #e2e8f0;
+            border-top: 5px solid #3182ce;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin-bottom: 20px;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
+
+        /* Error */
+        .error-box {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 20px 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Info Banner */
+        .info-banner {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(72,187,120,0.3);
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .info-banner h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .info-banner p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .info-banner .year-badge {
+            background: white;
+            color: #38a169;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: fadeInUp 0.6s ease backwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .stat-card.primary::before { background: linear-gradient(90deg, #3182ce, #63b3ed); }
+        .stat-card.success::before { background: linear-gradient(90deg, #38a169, #68d391); }
+        .stat-card.warning::before { background: linear-gradient(90deg, #d69e2e, #f6e05e); }
+        .stat-card.info::before { background: linear-gradient(90deg, #805ad5, #b794f4); }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .stat-card.primary .stat-icon { background: linear-gradient(135deg, #ebf8ff, #bee3f8); color: #3182ce; }
+        .stat-card.success .stat-icon { background: linear-gradient(135deg, #f0fff4, #c6f6d5); color: #38a169; }
+        .stat-card.warning .stat-icon { background: linear-gradient(135deg, #fffaf0, #feebc8); color: #d69e2e; }
+        .stat-card.info .stat-icon { background: linear-gradient(135deg, #faf5ff, #e9d8fd); color: #805ad5; }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+
+        .stat-subtitle {
+            font-size: 0.85rem;
+            color: #a0aec0;
+        }
+
+        .stat-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .stat-card.primary .stat-badge { background: #ebf8ff; color: #3182ce; }
+        .stat-card.success .stat-badge { background: #f0fff4; color: #38a169; }
+        .stat-card.warning .stat-badge { background: #fffaf0; color: #d69e2e; }
+        .stat-card.info .stat-badge { background: #faf5ff; color: #805ad5; }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            animation: fadeInUp 0.8s ease backwards;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+        }
+
+        .chart-card:nth-child(1) { animation-delay: 0.5s; }
+        .chart-card:nth-child(2) { animation-delay: 0.6s; }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f4f8;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .chart-subtitle {
+            font-size: 0.85rem;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s ease;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #1e3a5f, #2c5282);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .modal-stat {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
             padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .modal-stat.highlight {
+            background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+            border: 2px solid #3182ce;
+        }
+
+        .modal-stat-label {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+
+        .modal-stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .month-item {
+            background: #f7fafc;
+            padding: 15px;
             border-radius: 10px;
             text-align: center;
-            margin: 20px 0;
+            transition: all 0.3s ease;
         }
-        
-        @media (max-width: 1024px) {
-            .charts-row {
-                grid-template-columns: 1fr;
-            }
+
+        .month-item:hover {
+            background: #ebf8ff;
+            transform: scale(1.05);
+        }
+
+        .month-item.has-value {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+        }
+
+        .month-name {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-bottom: 5px;
+        }
+
+        .month-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .comparison-table td {
+            color: #718096;
+        }
+
+        .comparison-table .number {
+            font-family: 'Courier New', monospace;
+            text-align: right;
+        }
+
+        .change-positive {
+            color: #38a169;
+            font-weight: 600;
+        }
+
+        .change-negative {
+            color: #e53e3e;
+            font-weight: 600;
+        }
+
+        /* Comparison Section */
+        .comparison-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease backwards;
+            animation-delay: 0.7s;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .comparison-item {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .comparison-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .comparison-item.highlight {
+            background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+            border: 2px solid #3182ce;
+        }
+
+        .comparison-item.current {
+            background: linear-gradient(135deg, #f0fff4, #c6f6d5);
+            border: 2px solid #38a169;
+        }
+
+        .comparison-month {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .comparison-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 5px;
+        }
+
+        .comparison-change {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .comparison-change.positive {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+            color: #276749;
+        }
+
+        .comparison-change.negative {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #c53030;
+        }
+
+        /* Data Table */
+        .table-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease backwards;
+            animation-delay: 0.8s;
+            overflow-x: auto;
+        }
+
+        .table-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #1e3a5f, #2c5282);
+        }
+
+        .data-table th {
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .data-table th:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .data-table tbody tr:hover {
+            background: linear-gradient(135deg, #ebf8ff, #f0fff4);
+            transform: scale(1.01);
+        }
+
+        .data-table td {
+            padding: 15px 12px;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+
+        .data-table .number {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .data-table .tax-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .percentage-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .percentage-badge.excellent {
+            background: linear-gradient(135deg, #c6f6d5, #9ae6b4);
+            color: #276749;
+        }
+
+        .percentage-badge.good {
+            background: linear-gradient(135deg, #bee3f8, #90cdf4);
+            color: #2b6cb0;
+        }
+
+        .percentage-badge.warning {
+            background: linear-gradient(135deg, #feebc8, #fbd38d);
+            color: #975a16;
+        }
+
+        .percentage-badge.danger {
+            background: linear-gradient(135deg, #fed7d7, #feb2b2);
+            color: #c53030;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header { padding: 15px 20px; }
+            .header-content { flex-direction: column; text-align: center; }
+            .logo { width: 60px; height: 60px; }
+            .header-text h1 { font-size: 1.2rem; }
+            .header-text h2 { font-size: 0.95rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .chart-container { height: 280px; }
+            .info-banner { flex-direction: column; text-align: center; gap: 15px; }
+            .month-grid { grid-template-columns: repeat(3, 1fr); }
+            .modal { width: 98%; margin: 10px; }
+            .modal-body { padding: 15px; }
+            .data-table th, .data-table td { padding: 10px 8px; font-size: 0.75rem; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-left">
-            <span style="font-size: 2rem;">🏛️</span>
-            <div>
-                <h1>Dashboard PAD Lombok Tengah</h1>
-                <div class="status">
-                    <span class="status-dot"></span>
-                    <span id="lastUpdate">Memuat data...</span>
-                </div>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="https://lomboktengahkab.go.id/uploads/images/LOGO_KABUPATEN_LOMBOK_TENGAH.png" alt="Logo Lombok Tengah">
+            </div>
+            <div class="header-text">
+                <h1>BADAN PENDAPATAN DAERAH (BAPENDA) <span class="badge-now">2026</span></h1>
+                <h2>KABUPATEN LOMBOK TENGAH</h2>
+                <p>📅 Dashboard Monitoring Realisasi Pajak Daerah</p>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-refresh" onclick="loadData()">🔄 Refresh</button>
+                <a href="index.html" class="btn btn-home">🏠 Home</a>
             </div>
         </div>
-        <div class="header-right">
-            <button class="btn btn-refresh" onclick="loadData()">🔄 Refresh</button>
-            <a href="index.html" class="btn btn-home">🏠 Home</a>
-        </div>
-    </div>
-    
+    </header>
+
+    <!-- Main Container -->
     <div class="container">
-        <div id="loading" class="loading">
+        <!-- Loading -->
+        <div id="loading" class="loading-overlay">
             <div class="loading-spinner"></div>
             <p>Memuat data dari Google Sheets...</p>
         </div>
-        
-        <div id="error" class="error-message" style="display: none;">
-            ⚠️ Gagal memuat data. Pastikan Google Sheets sudah dipublish!
+
+        <!-- Error -->
+        <div id="error" class="error-box" style="display: none;">
+            ⚠️ Gagal memuat data. Pastikan Google Sheets sudah dipublish!<br>
+            <small>Cek: File → Share → Publish to web</small>
         </div>
-        
+
+        <!-- Content -->
         <div id="content" style="display: none;">
-            <div class="summary-cards">
-                <div class="summary-card target">
-                    <h3>💰 Target PAD 2026</h3>
-                    <div class="value" id="totalTarget">-</div>
+            <!-- Info Banner -->
+            <section class="info-banner">
+                <div>
+                    <h3>📊 Monitoring Kinerja BAPENDA Lombok Tengah</h3>
+                    <p>Klik pada grafik atau tabel untuk melihat detail pajak</p>
                 </div>
-                <div class="summary-card realization">
-                    <h3>📈 Realisasi S/D Bulan Ini</h3>
-                    <div class="value" id="totalRealization">-</div>
+                <div class="year-badge">TAHUN 2026</div>
+            </section>
+
+            <!-- Stats Cards -->
+            <section class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-badge">🎯 TARGET</div>
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">Target Pajak Daerah 2026</div>
+                    <div class="stat-value" id="target2026">Rp 0</div>
+                    <div class="stat-subtitle">Total Target Tahun 2026</div>
                 </div>
-                <div class="summary-card percentage">
-                    <h3>📊 Persentase Capaian</h3>
-                    <div class="value" id="totalPercentage">-</div>
+                <div class="stat-card success">
+                    <div class="stat-badge">📈 REALISASI</div>
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-label">Realisasi Pajak Daerah</div>
+                    <div class="stat-value" id="realisasi2026">Rp 0</div>
+                    <div class="stat-subtitle" id="realisasiSubtitle">Periode S/D Bulan Ini</div>
                 </div>
-                <div class="summary-card comparison">
-                    <h3>📉 Dibanding 2025</h3>
-                    <div class="value" id="comparison">-</div>
+                <div class="stat-card warning">
+                    <div class="stat-badge">🎯 CAPAIAN</div>
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">Persentase Capaian</div>
+                    <div class="stat-value" id="persen2026">0%</div>
+                    <div class="stat-subtitle">Terhadap Target Tahun 2026</div>
                 </div>
-            </div>
-            
-            <div class="charts-row">
-                <div class="chart-container">
-                    <h3>📊 Perbandingan Target vs Realisasi per Jenis Pajak</h3>
-                    <canvas id="comparisonChart"></canvas>
+                <div class="stat-card info">
+                    <div class="stat-badge">🔄 vs 2025</div>
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-label">Perbandingan dengan 2025</div>
+                    <div class="stat-value" id="growthRate">0%</div>
+                    <div class="stat-subtitle" id="comparisonLabel">Periode S/D Bulan Ini</div>
                 </div>
-                <div class="chart-container">
-                    <h3>🥧 Proporsi Realisasi per Pajak</h3>
-                    <canvas id="pieChart"></canvas>
+            </section>
+
+            <!-- Charts -->
+            <section class="charts-grid">
+                <div class="chart-card" id="chartBarCard">
+                    <div class="chart-header">
+                        <h3 class="chart-title">📊 Perbandingan Realisasi Per Bulan</h3>
+                        <span class="chart-subtitle">👆 Klik untuk detail ▼</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="table-container">
-                <h3>📋 Detail Realisasi PAD per Jenis Pajak (S/D Febuari 2026)</h3>
-                <table id="dataTable">
+                <div class="chart-card" id="chartPieCard">
+                    <div class="chart-header">
+                        <h3 class="chart-title">🥧 Komposisi Realisasi Pajak Daerah 2026</h3>
+                        <span class="chart-subtitle">👆 Klik untuk detail ▼</span>
+                    </div>
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparison Section -->
+            <section class="comparison-section">
+                <div class="section-header">
+                    <h3 class="section-title" id="comparisonTitle">📈 Analisis Perbandingan Periode Sama (Januari - Februari)</h3>
+                </div>
+                <div class="comparison-grid" id="comparisonGrid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Data Table 2026 -->
+            <section class="table-section">
+                <div class="table-title">📋 Detail Realisasi Pajak Daerah Tahun 2026 <small style="color: #718096; font-weight: normal;">(Klik baris untuk melihat detail)</small></div>
+                <table class="data-table">
                     <thead>
                         <tr>
                             <th>No</th>
                             <th>Jenis Pajak</th>
-                            <th>Target</th>
-                            <th>S/D Bulan Lalu</th>
-                            <th>Bulan Ini</th>
-                            <th>S/D Bulan Ini</th>
+                            <th>Target 2026</th>
+                            <th id="thBulan1">Januari</th>
+                            <th id="thBulan2">Februari</th>
+                            <th>Total Realisasi</th>
                             <th>% Capaian</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
+                    <tbody id="tableBody2026">
+                        <!-- Data will be populated by JavaScript -->
                     </tbody>
                 </table>
+            </section>
+
+            <!-- Data Table 2025 (Pembanding) -->
+            <section class="table-section" style="margin-top: 30px;">
+                <div class="table-title">📋 Data Pembanding: Realisasi Pajak Daerah Tahun 2025</div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Jenis Pajak</th>
+                            <th>Target 2025</th>
+                            <th>Total Realisasi 2025</th>
+                            <th>% Capaian</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody2025">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal Detail -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">📊 Detail Pajak</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-stats">
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">Target 2026</div>
+                        <div class="modal-stat-value" id="modalTarget">-</div>
+                    </div>
+                    <div class="modal-stat highlight">
+                        <div class="modal-stat-label">Total Realisasi</div>
+                        <div class="modal-stat-value" id="modalRealisasi">-</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">Persentase</div>
+                        <div class="modal-stat-value" id="modalPersen">-</div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h4 class="modal-section-title">📅 Realisasi Per Bulan 2026</h4>
+                    <div class="month-grid" id="modalMonthGrid">
+                        <!-- Will be populated -->
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h4 class="modal-section-title">📊 Perbandingan dengan 2025</h4>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Bulan</th>
+                                <th>2025</th>
+                                <th>2026</th>
+                                <th>Selisih</th>
+                                <th>Change</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalComparisonTable">
+                            <!-- Will be populated -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-    
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>💼 <strong>BAPENDA Kabupaten Lombok Tengah</strong></p>
+        <p>Dibuat dengan ❤️ menggunakan HTML, CSS & JavaScript</p>
+        <p style="margin-top: 10px;">© 2026 - Dashboard Monitoring Pajak Daerah</p>
+    </footer>
+
     <script>
-        // Configuration
+        // ==================== CONFIGURATION ====================
         const SHEET_ID = '1BE7gPYSSlCnaIZ4Q7RvGx_L_2v46fQjkEnK3EC3VQz4';
         const GID_2026 = '0';
         const GID_2025 = '757965445';
-        const API_KEY = 'AIzaSyDOeG8VE0A6xV12Sz_8g0Y2mCe7LqN8Y4U'; // Public API key
-        
+
+        // Data storage
         let data2026 = [];
         let data2025 = [];
-        let comparisonChart = null;
-        let pieChart = null;
-        
-        // Format currency
-        function formatCurrency(num) {
-            if (num >= 1e12) return 'Rp ' + (num / 1e12).toFixed(2) + ' T';
-            if (num >= 1e9) return 'Rp ' + (num / 1e9).toFixed(2) + ' M';
-            if (num >= 1e6) return 'Rp ' + (num / 1e6).toFixed(2) + ' Jt';
-            if (num >= 1e3) return 'Rp ' + (num / 1e3).toFixed(2) + ' Rb';
+        let charts = {};
+
+        // Month names
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const shortMonthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        // ==================== FORMATTERS ====================
+        function formatRupiahFull(num) {
+            if (num >= 1000000000) {
+                return 'Rp ' + (num / 1000000000).toFixed(2) + ' M';
+            } else if (num >= 1000000) {
+                return 'Rp ' + (num / 1000000).toFixed(2) + ' Jt';
+            } else if (num >= 1000) {
+                return 'Rp ' + (num / 1000).toFixed(0) + ' Rb';
+            }
             return 'Rp ' + num.toLocaleString('id-ID');
         }
-        
-        // Format percentage
-        function formatPercentage(num) {
-            return num.toFixed(2) + '%';
+
+        function formatNumber(num) {
+            return num.toLocaleString('id-ID');
         }
-        
-        // Parse CSV data
+
+        // ==================== FETCH DATA ====================
+        async function fetchSheetData(gid) {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const csv = await response.text();
+                return parseCSV(csv);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                throw error;
+            }
+        }
+
         function parseCSV(csv) {
             const lines = csv.split('\n');
             const result = [];
@@ -370,257 +1025,304 @@
             for (let i = 1; i < lines.length; i++) {
                 if (lines[i].trim() === '') continue;
                 
-                const values = lines[i].split(',');
+                // Parse CSV properly (handle commas in values)
+                const values = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let char of lines[i]) {
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim());
+                
+                // Skip if first column is empty
+                if (!values[0] || values[0].trim() === '') continue;
+                
                 const row = {
-                    name: values[0] ? values[0].trim() : '',
+                    name: values[0].trim(),
                     target: parseFloat(values[1]) || 0,
-                    months: []
+                    bulan: []
                 };
                 
-                // Months are from index 2 to 13 (Jan to Dec)
+                // Parse monthly values (columns 2-13 = Jan-Dec)
                 for (let j = 2; j <= 13; j++) {
-                    row.months.push(parseFloat(values[j]) || 0);
+                    row.bulan.push(parseFloat(values[j]) || 0);
                 }
                 
-                // Calculate total
-                row.total = row.months.reduce((a, b) => a + b, 0);
-                
-                // Calculate percentage
+                // Calculate totals
+                row.total = row.bulan.reduce((a, b) => a + b, 0);
                 row.percentage = row.target > 0 ? (row.total / row.target) * 100 : 0;
                 
-                // Calculate SD bulan lalu (total - bulan ini)
-                const currentMonth = new Date().getMonth();
-                row.sdBulanIni = row.total;
-                row.bulanIni = row.months[currentMonth] || 0;
-                row.sdBulanLalu = row.sdBulanIni - row.bulanIni;
-                
-                if (row.name) result.push(row);
+                result.push(row);
             }
             
             return result;
         }
-        
-        // Fetch data from Google Sheets
-        async function fetchSheet(gid) {
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
-            
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Network response was not ok');
-                const text = await response.text();
-                return parseCSV(text);
-            } catch (error) {
-                console.error('Error fetching sheet:', error);
-                throw error;
-            }
-        }
-        
-        // Load all data
+
         async function loadData() {
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const content = document.getElementById('content');
             
-            loading.style.display = 'block';
+            loading.style.display = 'flex';
             error.style.display = 'none';
             content.style.display = 'none';
             
             try {
                 [data2026, data2025] = await Promise.all([
-                    fetchSheet(GID_2026),
-                    fetchSheet(GID_2025)
+                    fetchSheetData(GID_2026),
+                    fetchSheetData(GID_2025)
                 ]);
-                
-                updateUI();
                 
                 loading.style.display = 'none';
                 content.style.display = 'block';
                 
-                document.getElementById('lastUpdate').textContent = 
-                    `Terakhir diperbarui: ${new Date().toLocaleString('id-ID')}`;
-                
+                initDashboard();
             } catch (error) {
                 loading.style.display = 'none';
                 error.style.display = 'block';
                 console.error('Failed to load data:', error);
             }
         }
-        
-        // Update UI
-        function updateUI() {
-            // Calculate totals
-            const totalTarget2026 = data2026.reduce((sum, item) => sum + item.target, 0);
-            const totalRealization2026 = data2026.reduce((sum, item) => sum + item.sdBulanIni, 0);
-            const totalPercentage2026 = totalTarget2026 > 0 ? (totalRealization2026 / totalTarget2026) * 100 : 0;
+
+        // ==================== CALCULATIONS ====================
+        function getTotalTarget(data) {
+            return data.reduce((sum, item) => sum + item.target, 0);
+        }
+
+        function getTotalRealisasi(data) {
+            return data.reduce((sum, item) => sum + item.total, 0);
+        }
+
+        function getMonthTotal(data, monthIndex) {
+            return data.reduce((sum, item) => sum + (item.bulan[monthIndex] || 0), 0);
+        }
+
+        // ==================== ANIMATED COUNTER ====================
+        function animateCounter(element, target, duration = 2000) {
+            let start = 0;
+            const increment = target / (duration / 16);
             
-            const totalRealization2025 = data2025.reduce((sum, item) => sum + item.total, 0);
-            const comparison = totalRealization2026 - totalRealization2025;
-            const comparisonPercentage = totalRealization2025 > 0 ? (comparison / totalRealization2025) * 100 : 0;
-            
-            // Update summary cards
-            document.getElementById('totalTarget').textContent = formatCurrency(totalTarget2026);
-            document.getElementById('totalRealization').textContent = formatCurrency(totalRealization2026);
-            document.getElementById('totalPercentage').textContent = formatPercentage(totalPercentage2026);
-            
-            const comparisonEl = document.getElementById('comparison');
-            if (comparison >= 0) {
-                comparisonEl.textContent = '+' + formatCurrency(comparison) + ' (+' + comparisonPercentage.toFixed(1) + '%)';
-                comparisonEl.style.color = '#2e7d32';
-            } else {
-                comparisonEl.textContent = formatCurrency(comparison) + ' (' + comparisonPercentage.toFixed(1) + '%)';
-                comparisonEl.style.color = '#c62828';
+            function updateCounter() {
+                start += increment;
+                if (start < target) {
+                    element.textContent = formatRupiahFull(Math.floor(start));
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = formatRupiahFull(target);
+                }
             }
             
-            // Update table
-            updateTable();
-            
-            // Update charts
-            updateCharts();
+            updateCounter();
         }
-        
-        // Update table
-        function updateTable() {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
+
+        // ==================== INITIALIZE DASHBOARD ====================
+        function initDashboard() {
+            // Get current month (0-based, so January = 0)
+            const currentMonth = new Date().getMonth();
+            const currentMonthName = monthNames[currentMonth];
             
-            data2026.forEach((item, index) => {
-                const row = document.createElement('tr');
+            // Update subtitles with current month
+            document.getElementById('realisasiSubtitle').textContent = `Periode S/D ${currentMonthName} 2026`;
+            document.getElementById('comparisonLabel').textContent = `Periode S/D ${currentMonthName}`;
+            document.getElementById('comparisonTitle').textContent = `📈 Analisis Perbandingan Periode Sama (Januari - ${currentMonthName})`;
+            
+            // Update table headers
+            document.getElementById('thBulan1').textContent = 'Januari';
+            document.getElementById('thBulan2').textContent = monthNames[1]; // Always show Jan-Feb
+            
+            // Calculate totals
+            const totalTarget2026 = getTotalTarget(data2026);
+            const totalRealisasi2026 = getTotalRealisasi(data2026);
+            const percentage2026 = (totalRealisasi2026 / totalTarget2026 * 100).toFixed(2);
+            
+            // Calculate comparison with same period in 2025
+            let total2026Period = 0;
+            let total2025Period = 0;
+            for (let i = 0; i <= currentMonth; i++) {
+                total2026Period += getMonthTotal(data2026, i);
+                total2025Period += getMonthTotal(data2025, i);
+            }
+            
+            const growthRate = total2025Period > 0 ? ((total2026Period - total2025Period) / total2025Period * 100).toFixed(1) : 0;
+            
+            // Animate stats
+            setTimeout(() => {
+                animateCounter(document.getElementById('target2026'), totalTarget2026);
+                animateCounter(document.getElementById('realisasi2026'), totalRealisasi2026);
+                document.getElementById('persen2026').textContent = percentage2026 + '%';
                 
-                const percentageClass = item.percentage >= 100 ? 'percentage-high' : 
-                                        item.percentage >= 50 ? 'percentage-medium' : 'percentage-low';
+                const growthElement = document.getElementById('growthRate');
+                growthElement.textContent = (growthRate >= 0 ? '+' : '') + growthRate + '%';
+                growthElement.style.color = growthRate >= 0 ? '#38a169' : '#e53e3e';
+            }, 300);
+            
+            // Initialize comparison grid
+            initComparisonGrid(currentMonth);
+            
+            // Initialize charts
+            initCharts(currentMonth);
+            
+            // Initialize tables
+            initTables(currentMonth);
+        }
+
+        // ==================== COMPARISON GRID ====================
+        function initComparisonGrid(currentMonth) {
+            const grid = document.getElementById('comparisonGrid');
+            grid.innerHTML = '';
+            
+            // Show first 4 months or up to current month
+            const displayMonths = Math.min(4, currentMonth + 1);
+            
+            for (let i = 0; i < displayMonths; i++) {
+                const val2025 = getMonthTotal(data2025, i);
+                const val2026 = getMonthTotal(data2026, i);
+                const selisih = val2026 - val2025;
+                const change = val2025 > 0 ? ((selisih / val2025) * 100).toFixed(1) : 0;
+                const isCurrent = i === currentMonth;
                 
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td><strong>${item.name}</strong></td>
-                    <td>${formatCurrency(item.target)}</td>
-                    <td>${formatCurrency(item.sdBulanLalu)}</td>
-                    <td>${formatCurrency(item.bulanIni)}</td>
-                    <td>${formatCurrency(item.sdBulanIni)}</td>
-                    <td><span class="percentage-badge ${percentageClass}">${formatPercentage(item.percentage)}</span></td>
+                const item = document.createElement('div');
+                item.className = `comparison-item ${isCurrent ? 'current' : ''}`;
+                item.onclick = () => showMonthDetail(i);
+                item.innerHTML = `
+                    <div class="comparison-month">${monthNames[i]} 2025 vs 2026</div>
+                    <div class="comparison-value">${formatRupiahFull(val2026)}</div>
+                    <span class="comparison-change ${selisih >= 0 ? 'positive' : 'negative'}">
+                        ${selisih >= 0 ? '↑' : '↓'} ${Math.abs(change)}%
+                    </span>
                 `;
-                
-                tbody.appendChild(row);
-            });
-            
-            // Add total row
-            const totalTarget = data2026.reduce((sum, item) => sum + item.target, 0);
-            const totalSDBulanLalu = data2026.reduce((sum, item) => sum + item.sdBulanLalu, 0);
-            const totalBulanIni = data2026.reduce((sum, item) => sum + item.bulanIni, 0);
-            const totalSDBulanIni = data2026.reduce((sum, item) => sum + item.sdBulanIni, 0);
-            const totalPercentage = totalTarget > 0 ? (totalSDBulanIni / totalTarget) * 100 : 0;
-            
-            const totalRow = document.createElement('tr');
-            totalRow.style.fontWeight = 'bold';
-            totalRow.style.background = '#f8f9fa';
-            totalRow.innerHTML = `
-                <td colspan="2"><strong>TOTAL</strong></td>
-                <td>${formatCurrency(totalTarget)}</td>
-                <td>${formatCurrency(totalSDBulanLalu)}</td>
-                <td>${formatCurrency(totalBulanIni)}</td>
-                <td>${formatCurrency(totalSDBulanIni)}</td>
-                <td><span class="percentage-badge ${totalPercentage >= 100 ? 'percentage-high' : 'percentage-medium'}">${formatPercentage(totalPercentage)}</span></td>
-            `;
-            tbody.appendChild(totalRow);
+                grid.appendChild(item);
+            }
         }
-        
-        // Update charts
-        function updateCharts() {
-            const labels = data2026.map(item => item.name);
-            const targets = data2026.map(item => item.target);
-            const realizations = data2026.map(item => item.sdBulanIni);
+
+        // ==================== CHARTS ====================
+        function initCharts(currentMonth) {
+            // Destroy existing charts
+            if (charts.comparison) charts.comparison.destroy();
+            if (charts.pie) charts.pie.destroy();
             
-            // Comparison Chart (Bar)
-            const ctxComparison = document.getElementById('comparisonChart').getContext('2d');
+            // Comparison Chart - show months up to current
+            const monthsLabels = [];
+            const data2025Values = [];
+            const data2026Values = [];
             
-            if (comparisonChart) comparisonChart.destroy();
+            for (let i = 0; i <= currentMonth; i++) {
+                monthsLabels.push(shortMonthNames[i]);
+                data2025Values.push(getMonthTotal(data2025, i));
+                data2026Values.push(getMonthTotal(data2026, i));
+            }
             
-            comparisonChart = new Chart(ctxComparison, {
+            const ctx1 = document.getElementById('comparisonChart').getContext('2d');
+            charts.comparison = new Chart(ctx1, {
                 type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: monthsLabels,
                     datasets: [
                         {
-                            label: 'Target',
-                            data: targets,
-                            backgroundColor: 'rgba(33, 150, 243, 0.5)',
-                            borderColor: 'rgba(33, 150, 243, 1)',
-                            borderWidth: 1
+                            label: '2025',
+                            data: data2025Values,
+                            backgroundColor: 'rgba(113, 128, 150, 0.8)',
+                            borderColor: 'rgba(113, 128, 150, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8,
                         },
                         {
-                            label: 'Realisasi',
-                            data: realizations,
-                            backgroundColor: 'rgba(76, 175, 80, 0.5)',
-                            borderColor: 'rgba(76, 175, 80, 1)',
-                            borderWidth: 1
+                            label: '2026',
+                            data: data2026Values,
+                            backgroundColor: 'rgba(56, 161, 105, 0.8)',
+                            borderColor: 'rgba(56, 161, 105, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8,
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            showMonthDetail(index);
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatRupiahFull(context.raw);
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         y: {
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    if (value >= 1e9) return (value / 1e9).toFixed(1) + ' B';
-                                    if (value >= 1e6) return (value / 1e6).toFixed(1) + ' M';
+                                    if (value >= 1000000000) return (value/1000000000).toFixed(1) + ' M';
+                                    if (value >= 1000000) return (value/1000000).toFixed(0) + ' Jt';
                                     return value;
                                 }
                             }
-                        },
-                        x: {
-                            ticks: {
-                                maxRotation: 45,
-                                minRotation: 45
-                            }
                         }
                     },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + formatCurrency(context.raw);
-                                }
-                            }
-                        }
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
                     }
                 }
             });
-            
+
             // Pie Chart
-            const ctxPie = document.getElementById('pieChart').getContext('2d');
-            
-            if (pieChart) pieChart.destroy();
+            const ctx2 = document.getElementById('pieChart').getContext('2d');
+            const taxNames = data2026.map(item => item.name);
+            const taxValues = data2026.map(item => item.total);
             
             const colors = [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384',
-                '#36A2EB', '#FFCE56', '#9966FF', '#FF9F40'
+                '#3182ce', '#38a169', '#d69e2e', '#e53e3e', '#805ad5',
+                '#319795', '#dd6b20', '#d53f8c', '#667eea', '#48bb78',
+                '#f56565', '#9f7aea', '#4fd1c5', '#ed8936', '#9f7aea'
             ];
             
-            pieChart = new Chart(ctxPie, {
+            charts.pie = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
-                    labels: labels,
+                    labels: taxNames,
                     datasets: [{
-                        data: realizations,
-                        backgroundColor: colors,
-                        borderWidth: 2,
-                        borderColor: '#fff'
+                        data: taxValues,
+                        backgroundColor: colors.slice(0, taxNames.length),
+                        borderColor: '#fff',
+                        borderWidth: 3,
+                        hoverOffset: 20
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            showTaxDetail(index);
+                        }
+                    },
                     plugins: {
                         legend: {
                             position: 'right',
                             labels: {
-                                boxWidth: 12,
-                                font: {
-                                    size: 10
-                                }
+                                padding: 15,
+                                usePointStyle: true,
+                                font: { size: 11 }
                             }
                         },
                         tooltip: {
@@ -628,16 +1330,229 @@
                                 label: function(context) {
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                     const percentage = ((context.raw / total) * 100).toFixed(1);
-                                    return `${context.label}: ${formatCurrency(context.raw)} (${percentage}%)`;
+                                    return context.label + ': ' + formatRupiahFull(context.raw) + ' (' + percentage + '%)';
                                 }
                             }
                         }
+                    },
+                    animation: {
+                        animateRotate: true,
+                        animateScale: true,
+                        duration: 2000,
+                        easing: 'easeOutQuart'
                     }
                 }
             });
+
+            // Click handlers for chart cards
+            document.getElementById('chartBarCard').onclick = () => showMonthDetail(0);
+            document.getElementById('chartPieCard').onclick = () => {
+                const maxIndex = taxValues.indexOf(Math.max(...taxValues));
+                showTaxDetail(maxIndex);
+            };
         }
-        
-        // Initialize
+
+        // ==================== TABLES ====================
+        function initTables(currentMonth) {
+            // Table 2026
+            const tbody2026 = document.getElementById('tableBody2026');
+            tbody2026.innerHTML = '';
+            
+            data2026.forEach((item, index) => {
+                let percentageClass = 'good';
+                if (item.percentage >= 100) percentageClass = 'excellent';
+                else if (item.percentage >= 50) percentageClass = 'good';
+                else if (item.percentage >= 25) percentageClass = 'warning';
+                else percentageClass = 'danger';
+                
+                const row = `
+                    <tr onclick="showTaxDetail(${index})">
+                        <td>${index + 1}</td>
+                        <td class="tax-name">${item.name}</td>
+                        <td class="number">${formatRupiahFull(item.target)}</td>
+                        <td class="number">${formatRupiahFull(item.bulan[0])}</td>
+                        <td class="number">${formatRupiahFull(item.bulan[1] || 0)}</td>
+                        <td class="number" style="font-weight: 600; color: #2b6cb0;">${formatRupiahFull(item.total)}</td>
+                        <td><span class="percentage-badge ${percentageClass}">${item.percentage.toFixed(2)}%</span></td>
+                    </tr>
+                `;
+                tbody2026.innerHTML += row;
+            });
+
+            // Table 2025
+            const tbody2025 = document.getElementById('tableBody2025');
+            tbody2025.innerHTML = '';
+            
+            data2025.forEach((item, index) => {
+                let percentageClass = 'good';
+                if (item.percentage >= 100) percentageClass = 'excellent';
+                else if (item.percentage >= 50) percentageClass = 'good';
+                else if (item.percentage >= 25) percentageClass = 'warning';
+                else percentageClass = 'danger';
+                
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="tax-name">${item.name}</td>
+                        <td class="number">${formatRupiahFull(item.target)}</td>
+                        <td class="number" style="font-weight: 600; color: #4a5568;">${formatRupiahFull(item.total)}</td>
+                        <td><span class="percentage-badge ${percentageClass}">${item.percentage.toFixed(2)}%</span></td>
+                    </tr>
+                `;
+                tbody2025.innerHTML += row;
+            });
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        function showTaxDetail(index) {
+            const item2026 = data2026[index];
+            const item2025 = data2025.find(item => item.name === item2026.name) || { bulan: [] };
+            
+            // Set modal title
+            document.getElementById('modalTitle').textContent = '📊 ' + item2026.name;
+            
+            // Set stats
+            document.getElementById('modalTarget').textContent = formatRupiahFull(item2026.target);
+            document.getElementById('modalRealisasi').textContent = formatRupiahFull(item2026.total);
+            document.getElementById('modalPersen').textContent = item2026.percentage.toFixed(2) + '%';
+            
+            // Set month grid
+            const monthGrid = document.getElementById('modalMonthGrid');
+            monthGrid.innerHTML = '';
+            
+            for (let i = 0; i < 12; i++) {
+                const value = item2026.bulan[i] || 0;
+                const hasValue = value > 0;
+                monthGrid.innerHTML += `
+                    <div class="month-item ${hasValue ? 'has-value' : ''}">
+                        <div class="month-name">${shortMonthNames[i]}</div>
+                        <div class="month-value">${hasValue ? formatRupiahFull(value) : '-'}</div>
+                    </div>
+                `;
+            }
+            
+            // Set comparison table
+            const compTable = document.getElementById('modalComparisonTable');
+            compTable.innerHTML = '';
+            
+            for (let i = 0; i < 12; i++) {
+                const val2025 = item2025.bulan[i] || 0;
+                const val2026 = item2026.bulan[i] || 0;
+                const selisih = val2026 - val2025;
+                const change = val2025 > 0 ? ((selisih / val2025) * 100).toFixed(1) : 0;
+                
+                if (val2025 > 0 || val2026 > 0) {
+                    compTable.innerHTML += `
+                        <tr>
+                            <td>${monthNames[i]}</td>
+                            <td class="number">${formatRupiahFull(val2025)}</td>
+                            <td class="number">${formatRupiahFull(val2026)}</td>
+                            <td class="number">${formatRupiahFull(Math.abs(selisih))}</td>
+                            <td class="${selisih >= 0 ? 'change-positive' : 'change-negative'}">
+                                ${selisih >= 0 ? '↑' : '↓'} ${Math.abs(change)}%
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            openModal();
+        }
+
+        function showMonthDetail(monthIndex) {
+            const monthName = monthNames[monthIndex];
+            const val2025 = getMonthTotal(data2025, monthIndex);
+            const val2026 = getMonthTotal(data2026, monthIndex);
+            const selisih = val2026 - val2025;
+            const change = val2025 > 0 ? ((selisih / val2025) * 100).toFixed(1) : 0;
+            
+            // Set modal title
+            document.getElementById('modalTitle').textContent = '📅 Realisasi Bulan ' + monthName;
+            
+            // Set stats
+            document.getElementById('modalTarget').textContent = '-';
+            document.getElementById('modalRealisasi').textContent = formatRupiahFull(val2026);
+            document.getElementById('modalPersen').textContent = '-';
+            
+            // Month grid
+            const monthGrid = document.getElementById('modalMonthGrid');
+            monthGrid.innerHTML = '';
+            
+            for (let i = 0; i < 12; i++) {
+                const value = getMonthTotal(data2026, i);
+                const isSelected = i === monthIndex;
+                monthGrid.innerHTML += `
+                    <div class="month-item ${value > 0 ? 'has-value' : ''}" 
+                         style="${isSelected ? 'background: linear-gradient(135deg, #ebf8ff, #bee3f8); border: 2px solid #3182ce;' : ''}">
+                        <div class="month-name">${shortMonthNames[i]}</div>
+                        <div class="month-value">${value > 0 ? formatRupiahFull(value) : '-'}</div>
+                    </div>
+                `;
+            }
+            
+            // Set comparison table - show all taxes
+            const compTable = document.getElementById('modalComparisonTable');
+            compTable.innerHTML = '';
+            
+            let no = 1;
+            for (const item2026 of data2026) {
+                const item2025 = data2025.find(item => item.name === item2026.name) || { bulan: [] };
+                const val2025Item = item2025.bulan[monthIndex] || 0;
+                const val2026Item = item2026.bulan[monthIndex] || 0;
+                const selisihItem = val2026Item - val2025Item;
+                const changeItem = val2025Item > 0 ? ((selisihItem / val2025Item) * 100).toFixed(1) : 0;
+                
+                if (val2025Item > 0 || val2026Item > 0) {
+                    compTable.innerHTML += `
+                        <tr>
+                            <td>${no}. ${item2026.name}</td>
+                            <td class="number">${formatRupiahFull(val2025Item)}</td>
+                            <td class="number">${formatRupiahFull(val2026Item)}</td>
+                            <td class="number">${formatRupiahFull(Math.abs(selisihItem))}</td>
+                            <td class="${selisihItem >= 0 ? 'change-positive' : 'change-negative'}">
+                                ${selisihItem >= 0 ? '↑' : '↓'} ${Math.abs(changeItem)}%
+                            </td>
+                        </tr>
+                    `;
+                    no++;
+                }
+            }
+            
+            // Add total row
+            compTable.innerHTML += `
+                <tr style="background: #f7fafc; font-weight: 600;">
+                    <td>TOTAL</td>
+                    <td class="number">${formatRupiahFull(val2025)}</td>
+                    <td class="number">${formatRupiahFull(val2026)}</td>
+                    <td class="number">${formatRupiahFull(Math.abs(selisih))}</td>
+                    <td class="${selisih >= 0 ? 'change-positive' : 'change-negative'}">
+                        ${selisih >= 0 ? '↑' : '↓'} ${Math.abs(change)}%
+                    </td>
+                </tr>
+            `;
+            
+            openModal();
+        }
+
+        // ==================== INITIALIZE ====================
         document.addEventListener('DOMContentLoaded', loadData);
         
         // Auto refresh every 5 minutes
