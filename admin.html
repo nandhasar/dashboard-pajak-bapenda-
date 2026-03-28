@@ -182,6 +182,7 @@
         .td-left { text-align: left; font-weight: 500; }
         .td-number { font-family: 'Courier New', monospace; }
         .td-changed { background: #c6f6d5 !important; color: #276749; font-weight: 700; }
+        .td-warning { background: #fefcbf !important; color: #744210; }
 
         .preview-box {
             background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
@@ -189,6 +190,10 @@
             border-radius: 10px;
             padding: 15px;
             margin-top: 15px;
+        }
+
+        .preview-box.warning {
+            background: linear-gradient(135deg, #ecc94b 0%, #d69e2e 100%);
         }
 
         .preview-box h4 { margin-bottom: 15px; }
@@ -258,17 +263,6 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Debug */
-        .debug-panel {
-            background: #1a202c;
-            color: #68d391;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-        }
-
         @media (max-width: 768px) {
             .header-content { flex-direction: column; gap: 10px; }
         }
@@ -285,11 +279,6 @@
     <div class="container">
         <!-- Status -->
         <div id="statusAlert" class="alert alert-info">🔄 Memuat data...</div>
-
-        <!-- DEBUG PANEL -->
-        <div id="debugPanel" class="debug-panel" style="display: none;">
-            <div id="debugContent"></div>
-        </div>
 
         <!-- Form Input -->
         <div class="card">
@@ -334,16 +323,23 @@
                 </select>
             </div>
 
-            <!-- Input 1: s/d Bulan Lalu -->
+            <!-- Data dari Database -->
+            <div id="dataDBSection" class="form-group" style="display: none;">
+                <label class="form-label">📊 Data dari Database:</label>
+                <div id="dataDB" style="background: #edf2f7; padding: 10px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.85rem;"></div>
+            </div>
+
+            <!-- Input 1: Total s/d Bulan Lalu -->
             <div class="form-group">
                 <label class="form-label">💰 Total s/d Bulan Lalu (<span id="labelBulanLalu">-</span>)</label>
                 <div class="input-group">
                     <span class="currency">Rp</span>
-                    <input type="text" id="realisasiLalu" class="form-control" 
+                    <input type="text" id="totalSampaiLalu" class="form-control" 
                            style="text-align: right;" 
-                           placeholder="Contoh: 99336000">
+                           placeholder="Contoh: 143714683"
+                           oninput="processForm()">
                 </div>
-                <div class="input-info">📌 Masukkan ANGKA saja</div>
+                <div class="input-info">📌 Total KUMULATIF dari Januari sampai bulan SEBELUM dipilih</div>
             </div>
 
             <!-- Input 2: Nilai Bulan Ini -->
@@ -353,15 +349,10 @@
                     <span class="currency">Rp</span>
                     <input type="text" id="nilaiBulanIni" class="form-control" 
                            style="text-align: right;" 
-                           placeholder="Contoh: 81054500">
+                           placeholder="Contoh: 15761027"
+                           oninput="processForm()">
                 </div>
-                <div class="input-info">📌 Masukkan ANGKA saja</div>
-            </div>
-
-            <!-- Auto Calculate: s/d Bulan Ini -->
-            <div class="form-group">
-                <label class="form-label">📐 Total s/d Bulan Ini (AUTO)</label>
-                <div class="input-result" id="totalSampai">Rp 0</div>
+                <div class="input-info">📌 Nilai bulan INI SAJA (bukan total)</div>
             </div>
 
             <!-- Preview Box -->
@@ -437,7 +428,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('pajakSelect').addEventListener('change', processForm);
             document.getElementById('bulanSelect').addEventListener('change', processForm);
-            document.getElementById('realisasiLalu').addEventListener('input', processForm);
+            document.getElementById('totalSampaiLalu').addEventListener('input', processForm);
             document.getElementById('nilaiBulanIni').addEventListener('input', processForm);
             loadData();
         });
@@ -518,13 +509,12 @@
         function resetForm() {
             document.getElementById('pajakSelect').value = '';
             document.getElementById('bulanSelect').value = '';
-            document.getElementById('realisasiLalu').value = '';
+            document.getElementById('totalSampaiLalu').value = '';
             document.getElementById('nilaiBulanIni').value = '';
-            document.getElementById('totalSampai').textContent = 'Rp 0';
             document.getElementById('previewBox').style.display = 'none';
             document.getElementById('labelBulanLalu').textContent = '-';
             document.getElementById('labelBulanIni').textContent = '-';
-            document.getElementById('debugPanel').style.display = 'none';
+            document.getElementById('dataDBSection').style.display = 'none';
             changeToSave = null;
             renderTable();
         }
@@ -552,70 +542,133 @@
             var pajakSelect = document.getElementById('pajakSelect');
             var bulanSelect = document.getElementById('bulanSelect');
             
-            // pajakIdx = index di array (0, 1, 2, ...)
             var pajakIdx = pajakSelect.selectedIndex - 1;
             var bulanIdx = parseInt(bulanSelect.value) || 0;
-            var valLalu = parseNumber(document.getElementById('realisasiLalu').value);
-            var valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
+            var totalSampaiLalu = parseNumber(document.getElementById('totalSampaiLalu').value);
+            var nilaiBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
             
             var prevBulan = bulanIdx > 1 ? BULAN_NAMES[bulanIdx - 1] : '-';
             var currBulan = bulanIdx > 0 ? BULAN_NAMES[bulanIdx] : '-';
             document.getElementById('labelBulanLalu').textContent = prevBulan;
             document.getElementById('labelBulanIni').textContent = currBulan;
             
-            var totalSampai = valLalu + valBulanIni;
-            document.getElementById('totalSampai').textContent = 'Rp ' + formatNumber(totalSampai);
+            // Tampilkan data dari database
+            var dataDBSection = document.getElementById('dataDBSection');
+            var dataDB = document.getElementById('dataDB');
             
-            // DEBUG
-            document.getElementById('debugPanel').style.display = 'block';
-            document.getElementById('debugContent').innerHTML = 
-                '<strong>DEBUG INFO:</strong><br>' +
-                'pajakIdx (array index): ' + pajakIdx + '<br>' +
-                'bulanIdx: ' + bulanIdx + ' (' + (bulanIdx > 0 ? BULAN_NAMES[bulanIdx] : '-') + ')<br>' +
-                'valBulanIni: ' + valBulanIni + '<br>' +
-                'pajakName: ' + (pajakIdx >= 0 ? pajakList[pajakIdx] : '-') + '<br>' +
-                '----------------------------------------<br>' +
-                '<strong>MAPPING:</strong><br>' +
-                'Spreadsheet Row: ' + (pajakIdx >= 0 ? (pajakIdx + 2) : '-') + '<br>' +
-                'Spreadsheet Col: ' + (bulanIdx > 0 ? (bulanIdx + 2) : '-') + ' (' + (bulanIdx > 0 ? BULAN_NAMES[bulanIdx] : '-') + ')<br>' +
-                'Array Index: ' + (bulanIdx > 0 ? (bulanIdx + 1) : '-');
+            if (pajakIdx >= 0 && bulanIdx > 1) {
+                dataDBSection.style.display = 'block';
+                
+                var row = rawData[pajakIdx];
+                var prevMonthArrayIdx = bulanIdx; // array index untuk bulan sebelumnya
+                
+                // Tampilkan data bulan-bulan sebelumnya
+                var dbInfo = '<strong>' + pajakList[pajakIdx] + ':</strong><br>';
+                
+                // Tampilkan semua bulan sampai n-1
+                for (var m = 1; m < bulanIdx; m++) {
+                    var val = parseFloat(row[m + 1]) || 0; // row[2]=Jan, row[3]=Feb, etc.
+                    var total = 0;
+                    for (var x = 1; x <= m; x++) {
+                        total += parseFloat(row[x + 1]) || 0;
+                    }
+                    dbInfo += BULAN_NAMES[m] + ': Rp ' + formatNumber(val) + ' (s/d ' + BULAN_NAMES[m] + ': Rp ' + formatNumber(total) + ')<br>';
+                }
+                
+                dataDB.innerHTML = dbInfo;
+            } else {
+                dataDBSection.style.display = 'none';
+            }
             
-            if (pajakIdx >= 0 && bulanIdx > 0 && valBulanIni > 0) {
-                // Spreadsheet Row Number (1-based, karena row 1 adalah header)
-                // rawData[0] = spreadsheet row 2, rawData[1] = spreadsheet row 3, etc.
+            if (pajakIdx >= 0 && bulanIdx > 0 && nilaiBulanIni > 0) {
+                var row = rawData[pajakIdx];
+                
+                // Hitung nilai bulan sebelumnya (n-1)
+                // Jika bulanIdx = 3 (Maret), maka prevMonthIdx = 2 (Februari)
+                var prevMonthIdx = bulanIdx - 1;
+                
+                // Total nilai bulan sebelumnya yang ada di DB
+                var totalPrevDB = 0;
+                for (var i = 1; i <= prevMonthIdx; i++) {
+                    totalPrevDB += parseFloat(row[i + 1]) || 0;
+                }
+                
+                // Nilai baru bulan n-1 = Total s/d (n-1) - Total (n-2) di DB
+                // Jika n=3 (Mar), hitung Feb = Total s/d Feb - Jan (dari DB)
+                var prevPrevTotal = 0;
+                if (prevMonthIdx > 1) {
+                    for (var i = 1; i < prevMonthIdx; i++) {
+                        prevPrevTotal += parseFloat(row[i + 1]) || 0;
+                    }
+                }
+                
+                var newPrevMonthVal = totalSampaiLalu - prevPrevTotal;
+                
+                // Nilai lama bulan n-1 dari DB
+                var oldPrevMonthVal = parseFloat(row[prevMonthIdx + 1]) || 0;
+                
+                // Selisih
+                var selisihPrev = newPrevMonthVal - oldPrevMonthVal;
+                
+                // Spreadsheet columns
                 var spreadsheetRow = pajakIdx + 2;
-                
-                // Spreadsheet Column Number (1-based)
-                // Kolom A=1 (Nama), Kolom B=2 (Target), Kolom C=3 (Jan), Kolom D=4 (Feb), etc.
-                // bulan 1 (Jan) = Kolom C = 3
-                // bulan 2 (Feb) = Kolom D = 4
-                // bulan 3 (Mar) = Kolom E = 5
-                var spreadsheetCol = bulanIdx + 2;
-                
-                // Array index untuk local data
-                // row[0]=Nama, row[1]=Target, row[2]=Jan, row[3]=Feb, row[4]=Mar
-                var arrayCol = bulanIdx + 1;
+                var prevSpreadsheetCol = prevMonthIdx + 2; // Kolom untuk bulan n-1
+                var currSpreadsheetCol = bulanIdx + 2; // Kolom untuk bulan n
                 
                 changeToSave = {
                     spreadsheetRow: spreadsheetRow,
-                    spreadsheetCol: spreadsheetCol,
-                    arrayRow: pajakIdx,
-                    arrayCol: arrayCol,
-                    newVal: valBulanIni,
-                    bulanName: BULAN_NAMES[bulanIdx],
                     pajakIdx: pajakIdx,
-                    pajakName: pajakList[pajakIdx]
+                    pajakName: pajakList[pajakIdx],
+                    prevMonthIdx: prevMonthIdx,
+                    prevMonthName: BULAN_NAMES[prevMonthIdx],
+                    currMonthIdx: bulanIdx,
+                    currMonthName: BULAN_NAMES[bulanIdx],
+                    // Nilai lama
+                    oldPrevMonthVal: oldPrevMonthVal,
+                    // Nilai baru bulan n-1
+                    newPrevMonthVal: newPrevMonthVal,
+                    // Nilai baru bulan n
+                    newCurrMonthVal: nilaiBulanIni,
+                    // Spreadsheet columns
+                    prevSpreadsheetCol: prevSpreadsheetCol,
+                    currSpreadsheetCol: currSpreadsheetCol,
+                    // Apakah ada perubahan di bulan sebelumnya
+                    hasPrevChange: (newPrevMonthVal !== oldPrevMonthVal)
                 };
                 
                 // Preview
-                document.getElementById('previewBox').style.display = 'block';
-                document.getElementById('previewRows').innerHTML = 
-                    '<div class="preview-row"><span class="preview-label">Pajak:</span><span class="preview-value">' + pajakList[pajakIdx] + '</span></div>' +
-                    '<div class="preview-row"><span class="preview-label">Bulan:</span><span class="preview-value">' + BULAN_NAMES[bulanIdx] + '</span></div>' +
-                    '<div class="preview-row"><span class="preview-label">Nilai:</span><span class="preview-value">Rp ' + formatNumber(valBulanIni) + '</span></div>' +
-                    '<div class="preview-row"><span class="preview-label">Update:</span><span class="preview-value">Row ' + spreadsheetRow + ', Col ' + spreadsheetCol + '</span></div>';
+                var previewBox = document.getElementById('previewBox');
+                var previewRows = document.getElementById('previewRows');
                 
-                renderTable(pajakIdx, arrayCol);
+                var previewHtml = '';
+                
+                // Info bulan sebelumnya
+                if (bulanIdx > 1) {
+                    previewHtml += '<div style="margin-bottom: 10px; font-weight: bold;">🔄 UPDATE ' + changeToSave.prevMonthName.toUpperCase() + ':</div>';
+                    previewHtml += '<div class="preview-row"><span class="preview-label">Nilai Lama:</span><span class="preview-value">Rp ' + formatNumber(oldPrevMonthVal) + '</span></div>';
+                    previewHtml += '<div class="preview-row"><span class="preview-label">Nilai Baru:</span><span class="preview-value">Rp ' + formatNumber(newPrevMonthVal) + '</span></div>';
+                    
+                    if (selisihPrev !== 0) {
+                        var selisihClass = selisihPrev > 0 ? '+' : '';
+                        previewHtml += '<div class="preview-row"><span class="preview-label">Selisih:</span><span class="preview-value" style="color: #ffff00;">' + selisihClass + formatNumber(selisihPrev) + '</span></div>';
+                        previewBox.classList.add('warning');
+                    } else {
+                        previewHtml += '<div class="preview-row"><span class="preview-label">Selisih:</span><span class="preview-value">0 (tidak berubah)</span></div>';
+                        previewBox.classList.remove('warning');
+                    }
+                    
+                    previewHtml += '<div style="margin: 15px 0; border-top: 1px solid rgba(255,255,255,0.3);"></div>';
+                }
+                
+                // Info bulan ini
+                previewHtml += '<div style="margin-bottom: 10px; font-weight: bold;">🆕 INPUT ' + changeToSave.currMonthName.toUpperCase() + ':</div>';
+                previewHtml += '<div class="preview-row"><span class="preview-label">Nilai:</span><span class="preview-value">Rp ' + formatNumber(nilaiBulanIni) + '</span></div>';
+                
+                previewRows.innerHTML = previewHtml;
+                previewBox.style.display = 'block';
+                
+                // Render table dengan highlight
+                renderTable(pajakIdx, prevMonthIdx + 1, bulanIdx + 1);
                 
             } else {
                 changeToSave = null;
@@ -628,9 +681,10 @@
         // RENDER TABLE
         // ============================================================
         
-        function renderTable(highlightRow, highlightCol) {
+        function renderTable(highlightRow, highlightColPrev, highlightColCurr) {
             highlightRow = highlightRow || -1;
-            highlightCol = highlightCol || -1;
+            highlightColPrev = highlightColPrev || -1;
+            highlightColCurr = highlightColCurr || -1;
             
             var thead = document.getElementById('tableHead');
             var tbody = document.getElementById('tableBody');
@@ -643,7 +697,7 @@
                 return;
             }
             
-            // Header: Target, Jan, Feb, Mar, etc.
+            // Header
             var headerHtml = '<tr><th>#</th><th>Jenis Pajak</th><th>Target</th>';
             for (var m = 1; m <= 12; m++) {
                 headerHtml += '<th>' + BULAN_NAMES[m].substring(0, 3) + '</th>';
@@ -662,14 +716,19 @@
                 bodyHtml += '<td class="td-left">' + row[0] + '</td>';
                 
                 // row[1] = Target, row[2] = Jan, row[3] = Feb, row[4] = Mar, etc.
-                // Col 1 = Target (row[1]), Col 2 = Jan (row[2]), etc.
                 for (var col = 1; col <= 13; col++) {
                     var value = parseFloat(row[col]) || 0;
                     var tdClass = 'td-number';
                     
-                    if (isHighlightRow && col === highlightCol && changeToSave) {
-                        value = changeToSave.newVal;
-                        tdClass = 'td-number td-changed';
+                    // Highlight untuk preview
+                    if (isHighlightRow && changeToSave) {
+                        if (col === highlightColPrev && changeToSave.hasPrevChange) {
+                            value = changeToSave.newPrevMonthVal;
+                            tdClass = 'td-number td-warning';
+                        } else if (col === highlightColCurr) {
+                            value = changeToSave.newCurrMonthVal;
+                            tdClass = 'td-number td-changed';
+                        }
                     }
                     
                     bodyHtml += '<td class="' + tdClass + '">' + formatNumber(value) + '</td>';
@@ -689,7 +748,7 @@
             var pajakSelect = document.getElementById('pajakSelect');
             var pajakIdx = pajakSelect.selectedIndex - 1;
             var bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
-            var valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
+            var nilaiBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
             
             if (pajakIdx < 0) {
                 showToast('⚠️ Pilih Jenis Pajak!', 'error');
@@ -699,7 +758,7 @@
                 showToast('⚠️ Pilih Bulan!', 'error');
                 return;
             }
-            if (valBulanIni <= 0) {
+            if (nilaiBulanIni <= 0) {
                 showToast('⚠️ Masukkan Nilai!', 'error');
                 return;
             }
@@ -714,31 +773,62 @@
             
             showLoading(true, 'Menyimpan data...');
             
+            var saves = [];
+            var updateCount = 0;
+            
             try {
-                // Kirim ke spreadsheet
-                var payload = {
-                    action: 'updateCell',
-                    sheetIndex: currentSheetIndex,
+                // 1. Update bulan sebelumnya (n-1) jika ada perubahan
+                if (bulanIdx > 1 && changeToSave.hasPrevChange) {
+                    saves.push({
+                        row: changeToSave.spreadsheetRow,
+                        col: changeToSave.prevSpreadsheetCol,
+                        val: changeToSave.newPrevMonthVal,
+                        desc: changeToSave.prevMonthName
+                    });
+                }
+                
+                // 2. Simpan bulan ini (n)
+                saves.push({
                     row: changeToSave.spreadsheetRow,
-                    column: changeToSave.spreadsheetCol,
-                    value: changeToSave.newVal
-                };
-                
-                console.log('📤 Sending:', payload);
-                
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    col: changeToSave.currSpreadsheetCol,
+                    val: changeToSave.newCurrMonthVal,
+                    desc: changeToSave.currMonthName
                 });
                 
+                console.log('📤 Saving ' + saves.length + ' updates:', saves);
+                
+                // Kirim semua update
+                for (var i = 0; i < saves.length; i++) {
+                    await fetch(WEB_APP_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'updateCell',
+                            sheetIndex: currentSheetIndex,
+                            row: saves[i].row,
+                            column: saves[i].col,
+                            value: saves[i].val
+                        })
+                    });
+                    updateCount++;
+                    document.getElementById('loadingText').textContent = 'Menyimpan ' + updateCount + '/' + saves.length + '...';
+                }
+                
                 // Update local data
-                rawData[changeToSave.arrayRow][changeToSave.arrayCol] = changeToSave.newVal;
+                if (bulanIdx > 1 && changeToSave.hasPrevChange) {
+                    rawData[changeToSave.pajakIdx][changeToSave.prevMonthIdx + 1] = changeToSave.newPrevMonthVal;
+                }
+                rawData[changeToSave.pajakIdx][changeToSave.currMonthIdx + 1] = changeToSave.newCurrMonthVal;
                 
-                console.log('✅ Saved to Row ' + changeToSave.spreadsheetRow + ', Col ' + changeToSave.spreadsheetCol);
+                console.log('✅ All saves completed!');
                 
-                showToast('✅ Data ' + changeToSave.bulanName + ' berhasil disimpan!', 'success');
+                var msg = '✅ ' + saves.length + ' data berhasil disimpan!';
+                if (saves.length === 2) {
+                    msg = '✅ ' + changeToSave.prevMonthName + ' & ' + changeToSave.currMonthName + ' berhasil diupdate!';
+                }
+                
+                showToast(msg, 'success');
                 resetForm();
                 
             } catch (error) {
