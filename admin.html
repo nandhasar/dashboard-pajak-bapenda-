@@ -91,7 +91,6 @@
         .btn-primary:hover { background: #2c5282; }
         .btn-success { background: #48bb78; color: white; }
         .btn-success:hover { background: #38a169; }
-        .btn-success:disabled { background: #a0aec0; cursor: not-allowed; }
 
         .form-group { margin-bottom: 15px; }
 
@@ -262,16 +261,20 @@
         /* Debug */
         .debug-panel {
             background: #1a202c;
-            color: #48bb78;
+            color: #68d391;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
             font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
         }
 
+        .debug-panel .debug-warn { color: #f6e05e; }
         .debug-panel .debug-error { color: #fc8181; }
-        .debug-panel .debug-ok { color: #68d391; }
+        .debug-panel .debug-info { color: #90cdf4; }
 
         @media (max-width: 768px) {
             .header-content { flex-direction: column; gap: 10px; }
@@ -290,13 +293,12 @@
         <!-- Status -->
         <div id="statusAlert" class="alert alert-info">🔄 Memuat data...</div>
 
-        <!-- DEBUG PANEL - LIHAT INI UNTUK MENGETAHUI MASALAH -->
+        <!-- DEBUG PANEL -->
         <div id="debugPanel" class="debug-panel">
-            <div style="margin-bottom: 10px; color: #f6e05e;">🔍 <strong>DEBUG STATUS:</strong></div>
-            <div id="debug1">1. Pajak: <span class="debug-error">BELUM DIPILIH</span></div>
-            <div id="debug2">2. Bulan: <span class="debug-error">BELUM DIPILIH</span></div>
-            <div id="debug3">3. Nilai Bulan Ini: <span class="debug-error">KOSONG</span></div>
-            <div id="debug4">4. Status: <span class="debug-error">❌ GAGAL</span></div>
+<span style="color: #f6e05e;">═══════════════════════════════════════════</span>
+<span style="color: #f6e05e;">🔍 DEBUG PANEL - CHAR ANALYSIS</span>
+<span style="color: #f6e05e;">═══════════════════════════════════════════</span>
+<span id="debugContent">Menunggu data...</span>
         </div>
 
         <!-- Form Input -->
@@ -449,6 +451,38 @@
         });
 
         // ============================================================
+        // DEBUG CHAR BY CHAR
+        // ============================================================
+        
+        function analyzeString(str) {
+            if (!str) return { text: '(empty)', chars: [] };
+            
+            let result = '';
+            let chars = [];
+            
+            for (let i = 0; i < str.length; i++) {
+                const char = str[i];
+                const code = str.charCodeAt(i);
+                let display = '';
+                
+                if (code === 32) {
+                    display = '[SPASI:' + code + ']';
+                } else if (code < 32) {
+                    display = '[CTRL:' + code + ']';
+                } else if (code > 127) {
+                    display = '[' + char + ':' + code + ']';
+                } else {
+                    display = char;
+                }
+                
+                result += display;
+                chars.push({ char: char, code: code, display: display });
+            }
+            
+            return { text: result, chars: chars, length: str.length };
+        }
+
+        // ============================================================
         // LOAD DATA
         // ============================================================
         
@@ -470,17 +504,38 @@
                 rawData = [];
                 pajakList = [];
                 
+                // Debug: Analyze each row's first column
+                let debugHtml = '<span class="debug-info">📊 Data dari spreadsheet:</span>\n\n';
+                
                 for (let i = 1; i < data.length; i++) {
                     if (data[i] && data[i][0]) {
                         rawData.push(data[i]);
                         pajakList.push(data[i][0]);
+                        
+                        const analysis = analyzeString(data[i][0]);
+                        const isReklame = data[i][0].toString().toLowerCase().includes('reklame');
+                        
+                        debugHtml += '<span class="' + (isReklame ? 'debug-warn' : '') + '">';
+                        debugHtml += 'Row ' + i + ': ';
+                        debugHtml += '"' + data[i][0] + '"';
+                        debugHtml += ' | Length: ' + analysis.length;
+                        debugHtml += ' | Chars: ' + analysis.text;
+                        if (isReklame) debugHtml += ' ← MIRIP REKLAME!';
+                        debugHtml += '</span>\n';
                     }
                 }
                 
+                document.getElementById('debugContent').innerHTML = debugHtml;
+                
+                // Build dropdown
                 const select = document.getElementById('pajakSelect');
                 select.innerHTML = '<option value="">-- Pilih Jenis Pajak --</option>';
-                pajakList.forEach((pajak, idx) => {
-                    select.innerHTML += `<option value="${idx}">${pajak}</option>`;
+                
+                pajakList.forEach(function(pajak, idx) {
+                    const option = document.createElement('option');
+                    option.value = idx;
+                    option.textContent = pajak;
+                    select.appendChild(option);
                 });
                 
                 renderTable();
@@ -526,7 +581,6 @@
             document.getElementById('labelBulanLalu').textContent = '-';
             document.getElementById('labelBulanIni').textContent = '-';
             changeToSave = null;
-            updateDebug();
             renderTable();
         }
 
@@ -546,37 +600,60 @@
         }
 
         // ============================================================
-        // PROCESS FORM - FUNGSI UTAMA
+        // PROCESS FORM
         // ============================================================
         
         function processForm() {
-            // Get values
             const pajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
             const bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
             const valLalu = parseNumber(document.getElementById('realisasiLalu').value);
             const valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
             
-            // Update labels
             const prevBulan = bulanIdx > 1 ? BULAN_NAMES[bulanIdx - 1] : '-';
             const currBulan = bulanIdx > 0 ? BULAN_NAMES[bulanIdx] : '-';
             document.getElementById('labelBulanLalu').textContent = prevBulan;
             document.getElementById('labelBulanIni').textContent = currBulan;
             
-            // Auto calculate total s/d bulan ini
             const totalSampai = valLalu + valBulanIni;
             document.getElementById('totalSampai').textContent = 'Rp ' + formatNumber(totalSampai);
             
-            // Update debug panel
-            updateDebug();
+            // Debug selection
+            let debugHtml = '<span class="debug-info">📊 Data dari spreadsheet:</span>\n\n';
+            rawData.forEach(function(row, i) {
+                const analysis = analyzeString(row[0]);
+                const isSelected = (i === pajakIdx);
+                const isReklame = row[0].toString().toLowerCase().includes('reklame');
+                
+                let className = '';
+                if (isSelected) className = 'debug-ok';
+                else if (isReklame) className = 'debug-warn';
+                
+                debugHtml += '<span class="' + className + '">';
+                debugHtml += '[' + i + '] ';
+                debugHtml += '"' + row[0] + '"';
+                debugHtml += ' | Len:' + analysis.length;
+                if (isSelected) debugHtml += ' ← TERPILIH!';
+                debugHtml += '</span>\n';
+            });
             
-            // Check if all required fields are filled
+            debugHtml += '\n<span class="debug-info">─────────────────────────────</span>\n';
+            debugHtml += '<span class="debug-info">📋 Selection:</span>\n';
+            debugHtml += 'pajakIdx: ' + pajakIdx + '\n';
+            debugHtml += 'bulanIdx: ' + bulanIdx + '\n';
+            debugHtml += 'valBulanIni: ' + valBulanIni + '\n';
+            
+            if (pajakIdx >= 0 && pajakList[pajakIdx]) {
+                const analysis = analyzeString(pajakList[pajakIdx]);
+                debugHtml += 'Nama dipilih: "' + pajakList[pajakIdx] + '"\n';
+                debugHtml += 'Chars: ' + analysis.text + '\n';
+            }
+            
+            document.getElementById('debugContent').innerHTML = debugHtml;
+            
             if (pajakIdx >= 0 && bulanIdx > 0 && valBulanIni > 0) {
-                // Calculate column: [0]=Nama, [1]=Target, [2]=Jan, [3]=Feb, ... [13]=Des
-                // Month 1 (Jan) = column 2, Month 2 (Feb) = column 3, etc.
                 const colBulan = bulanIdx + 1;
                 const rowNum = pajakIdx + 2;
                 
-                // Store change
                 changeToSave = {
                     rowNum: rowNum,
                     col: colBulan,
@@ -586,7 +663,6 @@
                     pajakName: pajakList[pajakIdx]
                 };
                 
-                // Show preview
                 const previewBox = document.getElementById('previewBox');
                 const previewRows = document.getElementById('previewRows');
                 previewRows.innerHTML = 
@@ -595,52 +671,12 @@
                     '<div class="preview-row"><span class="preview-label">Nilai:</span><span class="preview-value">Rp ' + formatNumber(valBulanIni) + '</span></div>';
                 previewBox.style.display = 'block';
                 
-                // Render table with highlight
                 renderTable(pajakIdx, colBulan);
                 
             } else {
                 changeToSave = null;
                 document.getElementById('previewBox').style.display = 'none';
                 renderTable();
-            }
-        }
-
-        // ============================================================
-        // UPDATE DEBUG
-        // ============================================================
-        
-        function updateDebug() {
-            const pajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
-            const bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
-            const valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
-            
-            const debug1 = document.getElementById('debug1');
-            const debug2 = document.getElementById('debug2');
-            const debug3 = document.getElementById('debug3');
-            const debug4 = document.getElementById('debug4');
-            
-            if (pajakIdx >= 0) {
-                debug1.innerHTML = '1. Pajak: <span class="debug-ok">✅ ' + pajakList[pajakIdx] + '</span>';
-            } else {
-                debug1.innerHTML = '1. Pajak: <span class="debug-error">❌ BELUM DIPILIH</span>';
-            }
-            
-            if (bulanIdx > 0) {
-                debug2.innerHTML = '2. Bulan: <span class="debug-ok">✅ ' + BULAN_NAMES[bulanIdx] + '</span>';
-            } else {
-                debug2.innerHTML = '2. Bulan: <span class="debug-error">❌ BELUM DIPILIH</span>';
-            }
-            
-            if (valBulanIni > 0) {
-                debug3.innerHTML = '3. Nilai Bulan Ini: <span class="debug-ok">✅ ' + formatNumber(valBulanIni) + '</span>';
-            } else {
-                debug3.innerHTML = '3. Nilai Bulan Ini: <span class="debug-error">❌ KOSONG atau 0</span>';
-            }
-            
-            if (pajakIdx >= 0 && bulanIdx > 0 && valBulanIni > 0) {
-                debug4.innerHTML = '4. Status: <span class="debug-ok">✅ SIAP DISIMPAN</span>';
-            } else {
-                debug4.innerHTML = '4. Status: <span class="debug-error">❌ GAGAL - LENGKAPI DATA DIATAS</span>';
             }
         }
 
@@ -663,7 +699,6 @@
                 return;
             }
             
-            // Header
             let headerHtml = '<tr><th>#</th><th>Jenis Pajak</th>';
             ['Target', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'].forEach(function(h) {
                 headerHtml += '<th>' + h + '</th>';
@@ -671,7 +706,6 @@
             headerHtml += '</tr>';
             thead.innerHTML = headerHtml;
             
-            // Body
             let bodyHtml = '';
             
             rawData.forEach(function(row, index) {
@@ -679,14 +713,12 @@
                 
                 bodyHtml += '<tr' + (isHighlightRow ? ' class="table-warning"' : '') + '>';
                 bodyHtml += '<td><strong>' + (index + 1) + '</strong></td>';
-                bodyHtml += '<td class="td-left">' + (row[0] || '') + '</td>';
+                bodyHtml += '<td class="td-left">' + row[0] + '</td>';
                 
-                // Col 1 = Target, Col 2-13 = 12 Months
                 for (let col = 1; col <= 13; col++) {
                     let value = parseFloat(row[col]) || 0;
                     let tdClass = 'td-number';
                     
-                    // Highlight changed cell
                     if (isHighlightRow && col === highlightCol && changeToSave) {
                         value = changeToSave.newVal;
                         tdClass = 'td-number td-changed';
@@ -706,7 +738,6 @@
         // ============================================================
         
         async function saveData() {
-            // Check conditions
             const pajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
             const bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
             const valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
@@ -715,19 +746,16 @@
                 showToast('⚠️ Pilih Jenis Pajak!', 'error');
                 return;
             }
-            
             if (bulanIdx <= 0) {
                 showToast('⚠️ Pilih Bulan!', 'error');
                 return;
             }
-            
             if (valBulanIni <= 0) {
-                showToast('⚠️ Masukkan Nilai Bulan Ini!', 'error');
+                showToast('⚠️ Masukkan Nilai!', 'error');
                 return;
             }
-            
             if (!changeToSave) {
-                showToast('⚠️ changeToSave masih null!', 'error');
+                showToast('⚠️ Error! Refresh halaman.', 'error');
                 return;
             }
             
@@ -750,19 +778,13 @@
                     })
                 });
                 
-                console.log('✅ Saved:', changeToSave);
-                
-                // Update local data
                 rawData[changeToSave.pajakIdx][changeToSave.col - 1] = changeToSave.newVal;
                 
                 showToast('✅ Data ' + changeToSave.bulanName + ' berhasil disimpan!', 'success');
-                
-                // Reset form
                 resetForm();
                 
             } catch (error) {
-                console.error('Error:', error);
-                showToast('❌ Gagal menyimpan: ' + error.message, 'error');
+                showToast('❌ Gagal: ' + error.message, 'error');
             }
             
             showLoading(false);
@@ -771,7 +793,7 @@
         }
 
         // ============================================================
-        // TOAST
+        // TOAST & LOADING
         // ============================================================
         
         function showToast(message, type) {
@@ -780,15 +802,9 @@
             document.getElementById('toastIcon').textContent = (type === 'success') ? '✅' : '❌';
             document.getElementById('toastMessage').textContent = message;
             toast.className = 'toast ' + type + ' show';
-            setTimeout(function() {
-                toast.classList.remove('show');
-            }, 4000);
+            setTimeout(function() { toast.classList.remove('show'); }, 4000);
         }
 
-        // ============================================================
-        // LOADING
-        // ============================================================
-        
         function showLoading(show, text) {
             text = text || 'Memproses...';
             document.getElementById('loading').classList.toggle('show', show);
