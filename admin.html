@@ -259,6 +259,19 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* Debug panel */
+        .debug-panel {
+            background: #1a202c;
+            color: #48bb78;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+        }
+
+        .debug-panel strong { color: #f6e05e; }
+
         @media (max-width: 768px) {
             .header-content { flex-direction: column; gap: 10px; }
         }
@@ -275,6 +288,12 @@
     <div class="container">
         <!-- Status -->
         <div id="statusAlert" class="alert alert-info">🔄 Memuat data...</div>
+
+        <!-- DEBUG PANEL -->
+        <div id="debugPanel" class="debug-panel" style="display: none;">
+            <div><strong>DEBUG INFO:</strong></div>
+            <div id="debugContent"></div>
+        </div>
 
         <!-- Form Input -->
         <div class="card">
@@ -294,7 +313,7 @@
             <!-- Pajak Selection -->
             <div class="form-group">
                 <label class="form-label">🏷️ Jenis Pajak</label>
-                <select id="pajakSelect" class="form-control" onchange="updateLabels()">
+                <select id="pajakSelect" class="form-control" onchange="onSelectionChange()">
                     <option value="">-- Pilih Jenis Pajak --</option>
                 </select>
             </div>
@@ -302,7 +321,7 @@
             <!-- Bulan Selection -->
             <div class="form-group">
                 <label class="form-label">📅 Bulan yang Diinput</label>
-                <select id="bulanSelect" class="form-control" onchange="updateLabels()">
+                <select id="bulanSelect" class="form-control" onchange="onSelectionChange()">
                     <option value="">-- Pilih Bulan --</option>
                     <option value="1">Januari</option>
                     <option value="2">Februari</option>
@@ -321,15 +340,15 @@
 
             <!-- Input 1: s/d Bulan Lalu -->
             <div class="form-group">
-                <label class="form-label">💰 Total s/d Bulan Lalu (Januari s/d <span id="labelBulanLalu">-</span>)</label>
+                <label class="form-label">💰 Total s/d Bulan Lalu (<span id="labelBulanLalu">-</span>)</label>
                 <div class="input-group">
                     <span class="currency">Rp</span>
                     <input type="text" id="realisasiLalu" class="form-control" 
                            style="text-align: right;" 
                            placeholder="0"
-                           oninput="formatInput(this); calculateAuto()">
+                           oninput="onInputChange()">
                 </div>
-                <div class="input-info">📌 Total nilai KUMULATIF dari Januari sampai bulan SEBELUM dipilih</div>
+                <div class="input-info">📌 Total KUMULATIF dari Januari sampai bulan SEBELUM dipilih</div>
             </div>
 
             <!-- Input 2: Nilai Bulan Ini -->
@@ -340,14 +359,14 @@
                     <input type="text" id="nilaiBulanIni" class="form-control" 
                            style="text-align: right;" 
                            placeholder="0"
-                           oninput="formatInput(this); calculateAuto()">
+                           oninput="onInputChange()">
                 </div>
                 <div class="input-info">📌 Nilai bulan INI SAJA (bukan total)</div>
             </div>
 
             <!-- Auto Calculate: s/d Bulan Ini -->
             <div class="form-group">
-                <label class="form-label">📐 Total s/d Bulan Ini (AUTO HITUNG)</label>
+                <label class="form-label">📐 Total s/d Bulan Ini (AUTO)</label>
                 <div class="input-result" id="totalSampai">Rp 0</div>
             </div>
 
@@ -415,8 +434,6 @@
         let currentSheetName = 'Data_Pajak_2026';
         let rawData = [];
         let pajakList = [];
-        let selectedPajakIdx = -1;
-        let selectedBulanIdx = 0;
         let changeToSave = null;
 
         // ============================================================
@@ -502,8 +519,8 @@
             document.getElementById('nilaiBulanIni').value = '';
             document.getElementById('totalSampai').textContent = 'Rp 0';
             document.getElementById('previewBox').style.display = 'none';
-            selectedPajakIdx = -1;
-            selectedBulanIdx = 0;
+            document.getElementById('labelBulanLalu').textContent = '-';
+            document.getElementById('labelBulanIni').textContent = '-';
             changeToSave = null;
             renderTable();
         }
@@ -526,68 +543,76 @@
         }
 
         // ============================================================
-        // UPDATE LABELS
+        // ON SELECTION CHANGE
         // ============================================================
         
-        function updateLabels() {
-            selectedPajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
-            selectedBulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
+        function onSelectionChange() {
+            const pajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
+            const bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
             
-            const prevBulan = selectedBulanIdx > 1 ? BULAN_NAMES[selectedBulanIdx - 1] : '-';
-            const currBulan = selectedBulanIdx > 0 ? BULAN_NAMES[selectedBulanIdx] : '-';
+            const prevBulan = bulanIdx > 1 ? BULAN_NAMES[bulanIdx - 1] : '-';
+            const currBulan = bulanIdx > 0 ? BULAN_NAMES[bulanIdx] : '-';
             
             document.getElementById('labelBulanLalu').textContent = prevBulan;
             document.getElementById('labelBulanIni').textContent = currBulan;
             
-            calculateAuto();
+            // Recalculate
+            onInputChange();
+            
+            // Show debug
+            showDebug();
         }
 
         // ============================================================
-        // CALCULATE AUTO
+        // ON INPUT CHANGE
         // ============================================================
         
-        function calculateAuto() {
+        function onInputChange() {
+            // Format inputs
+            formatInput(document.getElementById('realisasiLalu'));
+            formatInput(document.getElementById('nilaiBulanIni'));
+            
+            // Get values
+            const pajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
+            const bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
             const valLalu = parseNumber(document.getElementById('realisasiLalu').value);
             const valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
             
             // Auto calculate total s/d bulan ini
             const totalSampai = valLalu + valBulanIni;
-            
             document.getElementById('totalSampai').textContent = 'Rp ' + totalSampai.toLocaleString('id-ID');
             
-            // Update preview & table
-            if (selectedPajakIdx >= 0 && selectedBulanIdx > 0 && valBulanIni > 0) {
-                // Column mapping: [0]=Nama, [1]=Target, [2]=Jan, [3]=Feb, ... [13]=Des
-                const colTarget = 1;
-                const colBulan = selectedBulanIdx + 1; // col 2=Jan, col 3=Feb, etc
-                const rowNum = selectedPajakIdx + 2;
+            // Debug
+            showDebug();
+            
+            // Update preview & table only if all conditions met
+            if (pajakIdx >= 0 && bulanIdx > 0 && valBulanIni > 0) {
+                // Column: [0]=Nama, [1]=Target, [2]=Jan, [3]=Feb, ... [13]=Des
+                // So month 1 (Jan) = col 2, month 2 (Feb) = col 3, etc.
+                const colBulan = bulanIdx + 1;
+                const rowNum = pajakIdx + 2;
                 
-                const currentValue = parseFloat(rawData[selectedPajakIdx][colTarget + selectedBulanIdx - 1]) || 0;
-                
-                // Set change
+                // Store change
                 changeToSave = {
                     rowNum: rowNum,
-                    col: colTarget + selectedBulanIdx - 1,
+                    col: colBulan,
                     newVal: valBulanIni,
-                    bulanName: BULAN_NAMES[selectedBulanIdx]
+                    bulanName: BULAN_NAMES[bulanIdx],
+                    pajakIdx: pajakIdx
                 };
                 
                 // Show preview
                 let previewHtml = `
                     <div class="preview-row">
                         <span class="preview-label">Pajak:</span>
-                        <span class="preview-value">${pajakList[selectedPajakIdx]}</span>
+                        <span class="preview-value">${pajakList[pajakIdx]}</span>
                     </div>
                     <div class="preview-row">
                         <span class="preview-label">Bulan:</span>
-                        <span class="preview-value">${BULAN_NAMES[selectedBulanIdx]}</span>
+                        <span class="preview-value">${BULAN_NAMES[bulanIdx]}</span>
                     </div>
                     <div class="preview-row">
-                        <span class="preview-label">Nilai Lama:</span>
-                        <span class="preview-value">Rp ${currentValue.toLocaleString('id-ID')}</span>
-                    </div>
-                    <div class="preview-row">
-                        <span class="preview-label">Nilai Baru:</span>
+                        <span class="preview-label">Nilai:</span>
                         <span class="preview-value">Rp ${valBulanIni.toLocaleString('id-ID')}</span>
                     </div>
                 `;
@@ -596,13 +621,34 @@
                 document.getElementById('previewBox').style.display = 'block';
                 
                 // Render table with highlight
-                renderTable(selectedPajakIdx, colTarget + selectedBulanIdx - 1);
+                renderTable(pajakIdx, colBulan);
                 
             } else {
                 changeToSave = null;
                 document.getElementById('previewBox').style.display = 'none';
                 renderTable();
             }
+        }
+
+        // ============================================================
+        // DEBUG
+        // ============================================================
+        
+        function showDebug() {
+            const pajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
+            const bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
+            const valLalu = parseNumber(document.getElementById('realisasiLalu').value);
+            const valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
+            
+            const debugContent = `
+                <div>pajakIdx: <strong>${pajakIdx}</strong> (>=0: ${pajakIdx >= 0})</div>
+                <div>bulanIdx: <strong>${bulanIdx}</strong> (>0: ${bulanIdx > 0})</div>
+                <div>valBulanIni: <strong>${valBulanIni}</strong> (>0: ${valBulanIni > 0})</div>
+                <div>changeToSave: <strong>${changeToSave ? 'SET' : 'NULL'}</strong></div>
+            `;
+            
+            document.getElementById('debugContent').innerHTML = debugContent;
+            document.getElementById('debugPanel').style.display = 'block';
         }
 
         // ============================================================
@@ -662,6 +708,7 @@
         function formatNum(num) {
             if (!num && num !== 0) return '0';
             const n = parseFloat(num);
+            if (isNaN(n)) return '0';
             if (n < 0) return '<span style="color: red;">-' + Math.abs(n).toLocaleString('id-ID') + '</span>';
             return n.toLocaleString('id-ID');
         }
@@ -671,8 +718,17 @@
         // ============================================================
         
         async function saveData() {
+            // Debug check
+            showDebug();
+            
+            console.log('=== SAVE DATA ===');
+            console.log('changeToSave:', changeToSave);
+            console.log('pajakSelect value:', document.getElementById('pajakSelect').value);
+            console.log('bulanSelect value:', document.getElementById('bulanSelect').value);
+            console.log('nilaiBulanIni value:', document.getElementById('nilaiBulanIni').value);
+            
             if (!changeToSave) {
-                showToast('⚠️ Pilih pajak, bulan, dan masukkan nilai!', 'error');
+                showToast('⚠️ changeToSave null - Cek debug panel di atas!', 'error');
                 return;
             }
             
@@ -698,7 +754,7 @@
                 console.log(`✅ Saved: Row ${changeToSave.rowNum}, Col ${changeToSave.col} = ${changeToSave.newVal}`);
                 
                 // Update local data
-                rawData[selectedPajakIdx][changeToSave.col - 1] = changeToSave.newVal;
+                rawData[changeToSave.pajakIdx][changeToSave.col - 1] = changeToSave.newVal;
                 
                 showToast(`✅ Data ${changeToSave.bulanName} berhasil disimpan!`, 'success');
                 
@@ -712,7 +768,7 @@
             
             showLoading(false);
             btn.disabled = false;
-            btn.textText = '💾 SIMPAN DATA';
+            btn.textContent = '💾 SIMPAN DATA';
         }
 
         // ============================================================
