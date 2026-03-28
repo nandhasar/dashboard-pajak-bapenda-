@@ -29,6 +29,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .header h1 {
@@ -46,6 +48,7 @@
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
+            cursor: pointer;
         }
 
         .btn-back:hover { background: rgba(255,255,255,0.3); color: white; }
@@ -98,6 +101,25 @@
         .btn-primary:hover { background: #2c5282; }
         .btn-success { background: #48bb78; color: white; }
         .btn-success:hover { background: #38a169; }
+
+        .sheet-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sheet-tab {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .sheet-tab.active { background: #3182ce; color: white; }
+        .sheet-tab:not(.active):hover { background: #cbd5e0; }
 
         .table-responsive { overflow-x: auto; }
 
@@ -220,8 +242,9 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 768px) {
-            .header-content { flex-direction: column; gap: 10px; }
+            .header-content { flex-direction: column; }
             .edit-input { width: 70px; font-size: 0.7rem; }
+            .sheet-tabs { flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -229,17 +252,17 @@
     <header class="header">
         <div class="header-content">
             <h1>⚙️ Admin Panel - Edit Data Pajak BAPENDA Lombok Tengah</h1>
-            <a href="dashboard.html" class="btn-back">← Dashboard</a>
+            <button class="btn-back" onclick="google.script.run.withSuccessHandler(() => google.script.host.close())()">
+                ✕ Tutup
+            </button>
         </div>
     </header>
 
     <div class="container">
-        <!-- Status Alert -->
         <div id="statusAlert" class="alert alert-info">
             🔄 Memuat data...
         </div>
 
-        <!-- Main Card -->
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">📝 Edit Data Pajak - <span id="currentSheetName">Loading...</span></h2>
@@ -250,17 +273,15 @@
                 </div>
             </div>
 
-            <!-- Sheet Tabs -->
-            <div class="sheet-tabs" style="margin-bottom: 20px;">
+            <div class="sheet-tabs">
                 <button class="sheet-tab active" onclick="switchSheet(0, 'Data_Pajak_2026')">
-                    📅 Data_Pajak_2026
+                    📅 2026
                 </button>
                 <button class="sheet-tab" onclick="switchSheet(1, 'Data_Pajak_2025')">
-                    📅 Data_Pajak_2025
+                    📅 2025
                 </button>
             </div>
 
-            <!-- Table -->
             <div class="table-responsive">
                 <table>
                     <thead id="tableHead">
@@ -278,25 +299,17 @@
         </div>
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast">
         <span id="toastIcon">✅</span>
         <span id="toastMessage">Berhasil!</span>
     </div>
 
-    <!-- Loading -->
     <div class="loading" id="loading">
         <div class="loading-box">
             <div class="spinner"></div>
             <p id="loadingText">Memproses...</p>
         </div>
     </div>
-
-    <!-- ============================================================ -->
-    <!-- PENTING: Include Apps Script Runtime! -->
-    <!-- ============================================================ -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <?!= HtmlService.createHtmlOutputFromFile('JavaScript').getContent(); ?>
 
     <script>
         // ============================================================
@@ -306,7 +319,6 @@
         let currentSheetIndex = 0;
         let currentSheetName = 'Data_Pajak_2026';
         let rawData = [];
-        let headers = [];
         let changes = {};
 
         // ============================================================
@@ -325,14 +337,14 @@
         }
 
         // ============================================================
-        // LOAD DATA - Pakai Google.script.run (RESMI GOOGLE)
+        // LOAD DATA
         // ============================================================
         
         function loadData() {
             showLoading(true, 'Memuat data dari server...');
-            $('#statusAlert').removeClass('alert-success alert-danger').addClass('alert-info').html('🔄 Memuat data...');
+            document.getElementById('statusAlert').className = 'alert alert-info';
+            document.getElementById('statusAlert').innerHTML = '🔄 Memuat data...';
             
-            // Pakai Google.script.run - cara resmi Google
             google.script.run
                 .withSuccessHandler(function(result) {
                     showLoading(false);
@@ -341,7 +353,6 @@
                         currentSheetName = result.sheetName;
                         rawData = [];
                         
-                        // Skip header row (index 0), mulai dari index 1
                         for (let i = 1; i < result.data.length; i++) {
                             if (result.data[i] && result.data[i][0]) {
                                 rawData.push(result.data[i]);
@@ -351,8 +362,9 @@
                         renderTable();
                         showToast(`✅ Data berhasil dimuat! (${rawData.length} pajak)`, 'success');
                         
-                        $('#statusAlert').removeClass('alert-info alert-danger').addClass('alert-success')
-                            .html(`✅ <strong>Connected!</strong> Sheet: <strong>${currentSheetName}</strong> | ${rawData.length} data`);
+                        document.getElementById('statusAlert').className = 'alert alert-success';
+                        document.getElementById('statusAlert').innerHTML = 
+                            `✅ <strong>Connected!</strong> Sheet: <strong>${currentSheetName}</strong> | ${rawData.length} data`;
                         
                     } else {
                         throw new Error(result.message || 'Gagal mengambil data');
@@ -362,8 +374,8 @@
                     showLoading(false);
                     console.error('Error:', error);
                     showToast('Error: ' + error, 'error');
-                    $('#statusAlert').removeClass('alert-info alert-success').addClass('alert-danger')
-                        .html(`❌ <strong>Error:</strong> ${error}`);
+                    document.getElementById('statusAlert').className = 'alert alert-danger';
+                    document.getElementById('statusAlert').innerHTML = `❌ <strong>Error:</strong> ${error}`;
                 })
                 .getData(currentSheetIndex);
         }
@@ -385,26 +397,25 @@
                 return;
             }
             
-            // Render header
+            // Header
             let headerHtml = '<tr><th>#</th><th>Jenis Pajak</th>';
-            const displayHeaders = ['Target', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const displayHeaders = ['Target', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
             displayHeaders.forEach(h => {
                 headerHtml += `<th>${h}</th>`;
             });
             headerHtml += '<th>Aksi</th></tr>';
             thead.innerHTML = headerHtml;
             
-            // Render body
+            // Body
             let bodyHtml = '';
             
             rawData.forEach((row, index) => {
-                const rowNum = index + 2; // Row 2 karena header di row 1
+                const rowNum = index + 2;
                 
                 bodyHtml += `<tr>`;
                 bodyHtml += `<td><strong>${index + 1}</strong></td>`;
                 bodyHtml += `<td style="text-align: left; font-weight: 500;">${row[0] || ''}</td>`;
                 
-                // Kolom 1=Target, Kolom 2-13=12 Bulan
                 for (let col = 1; col <= 13; col++) {
                     const colNum = col + 1;
                     const value = row[col] || 0;
@@ -456,13 +467,12 @@
         }
 
         // ============================================================
-        // SAVE ROW - Pakai Google.script.run (RESMI GOOGLE)
+        // SAVE ROW
         // ============================================================
         
         function saveRow(rowIndex) {
             const rowNum = rowIndex + 2;
             
-            // Collect changes
             const rowChanges = {};
             
             for (let col = 1; col <= 13; col++) {
@@ -479,38 +489,33 @@
                 return;
             }
             
-            // Button state
             const btn = event.target;
             btn.disabled = true;
             btn.textContent = '⏳ Saving...';
             
             showLoading(true, `Menyimpan ${Object.keys(rowChanges).length} data...`);
             
-            // Save cell by cell - async tapi pakai callback
-            let savedCount = 0;
             const totalCells = Object.keys(rowChanges).length;
+            let savedCount = 0;
             
             for (const [colStr, value] of Object.entries(rowChanges)) {
                 const col = parseInt(colStr);
                 
-                // Pakai Google.script.run
                 google.script.run
                     .withSuccessHandler(function(result) {
                         savedCount++;
                         console.log(`✅ Saved: Col ${col} = ${value}`, result);
                         
                         if (savedCount === totalCells) {
-                            // Semua selesai
                             saveComplete(rowIndex, rowChanges);
                         }
                     })
                     .withFailureHandler(function(error) {
-                        console.error('❌ Error saving:', error);
+                        console.error('❌ Error:', error);
                         savedCount++;
-                        showToast('❌ Error: ' + error, 'error');
-                        showLoading(false);
-                        btn.disabled = false;
-                        btn.textContent = '💾 Save';
+                        if (savedCount === totalCells) {
+                            showToast('❌ Gagal menyimpan!', 'error');
+                        }
                     })
                     .updateCell(currentSheetIndex, rowNum, col, value);
             }
@@ -521,7 +526,6 @@
         // ============================================================
         
         function saveComplete(rowIndex, rowChanges) {
-            // Update local data
             for (const [colStr, value] of Object.entries(rowChanges)) {
                 const col = parseInt(colStr);
                 const colIndex = col - 1;
@@ -531,12 +535,8 @@
                 }
             }
             
-            // Clear changes
             changes = {};
-            
-            // Re-render
             renderTable();
-            
             showLoading(false);
             showToast(`✅ ${Object.keys(rowChanges).length} data berhasil disimpan!`, 'success');
         }
@@ -588,9 +588,7 @@
         // INIT
         // ============================================================
         
-        $(document).ready(function() {
-            loadData();
-        });
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
