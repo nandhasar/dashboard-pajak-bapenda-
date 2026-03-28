@@ -269,12 +269,11 @@
             font-size: 0.75rem;
             max-height: 400px;
             overflow-y: auto;
-            white-space: pre-wrap;
         }
 
         .debug-panel .debug-warn { color: #f6e05e; }
         .debug-panel .debug-error { color: #fc8181; }
-        .debug-panel .debug-info { color: #90cdf4; }
+        .debug-panel .debug-ok { color: #68d391; }
 
         @media (max-width: 768px) {
             .header-content { flex-direction: column; gap: 10px; }
@@ -294,11 +293,8 @@
         <div id="statusAlert" class="alert alert-info">🔄 Memuat data...</div>
 
         <!-- DEBUG PANEL -->
-        <div id="debugPanel" class="debug-panel">
-<span style="color: #f6e05e;">═══════════════════════════════════════════</span>
-<span style="color: #f6e05e;">🔍 DEBUG PANEL - CHAR ANALYSIS</span>
-<span style="color: #f6e05e;">═══════════════════════════════════════════</span>
-<span id="debugContent">Menunggu data...</span>
+        <div id="debugPanel" class="debug-panel" style="display: none;">
+            <div id="debugContent"></div>
         </div>
 
         <!-- Form Input -->
@@ -311,15 +307,15 @@
             <div class="form-group">
                 <label class="form-label">📋 Pilih Sheet</label>
                 <div class="sheet-tabs">
-                    <button class="sheet-tab active" onclick="selectSheet(0, 'Data_Pajak_2026')">📅 2026</button>
-                    <button class="sheet-tab" onclick="selectSheet(1, 'Data_Pajak_2025')">📅 2025</button>
+                    <button class="sheet-tab active" id="btnSheet2026" onclick="selectSheet(0, 'Data_Pajak_2026')">📅 2026</button>
+                    <button class="sheet-tab" id="btnSheet2025" onclick="selectSheet(1, 'Data_Pajak_2025')">📅 2025</button>
                 </div>
             </div>
 
             <!-- Pajak Selection -->
             <div class="form-group">
                 <label class="form-label">🏷️ Jenis Pajak</label>
-                <select id="pajakSelect" class="form-control" onchange="processForm()">
+                <select id="pajakSelect" class="form-control">
                     <option value="">-- Pilih Jenis Pajak --</option>
                 </select>
             </div>
@@ -327,7 +323,7 @@
             <!-- Bulan Selection -->
             <div class="form-group">
                 <label class="form-label">📅 Bulan yang Diinput</label>
-                <select id="bulanSelect" class="form-control" onchange="processForm()">
+                <select id="bulanSelect" class="form-control">
                     <option value="">-- Pilih Bulan --</option>
                     <option value="1">Januari</option>
                     <option value="2">Februari</option>
@@ -351,10 +347,9 @@
                     <span class="currency">Rp</span>
                     <input type="text" id="realisasiLalu" class="form-control" 
                            style="text-align: right;" 
-                           placeholder="Contoh: 99336000"
-                           oninput="processForm()">
+                           placeholder="Contoh: 99336000">
                 </div>
-                <div class="input-info">📌 Masukkan ANGKA saja, tanpa titik atau koma</div>
+                <div class="input-info">📌 Masukkan ANGKA saja</div>
             </div>
 
             <!-- Input 2: Nilai Bulan Ini -->
@@ -364,10 +359,9 @@
                     <span class="currency">Rp</span>
                     <input type="text" id="nilaiBulanIni" class="form-control" 
                            style="text-align: right;" 
-                           placeholder="Contoh: 81054500"
-                           oninput="processForm()">
+                           placeholder="Contoh: 81054500">
                 </div>
-                <div class="input-info">📌 Masukkan ANGKA saja, tanpa titik atau koma</div>
+                <div class="input-info">📌 Masukkan ANGKA saja</div>
             </div>
 
             <!-- Auto Calculate: s/d Bulan Ini -->
@@ -443,44 +437,29 @@
         let changeToSave = null;
 
         // ============================================================
-        // INIT
+        // INIT - Event Listeners
         // ============================================================
         
         document.addEventListener('DOMContentLoaded', function() {
+            // Event listeners langsung ke elements
+            document.getElementById('pajakSelect').addEventListener('change', function() {
+                processForm();
+            });
+            
+            document.getElementById('bulanSelect').addEventListener('change', function() {
+                processForm();
+            });
+            
+            document.getElementById('realisasiLalu').addEventListener('input', function() {
+                processForm();
+            });
+            
+            document.getElementById('nilaiBulanIni').addEventListener('input', function() {
+                processForm();
+            });
+            
             loadData();
         });
-
-        // ============================================================
-        // DEBUG CHAR BY CHAR
-        // ============================================================
-        
-        function analyzeString(str) {
-            if (!str) return { text: '(empty)', chars: [] };
-            
-            let result = '';
-            let chars = [];
-            
-            for (let i = 0; i < str.length; i++) {
-                const char = str[i];
-                const code = str.charCodeAt(i);
-                let display = '';
-                
-                if (code === 32) {
-                    display = '[SPASI:' + code + ']';
-                } else if (code < 32) {
-                    display = '[CTRL:' + code + ']';
-                } else if (code > 127) {
-                    display = '[' + char + ':' + code + ']';
-                } else {
-                    display = char;
-                }
-                
-                result += display;
-                chars.push({ char: char, code: code, display: display });
-            }
-            
-            return { text: result, chars: chars, length: str.length };
-        }
 
         // ============================================================
         // LOAD DATA
@@ -490,7 +469,7 @@
             showLoading(true, 'Memuat data...');
             
             try {
-                const url = `${WEB_APP_URL}?action=getData&sheetIndex=${currentSheetIndex}`;
+                const url = WEB_APP_URL + '?action=getData&sheetIndex=' + currentSheetIndex;
                 const response = await fetch(url);
                 const result = await response.json();
                 
@@ -504,51 +483,32 @@
                 rawData = [];
                 pajakList = [];
                 
-                // Debug: Analyze each row's first column
-                let debugHtml = '<span class="debug-info">📊 Data dari spreadsheet:</span>\n\n';
+                // Build dropdown
+                const select = document.getElementById('pajakSelect');
+                select.innerHTML = '<option value="">-- Pilih Jenis Pajak --</option>';
                 
                 for (let i = 1; i < data.length; i++) {
                     if (data[i] && data[i][0]) {
                         rawData.push(data[i]);
                         pajakList.push(data[i][0]);
                         
-                        const analysis = analyzeString(data[i][0]);
-                        const isReklame = data[i][0].toString().toLowerCase().includes('reklame');
-                        
-                        debugHtml += '<span class="' + (isReklame ? 'debug-warn' : '') + '">';
-                        debugHtml += 'Row ' + i + ': ';
-                        debugHtml += '"' + data[i][0] + '"';
-                        debugHtml += ' | Length: ' + analysis.length;
-                        debugHtml += ' | Chars: ' + analysis.text;
-                        if (isReklame) debugHtml += ' ← MIRIP REKLAME!';
-                        debugHtml += '</span>\n';
+                        const option = document.createElement('option');
+                        option.value = String(pajakList.length - 1);
+                        option.textContent = data[i][0];
+                        select.appendChild(option);
                     }
                 }
-                
-                document.getElementById('debugContent').innerHTML = debugHtml;
-                
-                // Build dropdown
-                const select = document.getElementById('pajakSelect');
-                select.innerHTML = '<option value="">-- Pilih Jenis Pajak --</option>';
-                
-                pajakList.forEach(function(pajak, idx) {
-                    const option = document.createElement('option');
-                    option.value = idx;
-                    option.textContent = pajak;
-                    select.appendChild(option);
-                });
                 
                 renderTable();
                 
                 document.getElementById('statusAlert').className = 'alert alert-success';
                 document.getElementById('statusAlert').innerHTML = 
-                    `✅ <strong>Connected!</strong> Sheet: <strong>${currentSheetName}</strong> | ${rawData.length} pajak`;
+                    '✅ <strong>Connected!</strong> Sheet: <strong>' + currentSheetName + '</strong> | ' + rawData.length + ' pajak';
                 
             } catch (error) {
                 console.error('Error:', error);
                 document.getElementById('statusAlert').className = 'alert alert-danger';
-                document.getElementById('statusAlert').innerHTML = `❌ <strong>Error:</strong> ${error.message}`;
-                showToast('Error: ' + error.message, 'error');
+                document.getElementById('statusAlert').innerHTML = '❌ <strong>Error:</strong> ' + error.message;
             }
             
             showLoading(false);
@@ -562,10 +522,14 @@
             currentSheetIndex = index;
             currentSheetName = name;
             
-            document.querySelectorAll('.sheet-tab').forEach(function(tab) {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
+            document.getElementById('btnSheet2026').classList.remove('active');
+            document.getElementById('btnSheet2025').classList.remove('active');
+            
+            if (index === 0) {
+                document.getElementById('btnSheet2026').classList.add('active');
+            } else {
+                document.getElementById('btnSheet2025').classList.add('active');
+            }
             
             resetForm();
             loadData();
@@ -595,64 +559,43 @@
 
         function parseNumber(str) {
             if (!str) return 0;
-            const cleaned = str.toString().replace(/\./g, '').replace(/,/g, '');
+            var cleaned = str.toString().replace(/\./g, '').replace(/,/g, '');
             return parseInt(cleaned) || 0;
         }
 
         // ============================================================
-        // PROCESS FORM
+        // PROCESS FORM - DIPANGGIL DARI EVENT LISTENER
         // ============================================================
         
         function processForm() {
-            const pajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
-            const bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
-            const valLalu = parseNumber(document.getElementById('realisasiLalu').value);
-            const valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
+            var pajakSelect = document.getElementById('pajakSelect');
+            var bulanSelect = document.getElementById('bulanSelect');
             
-            const prevBulan = bulanIdx > 1 ? BULAN_NAMES[bulanIdx - 1] : '-';
-            const currBulan = bulanIdx > 0 ? BULAN_NAMES[bulanIdx] : '-';
+            var pajakIdx = pajakSelect.selectedIndex - 1;
+            var bulanIdx = parseInt(bulanSelect.value) || 0;
+            var valLalu = parseNumber(document.getElementById('realisasiLalu').value);
+            var valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
+            
+            var prevBulan = bulanIdx > 1 ? BULAN_NAMES[bulanIdx - 1] : '-';
+            var currBulan = bulanIdx > 0 ? BULAN_NAMES[bulanIdx] : '-';
             document.getElementById('labelBulanLalu').textContent = prevBulan;
             document.getElementById('labelBulanIni').textContent = currBulan;
             
-            const totalSampai = valLalu + valBulanIni;
+            var totalSampai = valLalu + valBulanIni;
             document.getElementById('totalSampai').textContent = 'Rp ' + formatNumber(totalSampai);
             
-            // Debug selection
-            let debugHtml = '<span class="debug-info">📊 Data dari spreadsheet:</span>\n\n';
-            rawData.forEach(function(row, i) {
-                const analysis = analyzeString(row[0]);
-                const isSelected = (i === pajakIdx);
-                const isReklame = row[0].toString().toLowerCase().includes('reklame');
-                
-                let className = '';
-                if (isSelected) className = 'debug-ok';
-                else if (isReklame) className = 'debug-warn';
-                
-                debugHtml += '<span class="' + className + '">';
-                debugHtml += '[' + i + '] ';
-                debugHtml += '"' + row[0] + '"';
-                debugHtml += ' | Len:' + analysis.length;
-                if (isSelected) debugHtml += ' ← TERPILIH!';
-                debugHtml += '</span>\n';
-            });
-            
-            debugHtml += '\n<span class="debug-info">─────────────────────────────</span>\n';
-            debugHtml += '<span class="debug-info">📋 Selection:</span>\n';
-            debugHtml += 'pajakIdx: ' + pajakIdx + '\n';
-            debugHtml += 'bulanIdx: ' + bulanIdx + '\n';
-            debugHtml += 'valBulanIni: ' + valBulanIni + '\n';
-            
-            if (pajakIdx >= 0 && pajakList[pajakIdx]) {
-                const analysis = analyzeString(pajakList[pajakIdx]);
-                debugHtml += 'Nama dipilih: "' + pajakList[pajakIdx] + '"\n';
-                debugHtml += 'Chars: ' + analysis.text + '\n';
-            }
-            
-            document.getElementById('debugContent').innerHTML = debugHtml;
+            // Debug
+            document.getElementById('debugPanel').style.display = 'block';
+            document.getElementById('debugContent').innerHTML = 
+                'pajakIdx: ' + pajakIdx + '<br>' +
+                'bulanIdx: ' + bulanIdx + '<br>' +
+                'valBulanIni: ' + valBulanIni + '<br>' +
+                'pajakSelect.value: ' + pajakSelect.value + '<br>' +
+                'pajakSelect.selectedIndex: ' + pajakSelect.selectedIndex;
             
             if (pajakIdx >= 0 && bulanIdx > 0 && valBulanIni > 0) {
-                const colBulan = bulanIdx + 1;
-                const rowNum = pajakIdx + 2;
+                var colBulan = bulanIdx + 1;
+                var rowNum = pajakIdx + 2;
                 
                 changeToSave = {
                     rowNum: rowNum,
@@ -663,13 +606,11 @@
                     pajakName: pajakList[pajakIdx]
                 };
                 
-                const previewBox = document.getElementById('previewBox');
-                const previewRows = document.getElementById('previewRows');
-                previewRows.innerHTML = 
+                document.getElementById('previewBox').style.display = 'block';
+                document.getElementById('previewRows').innerHTML = 
                     '<div class="preview-row"><span class="preview-label">Pajak:</span><span class="preview-value">' + pajakList[pajakIdx] + '</span></div>' +
                     '<div class="preview-row"><span class="preview-label">Bulan:</span><span class="preview-value">' + BULAN_NAMES[bulanIdx] + '</span></div>' +
                     '<div class="preview-row"><span class="preview-label">Nilai:</span><span class="preview-value">Rp ' + formatNumber(valBulanIni) + '</span></div>';
-                previewBox.style.display = 'block';
                 
                 renderTable(pajakIdx, colBulan);
                 
@@ -688,36 +629,38 @@
             highlightRow = highlightRow || -1;
             highlightCol = highlightCol || -1;
             
-            const thead = document.getElementById('tableHead');
-            const tbody = document.getElementById('tableBody');
+            var thead = document.getElementById('tableHead');
+            var tbody = document.getElementById('tableBody');
             
             document.getElementById('currentSheetName').textContent = currentSheetName;
             
             if (rawData.length === 0) {
                 thead.innerHTML = '<tr><th>No</th><th>Data</th></tr>';
-                tbody.innerHTML = '<tr><td colspan="2" style="text-align: center;">Tidak ada data</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="2">Tidak ada data</td></tr>';
                 return;
             }
             
-            let headerHtml = '<tr><th>#</th><th>Jenis Pajak</th>';
-            ['Target', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'].forEach(function(h) {
-                headerHtml += '<th>' + h + '</th>';
-            });
+            var headerHtml = '<tr><th>#</th><th>Jenis Pajak</th>';
+            var months = ['Target', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            for (var m = 0; m < months.length; m++) {
+                headerHtml += '<th>' + months[m] + '</th>';
+            }
             headerHtml += '</tr>';
             thead.innerHTML = headerHtml;
             
-            let bodyHtml = '';
+            var bodyHtml = '';
             
-            rawData.forEach(function(row, index) {
-                const isHighlightRow = (index === highlightRow);
+            for (var i = 0; i < rawData.length; i++) {
+                var row = rawData[i];
+                var isHighlightRow = (i === highlightRow);
                 
                 bodyHtml += '<tr' + (isHighlightRow ? ' class="table-warning"' : '') + '>';
-                bodyHtml += '<td><strong>' + (index + 1) + '</strong></td>';
+                bodyHtml += '<td><strong>' + (i + 1) + '</strong></td>';
                 bodyHtml += '<td class="td-left">' + row[0] + '</td>';
                 
-                for (let col = 1; col <= 13; col++) {
-                    let value = parseFloat(row[col]) || 0;
-                    let tdClass = 'td-number';
+                for (var col = 1; col <= 13; col++) {
+                    var value = parseFloat(row[col]) || 0;
+                    var tdClass = 'td-number';
                     
                     if (isHighlightRow && col === highlightCol && changeToSave) {
                         value = changeToSave.newVal;
@@ -728,7 +671,7 @@
                 }
                 
                 bodyHtml += '</tr>';
-            });
+            }
             
             tbody.innerHTML = bodyHtml;
         }
@@ -738,12 +681,13 @@
         // ============================================================
         
         async function saveData() {
-            const pajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
-            const bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
-            const valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
+            var pajakSelect = document.getElementById('pajakSelect');
+            var pajakIdx = pajakSelect.selectedIndex - 1;
+            var bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
+            var valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
             
             if (pajakIdx < 0) {
-                showToast('⚠️ Pilih Jenis Pajak!', 'error');
+                showToast('⚠️ Pilih Jenis Pajak! (' + pajakIdx + ')', 'error');
                 return;
             }
             if (bulanIdx <= 0) {
@@ -759,7 +703,7 @@
                 return;
             }
             
-            const btn = document.getElementById('btnSave');
+            var btn = document.getElementById('btnSave');
             btn.disabled = true;
             btn.textContent = '⏳ Menyimpan...';
             
@@ -798,7 +742,7 @@
         
         function showToast(message, type) {
             type = type || 'success';
-            const toast = document.getElementById('toast');
+            var toast = document.getElementById('toast');
             document.getElementById('toastIcon').textContent = (type === 'success') ? '✅' : '❌';
             document.getElementById('toastMessage').textContent = message;
             toast.className = 'toast ' + type + ' show';
@@ -807,7 +751,12 @@
 
         function showLoading(show, text) {
             text = text || 'Memproses...';
-            document.getElementById('loading').classList.toggle('show', show);
+            var loading = document.getElementById('loading');
+            if (show) {
+                loading.classList.add('show');
+            } else {
+                loading.classList.remove('show');
+            }
             document.getElementById('loadingText').textContent = text;
         }
     </script>
