@@ -266,14 +266,8 @@
             border-radius: 10px;
             margin-bottom: 20px;
             font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
-            max-height: 400px;
-            overflow-y: auto;
+            font-size: 0.85rem;
         }
-
-        .debug-panel .debug-warn { color: #f6e05e; }
-        .debug-panel .debug-error { color: #fc8181; }
-        .debug-panel .debug-ok { color: #68d391; }
 
         @media (max-width: 768px) {
             .header-content { flex-direction: column; gap: 10px; }
@@ -372,7 +366,7 @@
 
             <!-- Preview Box -->
             <div id="previewBox" class="preview-box" style="display: none;">
-                <h4>📊 Preview:</h4>
+                <h4>📊 Preview Perubahan:</h4>
                 <div id="previewRows"></div>
             </div>
 
@@ -421,43 +415,30 @@
         // CONFIG
         // ============================================================
         
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyHLEPqaP0BKWuiLoYiTBvtYlq2HWWUJz0yNpAKTNucP1BiwBFsDZa2-qbcgz4u253u/exec';
+        var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyHLEPqaP0BKWuiLoYiTBvtYlq2HWWUJz0yNpAKTNucP1BiwBFsDZa2-qbcgz4u253u/exec';
 
-        const BULAN_NAMES = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
-                             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        var BULAN_NAMES = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                          'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
         // ============================================================
         // STATE
         // ============================================================
         
-        let currentSheetIndex = 0;
-        let currentSheetName = 'Data_Pajak_2026';
-        let rawData = [];
-        let pajakList = [];
-        let changeToSave = null;
+        var currentSheetIndex = 0;
+        var currentSheetName = 'Data_Pajak_2026';
+        var rawData = [];
+        var pajakList = [];
+        var changeToSave = null;
 
         // ============================================================
-        // INIT - Event Listeners
+        // INIT
         // ============================================================
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Event listeners langsung ke elements
-            document.getElementById('pajakSelect').addEventListener('change', function() {
-                processForm();
-            });
-            
-            document.getElementById('bulanSelect').addEventListener('change', function() {
-                processForm();
-            });
-            
-            document.getElementById('realisasiLalu').addEventListener('input', function() {
-                processForm();
-            });
-            
-            document.getElementById('nilaiBulanIni').addEventListener('input', function() {
-                processForm();
-            });
-            
+            document.getElementById('pajakSelect').addEventListener('change', processForm);
+            document.getElementById('bulanSelect').addEventListener('change', processForm);
+            document.getElementById('realisasiLalu').addEventListener('input', processForm);
+            document.getElementById('nilaiBulanIni').addEventListener('input', processForm);
             loadData();
         });
 
@@ -469,30 +450,29 @@
             showLoading(true, 'Memuat data...');
             
             try {
-                const url = WEB_APP_URL + '?action=getData&sheetIndex=' + currentSheetIndex;
-                const response = await fetch(url);
-                const result = await response.json();
+                var url = WEB_APP_URL + '?action=getData&sheetIndex=' + currentSheetIndex;
+                var response = await fetch(url);
+                var result = await response.json();
                 
                 if (result.status !== 'success') {
                     throw new Error(result.message || 'Gagal mengambil data');
                 }
                 
-                const data = result.data;
+                var data = result.data;
                 currentSheetName = result.sheetName;
                 
                 rawData = [];
                 pajakList = [];
                 
-                // Build dropdown
-                const select = document.getElementById('pajakSelect');
+                var select = document.getElementById('pajakSelect');
                 select.innerHTML = '<option value="">-- Pilih Jenis Pajak --</option>';
                 
-                for (let i = 1; i < data.length; i++) {
+                for (var i = 1; i < data.length; i++) {
                     if (data[i] && data[i][0]) {
                         rawData.push(data[i]);
                         pajakList.push(data[i][0]);
                         
-                        const option = document.createElement('option');
+                        var option = document.createElement('option');
                         option.value = String(pajakList.length - 1);
                         option.textContent = data[i][0];
                         select.appendChild(option);
@@ -544,6 +524,7 @@
             document.getElementById('previewBox').style.display = 'none';
             document.getElementById('labelBulanLalu').textContent = '-';
             document.getElementById('labelBulanIni').textContent = '-';
+            document.getElementById('debugPanel').style.display = 'none';
             changeToSave = null;
             renderTable();
         }
@@ -564,13 +545,14 @@
         }
 
         // ============================================================
-        // PROCESS FORM - DIPANGGIL DARI EVENT LISTENER
+        // PROCESS FORM
         // ============================================================
         
         function processForm() {
             var pajakSelect = document.getElementById('pajakSelect');
             var bulanSelect = document.getElementById('bulanSelect');
             
+            // pajakIdx = index di array (0, 1, 2, ...)
             var pajakIdx = pajakSelect.selectedIndex - 1;
             var bulanIdx = parseInt(bulanSelect.value) || 0;
             var valLalu = parseNumber(document.getElementById('realisasiLalu').value);
@@ -584,35 +566,56 @@
             var totalSampai = valLalu + valBulanIni;
             document.getElementById('totalSampai').textContent = 'Rp ' + formatNumber(totalSampai);
             
-            // Debug
+            // DEBUG
             document.getElementById('debugPanel').style.display = 'block';
             document.getElementById('debugContent').innerHTML = 
-                'pajakIdx: ' + pajakIdx + '<br>' +
-                'bulanIdx: ' + bulanIdx + '<br>' +
+                '<strong>DEBUG INFO:</strong><br>' +
+                'pajakIdx (array index): ' + pajakIdx + '<br>' +
+                'bulanIdx: ' + bulanIdx + ' (' + (bulanIdx > 0 ? BULAN_NAMES[bulanIdx] : '-') + ')<br>' +
                 'valBulanIni: ' + valBulanIni + '<br>' +
-                'pajakSelect.value: ' + pajakSelect.value + '<br>' +
-                'pajakSelect.selectedIndex: ' + pajakSelect.selectedIndex;
+                'pajakName: ' + (pajakIdx >= 0 ? pajakList[pajakIdx] : '-') + '<br>' +
+                '----------------------------------------<br>' +
+                '<strong>MAPPING:</strong><br>' +
+                'Spreadsheet Row: ' + (pajakIdx >= 0 ? (pajakIdx + 2) : '-') + '<br>' +
+                'Spreadsheet Col: ' + (bulanIdx > 0 ? (bulanIdx + 2) : '-') + ' (' + (bulanIdx > 0 ? BULAN_NAMES[bulanIdx] : '-') + ')<br>' +
+                'Array Index: ' + (bulanIdx > 0 ? (bulanIdx + 1) : '-');
             
             if (pajakIdx >= 0 && bulanIdx > 0 && valBulanIni > 0) {
-                var colBulan = bulanIdx + 1;
-                var rowNum = pajakIdx + 2;
+                // Spreadsheet Row Number (1-based, karena row 1 adalah header)
+                // rawData[0] = spreadsheet row 2, rawData[1] = spreadsheet row 3, etc.
+                var spreadsheetRow = pajakIdx + 2;
+                
+                // Spreadsheet Column Number (1-based)
+                // Kolom A=1 (Nama), Kolom B=2 (Target), Kolom C=3 (Jan), Kolom D=4 (Feb), etc.
+                // bulan 1 (Jan) = Kolom C = 3
+                // bulan 2 (Feb) = Kolom D = 4
+                // bulan 3 (Mar) = Kolom E = 5
+                var spreadsheetCol = bulanIdx + 2;
+                
+                // Array index untuk local data
+                // row[0]=Nama, row[1]=Target, row[2]=Jan, row[3]=Feb, row[4]=Mar
+                var arrayCol = bulanIdx + 1;
                 
                 changeToSave = {
-                    rowNum: rowNum,
-                    col: colBulan,
+                    spreadsheetRow: spreadsheetRow,
+                    spreadsheetCol: spreadsheetCol,
+                    arrayRow: pajakIdx,
+                    arrayCol: arrayCol,
                     newVal: valBulanIni,
                     bulanName: BULAN_NAMES[bulanIdx],
                     pajakIdx: pajakIdx,
                     pajakName: pajakList[pajakIdx]
                 };
                 
+                // Preview
                 document.getElementById('previewBox').style.display = 'block';
                 document.getElementById('previewRows').innerHTML = 
                     '<div class="preview-row"><span class="preview-label">Pajak:</span><span class="preview-value">' + pajakList[pajakIdx] + '</span></div>' +
                     '<div class="preview-row"><span class="preview-label">Bulan:</span><span class="preview-value">' + BULAN_NAMES[bulanIdx] + '</span></div>' +
-                    '<div class="preview-row"><span class="preview-label">Nilai:</span><span class="preview-value">Rp ' + formatNumber(valBulanIni) + '</span></div>';
+                    '<div class="preview-row"><span class="preview-label">Nilai:</span><span class="preview-value">Rp ' + formatNumber(valBulanIni) + '</span></div>' +
+                    '<div class="preview-row"><span class="preview-label">Update:</span><span class="preview-value">Row ' + spreadsheetRow + ', Col ' + spreadsheetCol + '</span></div>';
                 
-                renderTable(pajakIdx, colBulan);
+                renderTable(pajakIdx, arrayCol);
                 
             } else {
                 changeToSave = null;
@@ -640,10 +643,10 @@
                 return;
             }
             
-            var headerHtml = '<tr><th>#</th><th>Jenis Pajak</th>';
-            var months = ['Target', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-            for (var m = 0; m < months.length; m++) {
-                headerHtml += '<th>' + months[m] + '</th>';
+            // Header: Target, Jan, Feb, Mar, etc.
+            var headerHtml = '<tr><th>#</th><th>Jenis Pajak</th><th>Target</th>';
+            for (var m = 1; m <= 12; m++) {
+                headerHtml += '<th>' + BULAN_NAMES[m].substring(0, 3) + '</th>';
             }
             headerHtml += '</tr>';
             thead.innerHTML = headerHtml;
@@ -658,6 +661,8 @@
                 bodyHtml += '<td><strong>' + (i + 1) + '</strong></td>';
                 bodyHtml += '<td class="td-left">' + row[0] + '</td>';
                 
+                // row[1] = Target, row[2] = Jan, row[3] = Feb, row[4] = Mar, etc.
+                // Col 1 = Target (row[1]), Col 2 = Jan (row[2]), etc.
                 for (var col = 1; col <= 13; col++) {
                     var value = parseFloat(row[col]) || 0;
                     var tdClass = 'td-number';
@@ -687,7 +692,7 @@
             var valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
             
             if (pajakIdx < 0) {
-                showToast('⚠️ Pilih Jenis Pajak! (' + pajakIdx + ')', 'error');
+                showToast('⚠️ Pilih Jenis Pajak!', 'error');
                 return;
             }
             if (bulanIdx <= 0) {
@@ -710,24 +715,34 @@
             showLoading(true, 'Menyimpan data...');
             
             try {
+                // Kirim ke spreadsheet
+                var payload = {
+                    action: 'updateCell',
+                    sheetIndex: currentSheetIndex,
+                    row: changeToSave.spreadsheetRow,
+                    column: changeToSave.spreadsheetCol,
+                    value: changeToSave.newVal
+                };
+                
+                console.log('📤 Sending:', payload);
+                
                 await fetch(WEB_APP_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        sheetIndex: currentSheetIndex,
-                        row: changeToSave.rowNum,
-                        column: changeToSave.col,
-                        value: changeToSave.newVal
-                    })
+                    body: JSON.stringify(payload)
                 });
                 
-                rawData[changeToSave.pajakIdx][changeToSave.col - 1] = changeToSave.newVal;
+                // Update local data
+                rawData[changeToSave.arrayRow][changeToSave.arrayCol] = changeToSave.newVal;
+                
+                console.log('✅ Saved to Row ' + changeToSave.spreadsheetRow + ', Col ' + changeToSave.spreadsheetCol);
                 
                 showToast('✅ Data ' + changeToSave.bulanName + ' berhasil disimpan!', 'success');
                 resetForm();
                 
             } catch (error) {
+                console.error('Error:', error);
                 showToast('❌ Gagal: ' + error.message, 'error');
             }
             
