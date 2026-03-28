@@ -20,7 +20,6 @@
             background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
             color: white;
             padding: 15px 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
         .header-content {
@@ -136,6 +135,17 @@
             margin-top: 5px;
         }
 
+        .input-result {
+            background: #e6fffa;
+            border: 2px solid #319795;
+            padding: 12px 15px;
+            border-radius: 10px;
+            text-align: right;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #234e52;
+        }
+
         .sheet-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
 
         .sheet-tab {
@@ -172,31 +182,26 @@
 
         .td-left { text-align: left; font-weight: 500; }
         .td-number { font-family: 'Courier New', monospace; }
-        .td-old { color: #718096; background: #f7fafc !important; }
         .td-changed { background: #c6f6d5 !important; color: #276749; font-weight: 700; }
 
         .preview-box {
-            background: #f7fafc;
-            border: 2px dashed #cbd5e0;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
             border-radius: 10px;
             padding: 15px;
             margin-top: 15px;
         }
 
+        .preview-box h4 { margin-bottom: 15px; }
         .preview-row {
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
-
         .preview-row:last-child { border-bottom: none; }
-        .preview-row.total { font-weight: 700; border-top: 2px solid #3182ce; margin-top: 10px; }
-
-        .preview-label { color: #4a5568; }
-        .preview-old { color: #718096; text-decoration: line-through; }
-        .preview-new { color: #276749; font-weight: 600; }
-        .preview-add { color: #3182ce; font-weight: 600; }
+        .preview-label { opacity: 0.9; }
+        .preview-value { font-weight: 700; }
 
         .toast {
             position: fixed;
@@ -274,7 +279,7 @@
         <!-- Form Input -->
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">📝 Input Realisasi Pajak (Mode: PENAMBAHAN)</h2>
+                <h2 class="card-title">📝 Input Realisasi Pajak</h2>
             </div>
 
             <!-- Sheet Selection -->
@@ -289,15 +294,15 @@
             <!-- Pajak Selection -->
             <div class="form-group">
                 <label class="form-label">🏷️ Jenis Pajak</label>
-                <select id="pajakSelect" class="form-control" onchange="updatePreview()">
+                <select id="pajakSelect" class="form-control" onchange="updateLabels()">
                     <option value="">-- Pilih Jenis Pajak --</option>
                 </select>
             </div>
 
             <!-- Bulan Selection -->
             <div class="form-group">
-                <label class="form-label">📅 Bulan Target (sistem akan mengisi dari Januari sampai bulan ini)</label>
-                <select id="bulanSelect" class="form-control" onchange="updatePreview()">
+                <label class="form-label">📅 Bulan yang Diinput</label>
+                <select id="bulanSelect" class="form-control" onchange="updateLabels()">
                     <option value="">-- Pilih Bulan --</option>
                     <option value="1">Januari</option>
                     <option value="2">Februari</option>
@@ -314,44 +319,51 @@
                 </select>
             </div>
 
-            <!-- 3 Input Values -->
+            <!-- Input 1: s/d Bulan Lalu -->
             <div class="form-group">
-                <label class="form-label">💰 Realisasi s/d Bulan Lalu (Total dari Januari sampai <span id="labelBulanLalu">-</span>)</label>
+                <label class="form-label">💰 Total s/d Bulan Lalu (Januari s/d <span id="labelBulanLalu">-</span>)</label>
                 <div class="input-group">
                     <span class="currency">Rp</span>
                     <input type="text" id="realisasiLalu" class="form-control" 
                            style="text-align: right;" 
                            placeholder="0"
-                           oninput="formatInput(this); calculateValue()">
+                           oninput="formatInput(this); calculateAuto()">
                 </div>
-                <div class="input-info">📌 Masukkan TOTAL kumulatif sampai bulan sebelum dipilih</div>
+                <div class="input-info">📌 Total nilai KUMULATIF dari Januari sampai bulan SEBELUM dipilih</div>
             </div>
 
+            <!-- Input 2: Nilai Bulan Ini -->
             <div class="form-group">
-                <label class="form-label">💰 Realisasi s/d Bulan Ini (Total dari Januari sampai <span id="labelSampai">-</span>)</label>
+                <label class="form-label">💰 Nilai <span id="labelBulanIni">-</span> SAJA</label>
                 <div class="input-group">
                     <span class="currency">Rp</span>
-                    <input type="text" id="realisasiSampai" class="form-control" 
+                    <input type="text" id="nilaiBulanIni" class="form-control" 
                            style="text-align: right;" 
                            placeholder="0"
-                           oninput="formatInput(this); calculateValue()">
+                           oninput="formatInput(this); calculateAuto()">
                 </div>
-                <div class="input-info">📌 Masukkan TOTAL kumulatif sampai bulan yang dipilih</div>
+                <div class="input-info">📌 Nilai bulan INI SAJA (bukan total)</div>
+            </div>
+
+            <!-- Auto Calculate: s/d Bulan Ini -->
+            <div class="form-group">
+                <label class="form-label">📐 Total s/d Bulan Ini (AUTO HITUNG)</label>
+                <div class="input-result" id="totalSampai">Rp 0</div>
             </div>
 
             <!-- Preview Box -->
             <div id="previewBox" class="preview-box" style="display: none;">
-                <h4 style="margin-bottom: 15px;">📊 Preview Perubahan:</h4>
+                <h4>📊 Preview:</h4>
                 <div id="previewRows"></div>
             </div>
 
             <!-- Save Button -->
             <button id="btnSave" class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1rem; margin-top: 15px;" onclick="saveData()">
-                💾 SIMPAN DATA (TAMBAHAN)
+                💾 SIMPAN DATA
             </button>
         </div>
 
-        <!-- Table Preview -->
+        <!-- Table -->
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">📊 Data Pajak - <span id="currentSheetName">Loading...</span></h2>
@@ -394,8 +406,6 @@
 
         const BULAN_NAMES = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
                              'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-        const BULAN_SHORT = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 
-                            'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
         // ============================================================
         // STATE
@@ -405,7 +415,9 @@
         let currentSheetName = 'Data_Pajak_2026';
         let rawData = [];
         let pajakList = [];
-        let changesToSave = [];
+        let selectedPajakIdx = -1;
+        let selectedBulanIdx = 0;
+        let changeToSave = null;
 
         // ============================================================
         // INIT
@@ -434,7 +446,6 @@
                 const data = result.data;
                 currentSheetName = result.sheetName;
                 
-                // Parse data
                 rawData = [];
                 pajakList = [];
                 
@@ -445,7 +456,6 @@
                     }
                 }
                 
-                // Update dropdown
                 const select = document.getElementById('pajakSelect');
                 select.innerHTML = '<option value="">-- Pilih Jenis Pajak --</option>';
                 pajakList.forEach((pajak, idx) => {
@@ -481,7 +491,6 @@
             });
             event.target.classList.add('active');
             
-            // Reset form
             resetForm();
             loadData();
         }
@@ -490,9 +499,13 @@
             document.getElementById('pajakSelect').value = '';
             document.getElementById('bulanSelect').value = '';
             document.getElementById('realisasiLalu').value = '';
-            document.getElementById('realisasiSampai').value = '';
+            document.getElementById('nilaiBulanIni').value = '';
+            document.getElementById('totalSampai').textContent = 'Rp 0';
             document.getElementById('previewBox').style.display = 'none';
-            changesToSave = [];
+            selectedPajakIdx = -1;
+            selectedBulanIdx = 0;
+            changeToSave = null;
+            renderTable();
         }
 
         // ============================================================
@@ -516,156 +529,87 @@
         // UPDATE LABELS
         // ============================================================
         
-        function updatePreview() {
-            const bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
-            const prevBulan = bulanIdx > 1 ? BULAN_NAMES[bulanIdx - 1] : '-';
-            const currBulan = bulanIdx > 0 ? BULAN_NAMES[bulanIdx] : '-';
+        function updateLabels() {
+            selectedPajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
+            selectedBulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
+            
+            const prevBulan = selectedBulanIdx > 1 ? BULAN_NAMES[selectedBulanIdx - 1] : '-';
+            const currBulan = selectedBulanIdx > 0 ? BULAN_NAMES[selectedBulanIdx] : '-';
             
             document.getElementById('labelBulanLalu').textContent = prevBulan;
-            document.getElementById('labelSampai').textContent = currBulan;
+            document.getElementById('labelBulanIni').textContent = currBulan;
             
-            calculateValue();
+            calculateAuto();
         }
 
         // ============================================================
-        // CALCULATE VALUE - MODE PENAMBAHAN
+        // CALCULATE AUTO
         // ============================================================
         
-        function calculateValue() {
-            const bulanIdx = parseInt(document.getElementById('bulanSelect').value) || 0;
-            const pajakIdx = parseInt(document.getElementById('pajakSelect').value) || -1;
-            
+        function calculateAuto() {
             const valLalu = parseNumber(document.getElementById('realisasiLalu').value);
-            const valSampai = parseNumber(document.getElementById('realisasiSampai').value);
+            const valBulanIni = parseNumber(document.getElementById('nilaiBulanIni').value);
             
-            // Calculate total tambahan for this period
-            const totalTambahan = valSampai - valLalu;
+            // Auto calculate total s/d bulan ini
+            const totalSampai = valLalu + valBulanIni;
             
-            if (bulanIdx <= 0 || pajakIdx < 0) {
-                document.getElementById('previewBox').style.display = 'none';
-                changesToSave = [];
-                renderTable();
-                return;
-            }
+            document.getElementById('totalSampai').textContent = 'Rp ' + totalSampai.toLocaleString('id-ID');
             
-            if (totalTambahan === 0) {
-                document.getElementById('previewBox').style.display = 'none';
-                changesToSave = [];
-                renderTable();
-                return;
-            }
-            
-            // Get row data
-            const row = rawData[pajakIdx];
-            
-            // Calculate current totals in spreadsheet
-            // Column: [0]=Nama, [1]=Target, [2]=Jan, [3]=Feb, ... [13]=Des
-            let currentTotalSampai = 0;
-            for (let i = 2; i <= bulanIdx + 1; i++) {
-                currentTotalSampai += parseFloat(row[i]) || 0;
-            }
-            
-            // Calculate the DIFFERENCE to distribute
-            const selisihTotal = valSampai - currentTotalSampai;
-            
-            // Store changes
-            changesToSave = [];
-            
-            // Calculate previous total in spreadsheet
-            let currentTotalLalu = 0;
-            if (bulanIdx > 1) {
-                for (let i = 2; i < bulanIdx + 1; i++) {
-                    currentTotalLalu += parseFloat(row[i]) || 0;
-                }
-            }
-            
-            // Build preview
-            let previewHtml = '';
-            let totalAdded = 0;
-            
-            for (let b = 2; b <= bulanIdx + 1; b++) {
-                const bulanName = BULAN_SHORT[b - 1];
-                const oldVal = parseFloat(row[b]) || 0;
-                const colIdx = b;
+            // Update preview & table
+            if (selectedPajakIdx >= 0 && selectedBulanIdx > 0 && valBulanIni > 0) {
+                // Column mapping: [0]=Nama, [1]=Target, [2]=Jan, [3]=Feb, ... [13]=Des
+                const colTarget = 1;
+                const colBulan = selectedBulanIdx + 1; // col 2=Jan, col 3=Feb, etc
+                const rowNum = selectedPajakIdx + 2;
                 
-                // Calculate what to add to this month
-                // Distribute based on ratio or simple equal distribution
-                let tambahan = 0;
+                const currentValue = parseFloat(rawData[selectedPajakIdx][colTarget + selectedBulanIdx - 1]) || 0;
                 
-                if (b === bulanIdx + 1) {
-                    // Last month gets the remainder
-                    tambahan = selisihTotal - totalAdded;
-                } else {
-                    // For earlier months, keep the difference proportionally
-                    // But simpler: only update if there's change needed
-                    const expectedForBulanIni = valSampai - (bulanIdx - (b - 2)) * (totalTambahan / bulanIdx);
-                    tambahan = 0; // Will be calculated below
-                }
+                // Set change
+                changeToSave = {
+                    rowNum: rowNum,
+                    col: colTarget + selectedBulanIdx - 1,
+                    newVal: valBulanIni,
+                    bulanName: BULAN_NAMES[selectedBulanIdx]
+                };
                 
-                // Simple approach: distribute evenly or based on existing values
-                if (b === bulanIdx + 1) {
-                    // Last month gets what's left
-                    tambahan = selisihTotal - totalAdded;
-                } else {
-                    // Earlier months don't change if we're only adding to current period
-                    tambahan = 0;
-                }
-                
-                // Check if this month needs update
-                if (selisihTotal !== 0) {
-                    // If selisihTotal is positive, we need to distribute
-                    // Simple logic: add all to the last month
-                    if (b === bulanIdx + 1) {
-                        tambahan = selisihTotal;
-                    } else {
-                        tambahan = 0;
-                    }
-                }
-                
-                const newVal = oldVal + tambahan;
-                totalAdded += tambahan;
-                
-                if (tambahan !== 0) {
-                    changesToSave.push({ col: colIdx, oldVal: oldVal, newVal: newVal });
-                    
-                    previewHtml += `
-                        <div class="preview-row">
-                            <span class="preview-label">${bulanName}:</span>
-                            <span>
-                                <span class="preview-old">${formatNum(oldVal)}</span>
-                                <span> → </span>
-                                <span class="preview-new">${formatNum(newVal)}</span>
-                                <span class="preview-add">(+${formatNum(Math.abs(tambahan))})</span>
-                            </span>
-                        </div>
-                    `;
-                }
-            }
-            
-            // Show preview
-            if (previewHtml) {
-                previewHtml = `
+                // Show preview
+                let previewHtml = `
                     <div class="preview-row">
-                        <span class="preview-label">Total Tambahan:</span>
-                        <span class="preview-add">+${formatNum(Math.abs(selisihTotal))}</span>
+                        <span class="preview-label">Pajak:</span>
+                        <span class="preview-value">${pajakList[selectedPajakIdx]}</span>
                     </div>
-                    ${previewHtml}
+                    <div class="preview-row">
+                        <span class="preview-label">Bulan:</span>
+                        <span class="preview-value">${BULAN_NAMES[selectedBulanIdx]}</span>
+                    </div>
+                    <div class="preview-row">
+                        <span class="preview-label">Nilai Lama:</span>
+                        <span class="preview-value">Rp ${currentValue.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="preview-row">
+                        <span class="preview-label">Nilai Baru:</span>
+                        <span class="preview-value">Rp ${valBulanIni.toLocaleString('id-ID')}</span>
+                    </div>
                 `;
+                
                 document.getElementById('previewRows').innerHTML = previewHtml;
                 document.getElementById('previewBox').style.display = 'block';
+                
+                // Render table with highlight
+                renderTable(selectedPajakIdx, colTarget + selectedBulanIdx - 1);
+                
             } else {
+                changeToSave = null;
                 document.getElementById('previewBox').style.display = 'none';
+                renderTable();
             }
-            
-            // Re-render table with highlights
-            renderTable(pajakIdx);
         }
 
         // ============================================================
         // RENDER TABLE
         // ============================================================
         
-        function renderTable(highlightRow = -1) {
+        function renderTable(highlightRow = -1, highlightCol = -1) {
             const thead = document.getElementById('tableHead');
             const tbody = document.getElementById('tableBody');
             
@@ -689,9 +633,9 @@
             let bodyHtml = '';
             
             rawData.forEach((row, index) => {
-                const isHighlight = index === highlightRow;
+                const isHighlightRow = index === highlightRow;
                 
-                bodyHtml += `<tr class="${isHighlight ? 'table-warning' : ''}">`;
+                bodyHtml += `<tr class="${isHighlightRow ? 'table-warning' : ''}">`;
                 bodyHtml += `<td><strong>${index + 1}</strong></td>`;
                 bodyHtml += `<td class="td-left">${row[0] || ''}</td>`;
                 
@@ -700,13 +644,10 @@
                     let value = parseFloat(row[col]) || 0;
                     let tdClass = 'td-number';
                     
-                    // Check if this cell is changed
-                    if (isHighlight && changesToSave) {
-                        const change = changesToSave.find(c => c.col === col);
-                        if (change) {
-                            value = change.newVal;
-                            tdClass = 'td-number td-changed';
-                        }
+                    // Highlight changed cell
+                    if (isHighlightRow && col === highlightCol && changeToSave) {
+                        value = changeToSave.newVal;
+                        tdClass = 'td-number td-changed';
                     }
                     
                     bodyHtml += `<td class="${tdClass}">${formatNum(value)}</td>`;
@@ -726,20 +667,12 @@
         }
 
         // ============================================================
-        // SAVE DATA - MODE PENAMBAHAN
+        // SAVE DATA
         // ============================================================
         
         async function saveData() {
-            if (changesToSave.length === 0) {
-                showToast('⚠️ Tidak ada perubahan untuk disimpan!', 'error');
-                return;
-            }
-            
-            const pajakIdx = parseInt(document.getElementById('pajakSelect').value);
-            const bulanIdx = parseInt(document.getElementById('bulanSelect').value);
-            
-            if (pajakIdx < 0 || bulanIdx <= 0) {
-                showToast('⚠️ Pilih pajak dan bulan!', 'error');
+            if (!changeToSave) {
+                showToast('⚠️ Pilih pajak, bulan, dan masukkan nilai!', 'error');
                 return;
             }
             
@@ -750,35 +683,27 @@
             showLoading(true, 'Menyimpan data...');
             
             try {
-                // Save each changed cell
-                for (const change of changesToSave) {
-                    const rowNum = pajakIdx + 2;
-                    
-                    await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            sheetIndex: currentSheetIndex,
-                            row: rowNum,
-                            column: change.col,
-                            value: change.newVal
-                        })
-                    });
-                    
-                    console.log(`✅ Saved: Row ${rowNum}, Col ${change.col} = ${change.newVal}`);
-                    
-                    // Update local data
-                    rawData[pajakIdx][change.col - 1] = change.newVal;
-                    
-                    await new Promise(r => setTimeout(r, 100));
-                }
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sheetIndex: currentSheetIndex,
+                        row: changeToSave.rowNum,
+                        column: changeToSave.col,
+                        value: changeToSave.newVal
+                    })
+                });
                 
-                showToast(`✅ ${changesToSave.length} data berhasil disimpan!`, 'success');
+                console.log(`✅ Saved: Row ${changeToSave.rowNum}, Col ${changeToSave.col} = ${changeToSave.newVal}`);
                 
-                // Reset
+                // Update local data
+                rawData[selectedPajakIdx][changeToSave.col - 1] = changeToSave.newVal;
+                
+                showToast(`✅ Data ${changeToSave.bulanName} berhasil disimpan!`, 'success');
+                
+                // Reset form
                 resetForm();
-                renderTable();
                 
             } catch (error) {
                 console.error('Error:', error);
@@ -787,7 +712,7 @@
             
             showLoading(false);
             btn.disabled = false;
-            btn.textContent = '💾 SIMPAN DATA (TAMBAHAN)';
+            btn.textText = '💾 SIMPAN DATA';
         }
 
         // ============================================================
