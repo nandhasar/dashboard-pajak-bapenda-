@@ -1038,17 +1038,18 @@
                 </div>
             </section>
 
-            <!-- Data Table 2026 -->
+            <!-- Data Table 2026 - MODIFIKASI -->
             <section class="table-section">
-                <div class="table-title">📋 Detail Realisasi 2026 <small style="color: #718096; font-weight: normal;">(Klik baris)</small></div>
+                <div class="table-title">📋 Detail Realisasi 2026 <small style="color: #718096; font-weight: normal;">(Klik baris untuk detail)</small></div>
                 <table class="data-table">
-                    <thead>
+                    <thead id="tableHead2026">
+                        <!-- Header akan di-generate oleh JavaScript -->
                         <tr>
                             <th>No</th>
                             <th>Jenis Pajak</th>
                             <th>Target</th>
-                            <th>Jan</th>
-                            <th>Feb</th>
+                            <th id="thCol1">Loading...</th>
+                            <th id="thCol2">Loading...</th>
                             <th>Total</th>
                             <th>%</th>
                         </tr>
@@ -1146,6 +1147,7 @@
         let data2026 = [];
         let data2025 = [];
         let charts = {};
+        let currentMonth = new Date().getMonth(); // 0-11
 
         // Month names
         const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
@@ -1161,6 +1163,17 @@
                 return 'Rp ' + (num / 1000).toFixed(0) + ' Rb';
             }
             return 'Rp ' + num.toLocaleString('id-ID');
+        }
+
+        function formatRupiahShort(num) {
+            if (num >= 1000000000) {
+                return (num / 1000000000).toFixed(1) + ' M';
+            } else if (num >= 1000000) {
+                return (num / 1000000).toFixed(0) + ' Jt';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(0) + ' Rb';
+            }
+            return num.toLocaleString('id-ID');
         }
 
         // ==================== FETCH DATA ====================
@@ -1261,6 +1274,26 @@
             return data.reduce((sum, item) => sum + (item.bulan[monthIndex] || 0), 0);
         }
 
+        // Hitung total s/d bulan tertentu (0-based index)
+        function getTotalSampaiBulan(data, bulanIdx) {
+            return data.reduce((sum, item) => {
+                let totalItem = 0;
+                for (let i = 0; i <= bulanIdx; i++) {
+                    totalItem += item.bulan[i] || 0;
+                }
+                return sum + totalItem;
+            }, 0);
+        }
+
+        // Hitung total item s/d bulan tertentu
+        function getItemTotalSampaiBulan(item, bulanIdx) {
+            let total = 0;
+            for (let i = 0; i <= bulanIdx; i++) {
+                total += item.bulan[i] || 0;
+            }
+            return total;
+        }
+
         // ==================== ANIMATED COUNTER ====================
         function animateCounter(element, target, duration = 2000) {
             let start = 0;
@@ -1281,7 +1314,6 @@
 
         // ==================== INITIALIZE DASHBOARD ====================
         function initDashboard() {
-            const currentMonth = new Date().getMonth();
             const currentMonthName = monthNames[currentMonth];
             
             // Update subtitles
@@ -1291,7 +1323,7 @@
             
             // Calculate totals
             const totalTarget2026 = getTotalTarget(data2026);
-            const totalRealisasi2026 = getTotalRealisasi(data2026);
+            const totalRealisasi2026 = getTotalSampaiBulan(data2026, currentMonth);
             const percentage2026 = (totalRealisasi2026 / totalTarget2026 * 100).toFixed(2);
             
             let total2026Period = 0;
@@ -1428,7 +1460,7 @@
 
             const ctx2 = document.getElementById('pieChart').getContext('2d');
             const taxNames = data2026.map(item => item.name);
-            const taxValues = data2026.map(item => item.total);
+            const taxValues = data2026.map(item => getItemTotalSampaiBulan(item, currentMonth));
             
             const colors = [
                 '#3182ce', '#38a169', '#d69e2e', '#e53e3e', '#805ad5',
@@ -1492,16 +1524,39 @@
             };
         }
 
-        // ==================== TABLES ====================
+        // ==================== TABLES (MODIFIKASI) ====================
         function initTables(currentMonth) {
+            // Update header tabel dinamis
+            const prevMonthIdx = currentMonth; // bulan sebelumnya (0-based)
+            const currMonthName = shortMonthNames[currentMonth];
+            const prevMonthName = currentMonth > 0 ? 's/d ' + shortMonthNames[prevMonthIdx - 1] : '-';
+            
+            document.getElementById('thCol1').textContent = prevMonthName;
+            document.getElementById('thCol2').textContent = currMonthName;
+            
             const tbody2026 = document.getElementById('tableBody2026');
             tbody2026.innerHTML = '';
             
             data2026.forEach((item, index) => {
+                // Hitung s/d bulan sebelumnya
+                let totalSampaiPrev = 0;
+                for (let i = 0; i < currentMonth; i++) {
+                    totalSampaiPrev += item.bulan[i] || 0;
+                }
+                
+                // Nilai bulan ini
+                const nilaiBulanIni = item.bulan[currentMonth] || 0;
+                
+                // Total s/d bulan ini
+                const totalSampaiIni = getItemTotalSampaiBulan(item, currentMonth);
+                
+                // Persentase terhadap target
+                const percentage = item.target > 0 ? (totalSampaiIni / item.target) * 100 : 0;
+                
                 let percentageClass = 'good';
-                if (item.percentage >= 100) percentageClass = 'excellent';
-                else if (item.percentage >= 50) percentageClass = 'good';
-                else if (item.percentage >= 25) percentageClass = 'warning';
+                if (percentage >= 100) percentageClass = 'excellent';
+                else if (percentage >= 50) percentageClass = 'good';
+                else if (percentage >= 25) percentageClass = 'warning';
                 else percentageClass = 'danger';
                 
                 const row = `
@@ -1509,10 +1564,10 @@
                         <td>${index + 1}</td>
                         <td class="tax-name">${item.name}</td>
                         <td class="number">${formatRupiahFull(item.target)}</td>
-                        <td class="number">${formatRupiahFull(item.bulan[0])}</td>
-                        <td class="number">${formatRupiahFull(item.bulan[1] || 0)}</td>
-                        <td class="number" style="font-weight: 600; color: #2b6cb0;">${formatRupiahFull(item.total)}</td>
-                        <td><span class="percentage-badge ${percentageClass}">${item.percentage.toFixed(1)}%</span></td>
+                        <td class="number">${formatRupiahShort(totalSampaiPrev)}</td>
+                        <td class="number" style="color: #38a169; font-weight: 600;">${formatRupiahShort(nilaiBulanIni)}</td>
+                        <td class="number" style="font-weight: 700; color: #2b6cb0;">${formatRupiahShort(totalSampaiIni)}</td>
+                        <td><span class="percentage-badge ${percentageClass}">${percentage.toFixed(1)}%</span></td>
                     </tr>
                 `;
                 tbody2026.innerHTML += row;
@@ -1566,8 +1621,8 @@
             
             document.getElementById('modalTitle').textContent = '📊 ' + item2026.name;
             document.getElementById('modalTarget').textContent = formatRupiahFull(item2026.target);
-            document.getElementById('modalRealisasi').textContent = formatRupiahFull(item2026.total);
-            document.getElementById('modalPersen').textContent = item2026.percentage.toFixed(2) + '%';
+            document.getElementById('modalRealisasi').textContent = formatRupiahFull(getItemTotalSampaiBulan(item2026, currentMonth));
+            document.getElementById('modalPersen').textContent = ((getItemTotalSampaiBulan(item2026, currentMonth) / item2026.target) * 100).toFixed(2) + '%';
             
             const monthGrid = document.getElementById('modalMonthGrid');
             monthGrid.innerHTML = '';
@@ -1575,10 +1630,19 @@
             for (let i = 0; i < 12; i++) {
                 const value = item2026.bulan[i] || 0;
                 const hasValue = value > 0;
+                const isCurrent = i === currentMonth;
+                
+                let style = '';
+                if (isCurrent) {
+                    style = 'background: linear-gradient(135deg, #c6f6d5, #9ae6b4); border: 2px solid #38a169;';
+                } else if (hasValue) {
+                    style = 'background: linear-gradient(135deg, #e2e8f0, #cbd5e0);';
+                }
+                
                 monthGrid.innerHTML += `
-                    <div class="month-item ${hasValue ? 'has-value' : ''}">
-                        <div class="month-name">${shortMonthNames[i]}</div>
-                        <div class="month-value">${hasValue ? formatRupiahFull(value) : '-'}</div>
+                    <div class="month-item ${hasValue ? 'has-value' : ''}" style="${style}">
+                        <div class="month-name">${shortMonthNames[i]}${isCurrent ? ' ←' : ''}</div>
+                        <div class="month-value">${hasValue || isCurrent ? formatRupiahShort(value) : '-'}</div>
                     </div>
                 `;
             }
@@ -1596,8 +1660,8 @@
                     compTable.innerHTML += `
                         <tr>
                             <td>${monthNames[i]}</td>
-                            <td class="number">${formatRupiahFull(val2025)}</td>
-                            <td class="number">${formatRupiahFull(val2026)}</td>
+                            <td class="number">${formatRupiahShort(val2025)}</td>
+                            <td class="number">${formatRupiahShort(val2026)}</td>
                             <td class="${selisih >= 0 ? 'change-positive' : 'change-negative'}">
                                 ${selisih >= 0 ? '↑' : '↓'} ${Math.abs(change)}%
                             </td>
@@ -1631,7 +1695,7 @@
                     <div class="month-item ${value > 0 ? 'has-value' : ''}" 
                          style="${isSelected ? 'background: linear-gradient(135deg, #ebf8ff, #bee3f8); border: 2px solid #3182ce;' : ''}">
                         <div class="month-name">${shortMonthNames[i]}</div>
-                        <div class="month-value">${value > 0 ? formatRupiahFull(value) : '-'}</div>
+                        <div class="month-value">${value > 0 ? formatRupiahShort(value) : '-'}</div>
                     </div>
                 `;
             }
@@ -1651,8 +1715,8 @@
                     compTable.innerHTML += `
                         <tr>
                             <td>${no}. ${item2026.name}</td>
-                            <td class="number">${formatRupiahFull(val2025Item)}</td>
-                            <td class="number">${formatRupiahFull(val2026Item)}</td>
+                            <td class="number">${formatRupiahShort(val2025Item)}</td>
+                            <td class="number">${formatRupiahShort(val2026Item)}</td>
                             <td class="${selisihItem >= 0 ? 'change-positive' : 'change-negative'}">
                                 ${selisihItem >= 0 ? '↑' : '↓'} ${Math.abs(changeItem)}%
                             </td>
@@ -1665,8 +1729,8 @@
             compTable.innerHTML += `
                 <tr style="background: #f7fafc; font-weight: 600;">
                     <td>TOTAL</td>
-                    <td class="number">${formatRupiahFull(val2025)}</td>
-                    <td class="number">${formatRupiahFull(val2026)}</td>
+                    <td class="number">${formatRupiahShort(val2025)}</td>
+                    <td class="number">${formatRupiahShort(val2026)}</td>
                     <td class="${selisih >= 0 ? 'change-positive' : 'change-negative'}">
                         ${selisih >= 0 ? '↑' : '↓'} ${Math.abs(change)}%
                     </td>
