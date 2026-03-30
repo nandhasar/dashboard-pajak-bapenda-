@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BAPENDA Lombok Tengah - Dashboard PAD</title>
+    <title>BAPENDA Lombok Tengah - Dashboard PAD & Retribusi</title>
     <style>
         * {
             margin: 0;
@@ -93,8 +93,13 @@
             font-size: 0.9rem;
         }
         
+        /* Card Styles */
         .dashboard-card {
             border-top: 4px solid #4CAF50;
+        }
+        
+        .retribusi-card {
+            border-top: 4px solid #FF9800;
         }
         
         footer {
@@ -113,10 +118,18 @@
         <div class="year-badge">📅 Tahun 2026</div>
         
         <div class="cards">
+            <!-- Card Pajak/PAD -->
             <a href="dashboard.html" class="card dashboard-card">
                 <div class="card-icon">📊</div>
-                <h2>Lihat Dashboard</h2>
-                <p>Tampilkan grafik dan statistik PAD tahun 2026 dengan perbandingan tahun sebelumnya</p>
+                <h2>Dashboard Pajak</h2>
+                <p>Grafik dan statistik Realisasi PAD dari sektor Pajak tahun 2026</p>
+            </a>
+            
+            <!-- Card Retribusi -->
+            <a href="dashboard_retribusi.html" class="card retribusi-card">
+                <div class="card-icon">🏛️</div>
+                <h2>Dashboard Retribusi</h2>
+                <p>Grafik dan statistik Realisasi PAD dari sektor Retribusi Daerah tahun 2026</p>
             </a>
         </div>
     </div>
