@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard PAD Lain & BLUD - Lombok Tengah 2026</title>
+    <title>Dashboard Retribusi & PAD Lain - Lombok Tengah 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -15,12 +15,12 @@
         .logo { width: 50px; height: 50px; background: white; border-radius: 50%; padding: 3px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); flex-shrink: 0; }
         .logo img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
         .header-text { flex: 1; min-width: 0; }
-        .header-text h1 { font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
-        .header-text h2 { font-size: 0.85rem; font-weight: 400; opacity: 0.9; }
+        .header-text h1 { font-size: 1rem; font-weight: 700; margin-bottom: 2px; line-height: 1.3; }
+        .header-text h2 { font-size: 0.85rem; font-weight: 400; opacity: 0.9; margin-bottom: 2px; }
         .header-text p { font-size: 0.7rem; opacity: 0.8; }
-        .badge-now { background: #48bb78; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; margin-left: 5px; display: inline-block; animation: pulse 2s infinite; }
-        .header-right { display: flex; gap: 8px; }
-        .btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.75rem; text-decoration: none; }
+        .badge-now { background: #48bb78; color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; margin-left: 5px; display: inline-block; vertical-align: middle; animation: pulse 2s infinite; }
+        .header-right { display: flex; gap: 8px; flex-shrink: 0; }
+        .btn { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.75rem; transition: all 0.3s ease; text-decoration: none; white-space: nowrap; }
         .btn-home { background: rgba(255,255,255,0.2); color: white; }
         .btn-home:hover { background: rgba(255,255,255,0.3); }
         .btn-refresh { background: #48bb78; color: white; }
@@ -29,18 +29,30 @@
 
         .container { max-width: 1400px; margin: 0 auto; padding: 20px 15px; }
 
-        .info-banner { background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%); color: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 20px rgba(128,90,213,0.3); }
+        .pad-breakdown { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); color: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 5px 20px rgba(72,187,120,0.3); animation: fadeInDown 0.6s ease; }
+        .pad-breakdown h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; }
+        .pad-items { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .pad-item { background: rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; text-align: center; }
+        .pad-item-label { font-size: 0.65rem; opacity: 0.9; margin-bottom: 4px; }
+        .pad-item-value { font-size: 0.9rem; font-weight: 700; }
+        .pad-item-percent { font-size: 0.6rem; opacity: 0.8; }
+
+        .info-banner { background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%); color: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 20px rgba(128,90,213,0.3); animation: fadeInDown 0.6s ease; gap: 10px; }
         .info-banner h3 { font-size: 0.95rem; font-weight: 600; }
         .info-banner p { opacity: 0.9; font-size: 0.8rem; }
-        .info-banner .year-badge { background: white; color: #6b46c1; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 1rem; }
+        .info-banner .year-badge { background: white; color: #6b46c1; padding: 8px 15px; border-radius: 8px; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
 
-        .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .filter-tab { padding: 10px 16px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.75rem; color: #4a5568; }
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; animation: fadeInUp 0.6s ease; }
+        .filter-tab { padding: 10px 16px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.75rem; transition: all 0.3s ease; color: #4a5568; }
         .filter-tab:hover { border-color: #805ad5; color: #805ad5; }
         .filter-tab.active { background: linear-gradient(135deg, #805ad5, #6b46c1); border-color: #805ad5; color: white; }
 
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: white; border-radius: 15px; padding: 20px 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); position: relative; overflow: hidden; transition: all 0.4s; }
+        .stat-card { background: white; border-radius: 15px; padding: 20px 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); animation: fadeInUp 0.6s ease backwards; }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
         .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
         .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; }
         .stat-card.primary::before { background: linear-gradient(90deg, #805ad5, #b794f4); }
@@ -52,59 +64,78 @@
         .stat-card.success .stat-icon { background: linear-gradient(135deg, #f0fff4, #c6f6d5); color: #38a169; }
         .stat-card.warning .stat-icon { background: linear-gradient(135deg, #fffaf0, #feebc8); color: #d69e2e; }
         .stat-card.info .stat-icon { background: linear-gradient(135deg, #ebf8ff, #bee3f8); color: #3182ce; }
-        .stat-label { font-size: 0.75rem; color: #718096; margin-bottom: 8px; font-weight: 500; }
+        .stat-label { font-size: 0.75rem; color: #718096; margin-bottom: 8px; font-weight: 500; line-height: 1.3; }
         .stat-value { font-size: 1.3rem; font-weight: 700; color: #1a202c; margin-bottom: 5px; }
         .stat-subtitle { font-size: 0.7rem; color: #a0aec0; }
         .stat-badge { position: absolute; top: 12px; right: 12px; padding: 3px 8px; border-radius: 15px; font-size: 0.65rem; font-weight: 600; }
         .stat-card.primary .stat-badge { background: #faf5ff; color: #805ad5; }
         .stat-card.success .stat-badge { background: #f0fff4; color: #38a169; }
+        .stat-card.warning .stat-badge { background: #fffaf0; color: #d69e2e; }
+        .stat-card.info .stat-badge { background: #ebf8ff; color: #3182ce; }
 
         .charts-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
-        .chart-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
-        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f0f4f8; }
+        .chart-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); animation: fadeInUp 0.8s ease backwards; cursor: pointer; transition: all 0.3s ease; }
+        .chart-card:nth-child(1) { animation-delay: 0.5s; }
+        .chart-card:nth-child(2) { animation-delay: 0.6s; }
+        .chart-card:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #f0f4f8; gap: 10px; }
         .chart-title { font-size: 1rem; font-weight: 600; color: #1a202c; }
+        .chart-subtitle { font-size: 0.75rem; color: #718096; }
         .chart-container { position: relative; height: 300px; }
 
-        .table-section { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); margin-bottom: 20px; overflow-x: auto; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; animation: fadeIn 0.3s ease; backdrop-filter: blur(5px); }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; border-radius: 15px; max-width: 95%; width: 600px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.4s ease; box-shadow: 0 25px 80px rgba(0,0,0,0.3); }
+        .modal-header { background: linear-gradient(135deg, #805ad5, #6b46c1); color: white; padding: 15px 20px; border-radius: 15px 15px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 1rem; font-weight: 600; }
+        .modal-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; font-size: 1.3rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+        .modal-body { padding: 20px; }
+        .modal-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+        .modal-stat { background: linear-gradient(135deg, #f7fafc, #edf2f7); padding: 12px 10px; border-radius: 10px; text-align: center; }
+        .modal-stat.highlight { background: linear-gradient(135deg, #faf5ff, #e9d8fd); border: 2px solid #805ad5; }
+        .modal-stat-label { font-size: 0.65rem; color: #718096; margin-bottom: 5px; }
+        .modal-stat-value { font-size: 0.9rem; font-weight: 700; color: #1a202c; }
+        .modal-chart { height: 200px; margin: 15px 0; }
+
+        .table-section { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); margin-bottom: 20px; animation: fadeInUp 0.8s ease backwards; animation-delay: 0.7s; overflow-x: auto; }
         .table-title { font-size: 1rem; font-weight: 600; color: #1a202c; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
-        .data-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 900px; }
         .data-table thead { background: linear-gradient(135deg, #805ad5, #6b46c1); }
-        .data-table th { color: white; padding: 10px 8px; text-align: left; font-weight: 600; font-size: 0.7rem; }
-        .data-table tbody tr { border-bottom: 1px solid #e2e8f0; transition: all 0.3s; cursor: pointer; }
+        .data-table th { color: white; padding: 10px 8px; text-align: left; font-weight: 600; font-size: 0.7rem; white-space: nowrap; }
+        .data-table tbody tr { border-bottom: 1px solid #e2e8f0; transition: all 0.3s ease; cursor: pointer; }
         .data-table tbody tr:hover { background: linear-gradient(135deg, #faf5ff, #f0fff4); }
         .data-table td { padding: 10px 8px; font-size: 0.75rem; color: #4a5568; }
-        .data-table .number { font-family: 'Courier New', monospace; text-align: right; }
-        .data-table .opd-name { font-weight: 600; color: #2d3748; }
+        .data-table .number { font-family: 'Courier New', monospace; font-weight: 500; text-align: right; }
+        .data-table .opd-name { font-weight: 600; color: #2d3748; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .category-badge { display: inline-block; padding: 3px 8px; border-radius: 15px; font-size: 0.65rem; font-weight: 600; }
         .category-badge.jasa-giro { background: #bee3f8; color: #2b6cb0; }
         .category-badge.bunga { background: #c6f6d5; color: #276749; }
         .category-badge.blud { background: #fbb6ce; color: #97216b; }
+        .category-badge.jasa-umum { background: #c6f6d5; color: #276749; }
+        .category-badge.jasa-usaha { background: #feebc8; color: #975a16; }
+        .category-badge.izin { background: #e9d8fd; color: #6b46c1; }
+        .category-badge.hasil { background: #fbd38d; color: #744210; }
         .percentage-badge { display: inline-block; padding: 3px 8px; border-radius: 15px; font-size: 0.7rem; font-weight: 600; }
-        .percentage-badge.excellent { background: #c6f6d5; color: #276749; }
-        .percentage-badge.good { background: #bee3f8; color: #2b6cb0; }
-        .percentage-badge.warning { background: #feebc8; color: #975a16; }
-        .percentage-badge.danger { background: #fed7d7; color: #c53030; }
-
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-overlay.active { display: flex; }
-        .modal { background: white; border-radius: 15px; max-width: 95%; width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 80px rgba(0,0,0,0.3); }
-        .modal-header { background: linear-gradient(135deg, #805ad5, #6b46c1); color: white; padding: 15px 20px; border-radius: 15px 15px 0 0; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h2 { font-size: 1rem; font-weight: 600; }
-        .modal-close { background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; font-size: 1.3rem; cursor: pointer; }
-        .modal-close:hover { background: rgba(255,255,255,0.3); }
-        .modal-body { padding: 20px; }
-        .modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .modal-stat { background: #f7fafc; padding: 12px; border-radius: 10px; text-align: center; }
-        .modal-stat.highlight { background: #faf5ff; border: 2px solid #805ad5; }
-        .modal-stat-label { font-size: 0.65rem; color: #718096; margin-bottom: 5px; }
-        .modal-stat-value { font-size: 0.95rem; font-weight: 700; color: #1a202c; }
-        .modal-chart { height: 150px; }
+        .percentage-badge.excellent { background: linear-gradient(135deg, #c6f6d5, #9ae6b4); color: #276749; }
+        .percentage-badge.good { background: linear-gradient(135deg, #bee3f8, #90cdf4); color: #2b6cb0; }
+        .percentage-badge.warning { background: linear-gradient(135deg, #feebc8, #fbd38d); color: #975a16; }
+        .percentage-badge.danger { background: linear-gradient(135deg, #fed7d7, #feb2b2); color: #c53030; }
 
         .footer { text-align: center; padding: 20px; color: #718096; font-size: 0.8rem; }
 
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
         @media (max-width: 768px) {
+            .header-content { gap: 10px; }
+            .logo { width: 40px; height: 40px; }
+            .header-text h1 { font-size: 0.85rem; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .modal-stats { grid-template-columns: 1fr; }
+            .pad-items { grid-template-columns: repeat(2, 1fr); }
+            .modal-stats { grid-template-columns: repeat(2, 1fr); }
             .chart-container { height: 250px; }
         }
     </style>
@@ -118,7 +149,7 @@
             <div class="header-text">
                 <h1>BAPENDA Lombok Tengah <span class="badge-now">2026</span></h1>
                 <h2>KABUPATEN LOMBOK TENGAH</h2>
-                <p>📅 Dashboard 4.1.04 Lain-Lain PAD & BLUD</p>
+                <p>📅 Dashboard Retribusi & PAD Lain 2026</p>
             </div>
             <div class="header-right">
                 <button class="btn btn-refresh" onclick="initDashboard()">🔄</button>
@@ -128,11 +159,38 @@
     </header>
 
     <div class="container">
+        <!-- PAD Breakdown -->
+        <section class="pad-breakdown">
+            <h3>📊 Komposisi Pendapatan Asli Daerah (PAD) 2026</h3>
+            <div class="pad-items">
+                <div class="pad-item">
+                    <div class="pad-item-label">4.1.01 Pajak Daerah</div>
+                    <div class="pad-item-value">Rp 320.33 M</div>
+                    <div class="pad-item-percent">59.90% dari PAD</div>
+                </div>
+                <div class="pad-item">
+                    <div class="pad-item-label">4.1.02 Retribusi</div>
+                    <div class="pad-item-value">Rp 21.13 M</div>
+                    <div class="pad-item-percent">3.95% dari PAD</div>
+                </div>
+                <div class="pad-item">
+                    <div class="pad-item-label">4.1.03 Hasil Kekayaan</div>
+                    <div class="pad-item-value">Rp 13.20 M</div>
+                    <div class="pad-item-percent">2.47% dari PAD</div>
+                </div>
+                <div class="pad-item">
+                    <div class="pad-item-label">4.1.04 Lain-Lain PAD</div>
+                    <div class="pad-item-value">Rp 180.01 M</div>
+                    <div class="pad-item-percent">33.68% dari PAD</div>
+                </div>
+            </div>
+        </section>
+
         <!-- Info Banner -->
         <section class="info-banner">
             <div>
-                <h3>📊 Monitoring 4.1.04 Lain-Lain PAD & BLUD</h3>
-                <p>Jasa Giro | Pendapatan Bunga | Pendapatan BLUD</p>
+                <h3>📊 Monitoring Retribusi & PAD Lain Lombok Tengah</h3>
+                <p>4.1.02 Retribusi | 4.1.03 Hasil Kekayaan | 4.1.04 Lain-Lain PAD</p>
             </div>
             <div class="year-badge">2026</div>
         </section>
@@ -140,9 +198,12 @@
         <!-- Filter Tabs -->
         <div class="filter-tabs">
             <button class="filter-tab active" onclick="filterData('all')">📊 Semua</button>
-            <button class="filter-tab" onclick="filterData('jasa-giro')">💵 Jasa Giro</button>
-            <button class="filter-tab" onclick="filterData('bunga')">💵 Pendapatan Bunga</button>
-            <button class="filter-tab" onclick="filterData('blud')">🏥 BLUD</button>
+            <button class="filter-tab" onclick="filterData('retribusi')">💰 4.1.02 Retribusi</button>
+            <button class="filter-tab" onclick="filterData('jasa-umum')">📋 Ret Jasa Umum</button>
+            <button class="filter-tab" onclick="filterData('jasa-usaha')">📋 Ret Jasa Usaha</button>
+            <button class="filter-tab" onclick="filterData('izin')">📋 Ret Perizinan</button>
+            <button class="filter-tab" onclick="filterData('hasil')">📈 4.1.03 Hasil Kekayaan</button>
+            <button class="filter-tab" onclick="filterData('lain')">📋 4.1.04 Lain-Lain</button>
         </div>
 
         <!-- Stats -->
@@ -162,14 +223,18 @@
                 <div class="stat-subtitle">Triwulan I</div>
             </div>
             <div class="stat-card warning">
+                <div class="stat-badge">CAPAIAN</div>
                 <div class="stat-icon">✅</div>
                 <div class="stat-label">% Capaian</div>
                 <div class="stat-value" id="statPersen">0%</div>
+                <div class="stat-subtitle">Terhadap Target</div>
             </div>
             <div class="stat-card info">
+                <div class="stat-badge">SISA</div>
                 <div class="stat-icon">📈</div>
                 <div class="stat-label">Sisa Target</div>
                 <div class="stat-value" id="statSisa">Rp 0</div>
+                <div class="stat-subtitle">Belum terealisasi</div>
             </div>
         </section>
 
@@ -177,7 +242,8 @@
         <section class="charts-grid">
             <div class="chart-card">
                 <div class="chart-header">
-                    <h3 class="chart-title">📊 Target vs Realisasi</h3>
+                    <h3 class="chart-title">📊 Target vs Realisasi (Miliar)</h3>
+                    <span class="chart-subtitle">Per OPD/Unit</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="barChart"></canvas>
@@ -186,6 +252,7 @@
             <div class="chart-card">
                 <div class="chart-header">
                     <h3 class="chart-title">🥧 Proporsi Target</h3>
+                    <span class="chart-subtitle">Per OPD/Unit</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="pieChart"></canvas>
@@ -195,14 +262,17 @@
 
         <!-- Table -->
         <section class="table-section">
-            <div class="table-title">📋 Detail Realisasi 4.1.04 Lain-Lain PAD</div>
+            <div class="table-title">📋 Detail Realisasi per OPD/Unit <small style="color: #718096; font-weight: normal;">(Klik baris untuk detail)</small></div>
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th style="width: 40px;">#</th>
                         <th>OPD / Unit</th>
                         <th>Rekening</th>
                         <th class="text-right">Target</th>
+                        <th class="text-right">Jan</th>
+                        <th class="text-right">Feb</th>
+                        <th class="text-right">Mar</th>
                         <th class="text-right">SD Mar</th>
                         <th class="text-center">%</th>
                     </tr>
@@ -216,7 +286,7 @@
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="modalTitle">Detail</h2>
+                <h2 id="modalTitle">📋 Detail OPD</h2>
                 <button class="modal-close" onclick="closeModal()">×</button>
             </div>
             <div class="modal-body">
@@ -226,12 +296,20 @@
                         <div class="modal-stat-value" id="modalTarget">-</div>
                     </div>
                     <div class="modal-stat">
-                        <div class="modal-stat-label">Realisasi</div>
-                        <div class="modal-stat-value" id="modalSdMar">-</div>
+                        <div class="modal-stat-label">Januari</div>
+                        <div class="modal-stat-value" id="modalJan">-</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">Februari</div>
+                        <div class="modal-stat-value" id="modalFeb">-</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">Maret</div>
+                        <div class="modal-stat-value" id="modalMar">-</div>
                     </div>
                     <div class="modal-stat highlight">
-                        <div class="modal-stat-label">%</div>
-                        <div class="modal-stat-value" id="modalPct">-</div>
+                        <div class="modal-stat-label">SD Mar</div>
+                        <div class="modal-stat-value" id="modalSdMar">-</div>
                     </div>
                 </div>
                 <div class="modal-chart">
@@ -243,66 +321,89 @@
 
     <footer class="footer">
         <p>💼 <strong>BAPENDA Kabupaten Lombok Tengah</strong></p>
-        <p>© 2026 - Dashboard 4.1.04 Lain-Lain PAD</p>
+        <p>© 2026 - Dashboard Retribusi & PAD Lain</p>
     </footer>
 
     <script>
         // ============================================================
-        // DATA LENGKAP 4.1.04 LAIN-LAIN PAD YANG SAH
+        // DATA LENGKAP - LOMBOK TENGAH 2026
         // ============================================================
         
-        const ALL_DATA = [
-            // ========== 4.1.04.05 JASA GIRO ==========
-            { id: 1, cat: 'jasa-giro', rek: '4.1.04.05', nama: 'BPKAD - Jasa Giro pada Kas Daerah', target: 1250000000, sdMar: 1043464682.86 },
+               const ALL_DATA = [
+            // ========== 4.1.02 RETRIBUSI JASA UMUM ==========
+            { id: 1, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'BPKAD - Retribusi Daerah', target: 1931600000, jan: 120900000, feb: 139500000, mar: 48000000, sdMar: 308400000 },
+            { id: 2, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DISHUB - Retribusi Parkir', target: 671100000, jan: 19974000, feb: 22708000, mar: 0, sdMar: 42682000 },
+            { id: 3, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DLH - Retribusi Persampahan', target: 394074000, jan: 27113000, feb: 36350000, mar: 38581000, sdMar: 102044000 },
+            { id: 4, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DLH - Retribusi Lab', target: 5000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 5, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'PARIWISATA - Retribusi Rekreasi', target: 237600000, jan: 15000000, feb: 14000000, mar: 0, sdMar: 29000000 },
+            { id: 6, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DINKES - Retribusi Puskesmas', target: 3280330600, jan: 202949000, feb: 1098187728, mar: 911796800, sdMar: 2212933528 },
+            { id: 7, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DINKES - Ret Tempat Kesehatan Lain', target: 3454046000, jan: 324507000, feb: 187633000, mar: 0, sdMar: 512140000 },
             
-            // ========== 4.1.04.07 PENDAPATAN BUNGA ==========
-            { id: 2, cat: 'bunga', rek: '4.1.04.07', nama: 'BPKAD - Pendapatan Bunga Penempatan Uang', target: 1900000000, sdMar: 0 },
+            // ========== 4.1.02 RETRIBUSI JASA USAHA ==========
+            { id: 8, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'PUPR - Retribusi Alat Berat', target: 348981000, jan: 28102500, feb: 16000000, mar: 0, sdMar: 44102500 },
+            { id: 9, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'PERKIM - Retribusi Kekayaan', target: 90000000, jan: 0, feb: 17940000, mar: 0, sdMar: 17940000 },
+            { id: 10, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISTANI - Retribusi Pasar Grosir', target: 80400000, jan: 1965000, feb: 1404000, mar: 1395000, sdMar: 4764000 },
+            { id: 11, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISTANI - Retribusi RPH', target: 64240000, jan: 805000, feb: 1278000, mar: 805000, sdMar: 2888000 },
+            { id: 12, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISTANI - Retribusi Penjualan', target: 101000000, jan: 1500000, feb: 0, mar: 0, sdMar: 1500000 },
+            { id: 13, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISKANLUT - Retribusi Pelelangan', target: 67000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 14, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISKANLUT - Retribusi Produksi', target: 53000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 15, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Los', target: 6059392000, jan: 140148000, feb: 131855000, mar: 0, sdMar: 272003000 },
+            { id: 16, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Pelataran', target: 276051000, jan: 2094000, feb: 1768000, mar: 0, sdMar: 3862000 },
+            { id: 17, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Sewa', target: 342000000, jan: 11580000, feb: 11455000, mar: 0, sdMar: 23035000 },
+            { id: 18, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Dikontrakkan', target: 417024000, jan: 42062000, feb: 37496000, mar: 0, sdMar: 79558000 },
             
-            // ========== 4.1.04.16 PENDAPATAN BLUD ==========
+            // ========== 4.1.02 RETRIBUSI PERIZINAN TERTENTU ==========
+            { id: 19, cat: 'izin', rek: '4.1.02.03', nama: 'DPMPTSP - Retribusi PBG', target: 2244313000, jan: 739741433, feb: 353408490, mar: 363517559, sdMar: 1456667482 },
+            { id: 20, cat: 'izin', rek: '4.1.02.03', nama: 'DISNAKER - Retribusi TKA', target: 747884000, jan: 101462400, feb: 20246400, mar: 154290100, sdMar: 275998900 },
             
-            // --- DINKES PUSKESMAS BLUD ---
-            { id: 3, cat: 'blud', rek: '4.1.04.16.002', nama: 'DINKES - BLUD Jasa Layanan Non Kapitasi', target: 625400000, sdMar: 15606574453 },
+            // ========== 4.1.03 HASIL PENGELOLAAN KEKAYAAN ==========
+            { id: 21, cat: 'hasil', rek: '4.1.03', nama: 'BPKAD - Dividen BUMD', target: 13197306000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
             
-            { id: 4, cat: 'blud', rek: '4.1.04.16.004', nama: 'DINKES - BLUD Dana Kapitasi JKN FKTP', target: 171567507273, sdMar: 0 },
+            // ========== 4.1.04 LAIN-LAIN PAD YANG SAH ==========
+            // 4.1.04.05 Jasa Giro
+            { id: 22, cat: 'jasa-giro', rek: '4.1.04.05', nama: 'BPKAD - Jasa Giro Kas Daerah', target: 1250000000, jan: 514915287.77, feb: 513245837.37, mar: 15303557.72, sdMar: 1043464682.86 },
             
-            // --- Detail Kapitasi per Puskesmas (28 unit) ---
-            { id: 5, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Praya', target: 4617692438, sdMar: 0 },
-            { id: 6, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Batunyala', target: 1944620609, sdMar: 0 },
-            { id: 7, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Bonjeruk', target: 2124096000, sdMar: 0 },
-            { id: 8, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Langko', target: 1520902600, sdMar: 0 },
-            { id: 9, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Mujur', target: 2078712000, sdMar: 0 },
-            { id: 10, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Puyung', target: 2450982675, sdMar: 0 },
-            { id: 11, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Muncan', target: 2472708000, sdMar: 0 },
-            { id: 12, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Pringgarata', target: 2209900000, sdMar: 0 },
-            { id: 13, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Pengadang', target: 2646360018, sdMar: 0 },
-            { id: 14, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Aik Darek', target: 2518000000, sdMar: 0 },
-            { id: 15, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Penujak', target: 1740000000, sdMar: 0 },
-            { id: 16, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Ubung', target: 2943586800, sdMar: 0 },
-            { id: 17, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Bagu', target: 2190922416, sdMar: 0 },
-            { id: 18, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Teratak', target: 2202000000, sdMar: 0 },
-            { id: 19, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Batujai', target: 1266664656, sdMar: 0 },
-            { id: 20, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Mantang', target: 2562019438, sdMar: 0 },
-            { id: 21, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Teruwai', target: 1803060000, sdMar: 0 },
-            { id: 22, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Mangkung', target: 1879076880, sdMar: 0 },
-            { id: 23, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Awang', target: 440967653, sdMar: 0 },
-            { id: 24, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Sengkol', target: 3287668621, sdMar: 0 },
-            { id: 25, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Batujangkih', target: 1252278806, sdMar: 0 },
-            { id: 26, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Darek', target: 2237790390, sdMar: 0 },
-            { id: 27, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Tanak Beak', target: 1210734000, sdMar: 0 },
-            { id: 28, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Wajageseng', target: 1080000000, sdMar: 0 },
-            { id: 29, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Ganti', target: 2520000000, sdMar: 0 },
-            { id: 30, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Kuta', target: 1578207000, sdMar: 0 },
-            { id: 31, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Kopang', target: 2642184000, sdMar: 0 },
-            { id: 32, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Janapria', target: 2766600000, sdMar: 0 },
-            { id: 33, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Aik Mual', target: 3073000000, sdMar: 0 },
+            // 4.1.04.07 Pendapatan Bunga
+            { id: 23, cat: 'bunga', rek: '4.1.04.07', nama: 'BPKAD - Pendapatan Bunga', target: 1900000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
             
-            // --- BLUD DINKES LAIN ---
-            { id: 34, cat: 'blud', rek: '4.1.04.16.004', nama: 'DINKES - BLUD Kerja Sama Pihak Lain', target: 63524985000, sdMar: 1010000 },
+            // 4.1.04.16 Pendapatan BLUD - DINKES
+            { id: 24, cat: 'blud', rek: '4.1.04.16.002', nama: 'DINKES - BLUD Non Kapitasi', target: 625400000, jan: 0, feb: 0, mar: 0, sdMar: 15606574453 },
+            { id: 25, cat: 'blud', rek: '4.1.04.16.004', nama: 'DINKES - BLUD Dana Kapitasi JKN FKTP', target: 171567507273, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 26, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Praya', target: 4617692438, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 27, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Batunyala', target: 1944620609, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 28, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Bonjeruk', target: 2124096000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 29, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Langko', target: 1520902600, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 30, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Mujur', target: 2078712000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 31, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Puyung', target: 2450982675, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 32, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Muncan', target: 2472708000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 33, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Pringgarata', target: 2209900000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 34, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Pengadang', target: 2646360018, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 35, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Aik Darek', target: 2518000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 36, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Penujak', target: 1740000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 37, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Ubung', target: 2943586800, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 38, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Bagu', target: 2190922416, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 39, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Teratak', target: 2202000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 40, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Batujai', target: 1266664656, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 41, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Mantang', target: 2562019438, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 42, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Teruwai', target: 1803060000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 43, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Mangkung', target: 1879076880, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 44, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Awang', target: 440967653, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 45, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Sengkol', target: 3287668621, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 46, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Batujangkih', target: 1252278806, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 47, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Darek', target: 2237790390, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 48, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Tanak Beak', target: 1210734000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 49, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Wajageseng', target: 1080000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 50, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Ganti', target: 2520000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 51, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Kuta', target: 1578207000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 52, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Kopang', target: 2642184000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 53, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Janapria', target: 2766600000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 54, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Aik Mual', target: 3073000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 55, cat: 'blud', rek: '4.1.04.16.004', nama: 'DINKES - BLUD KSPI Pihak Lain', target: 63524985000, jan: 0, feb: 0, mar: 0, sdMar: 1010000 },
             
-            // --- RSUD PRAYA BLUD ---
-            { id: 35, cat: 'blud', rek: '4.1.04.16.002', nama: 'RSUD Praya - BLUD Jasa Layanan', target: 90592835000, sdMar: 15621671005.18 },
-            { id: 36, cat: 'blud', rek: '4.1.04.16.004', nama: 'RSUD Praya - BLUD Kerja Sama', target: 264250000, sdMar: 0 },
-            { id: 37, cat: 'blud', rek: '4.1.04.16.006', nama: 'RSUD Praya - BLUD Jasa Giro', target: 95000000, sdMar: 0 }
+            // 4.1.04.16 Pendapatan BLUD - RSUD
+            { id: 56, cat: 'blud', rek: '4.1.04.16.002', nama: 'RSUD Praya - BLUD Jasa Layanan', target: 90592835000, jan: 6023345953.77, feb: 9598325051.41, mar: 0, sdMar: 15621671005.18 },
+            { id: 57, cat: 'blud', rek: '4.1.04.16.004', nama: 'RSUD Praya - BLUD KSPI Pihak Lain', target: 264250000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+            { id: 58, cat: 'blud', rek: '4.1.04.16.006', nama: 'RSUD Praya - BLUD Jasa Giro', target: 95000000, jan: 0, feb: 0, mar: 0, sdMar: 0 }
         ];
 
         // ============================================================
@@ -311,14 +412,15 @@
         
         let currentData = ALL_DATA;
         let barChart, pieChart, modalChart;
-        const COLORS = ['#805ad5','#38a169','#3182ce','#d69e2e','#e53e3e','#319795','#dd6b20','#d53f8c','#667eea','#48bb78','#f56565','#9f7aea','#4fd1c5','#ed8936'];
+        const COLORS = ['#805ad5','#38a169','#3182ce','#d69e2e','#e53e3e','#319795','#dd6b20','#d53f8c','#667eea','#48bb78','#f56565','#9f7aea','#4fd1c5','#ed8936','#9f7aea','#2b6cb0','#2c5282','#276749','#22543d','#742a2a','#97216b','#702459','#521b41'];
 
         // ============================================================
-        // FORMAT
+        // FORMATTERS
         // ============================================================
         
         function fmt(num) {
             if (!num && num !== 0) return 'Rp 0';
+            num = Math.abs(num);
             if (num >= 1e12) return 'Rp ' + (num/1e12).toFixed(2) + ' T';
             if (num >= 1e9) return 'Rp ' + (num/1e9).toFixed(2) + ' M';
             if (num >= 1e6) return 'Rp ' + (num/1e6).toFixed(0) + ' Jt';
@@ -327,6 +429,7 @@
 
         function fmtShort(num) {
             if (!num && num !== 0) return 'Rp 0';
+            num = Math.abs(num);
             if (num >= 1e12) return 'Rp ' + (num/1e12).toFixed(1) + ' T';
             if (num >= 1e9) return 'Rp ' + (num/1e9).toFixed(1) + ' M';
             if (num >= 1e6) return 'Rp ' + (num/1e6).toFixed(0) + ' Jt';
@@ -367,7 +470,7 @@
         // ============================================================
         
         function renderCharts() {
-            let labels = currentData.map(d => d.nama.length > 20 ? d.nama.substring(0,20)+'..' : d.nama);
+            let labels = currentData.map(d => d.nama.length > 18 ? d.nama.substring(0,18)+'..' : d.nama);
             let targets = currentData.map(d => (d.target||0)/1e9);
             let realizasis = currentData.map(d => (d.sdMar||0)/1e9);
 
@@ -415,15 +518,25 @@
         // ============================================================
         
         function getBadgeClass(cat) {
+            if (cat === 'jasa-umum') return 'jasa-umum';
+            if (cat === 'jasa-usaha') return 'jasa-usaha';
+            if (cat === 'izin') return 'izin';
+            if (cat === 'hasil') return 'hasil';
             if (cat === 'jasa-giro') return 'jasa-giro';
             if (cat === 'bunga') return 'bunga';
-            return 'blud';
+            if (cat === 'blud') return 'blud';
+            return 'jasa-umum';
         }
 
         function getBadgeLabel(cat) {
+            if (cat === 'jasa-umum') return 'Ret Jasa Umum';
+            if (cat === 'jasa-usaha') return 'Ret Jasa Usaha';
+            if (cat === 'izin') return 'Ret Perizinan';
+            if (cat === 'hasil') return 'Hasil Kekayaan';
             if (cat === 'jasa-giro') return 'Jasa Giro';
             if (cat === 'bunga') return 'Pend Bunga';
-            return 'BLUD';
+            if (cat === 'blud') return 'BLUD';
+            return cat;
         }
 
         function renderTable() {
@@ -447,6 +560,9 @@
                         <td class="opd-name" style="${isSub ? 'padding-left: 25px; color: #6b46c1;' : ''}">${d.nama}</td>
                         <td><span class="category-badge ${getBadgeClass(d.cat)}">${getBadgeLabel(d.cat)}</span></td>
                         <td class="number">${fmt(d.target)}</td>
+                        <td class="number">${fmtShort(d.jan)}</td>
+                        <td class="number">${fmtShort(d.feb)}</td>
+                        <td class="number">${fmtShort(d.mar)}</td>
                         <td class="number" style="font-weight: 700; color: #276749;">${fmtShort(d.sdMar)}</td>
                         <td class="text-center"><span class="percentage-badge ${pctBadge}">${p}%</span></td>
                     </tr>
@@ -465,9 +581,12 @@
             event.target.classList.add('active');
             
             if (cat === 'all') currentData = ALL_DATA;
-            else if (cat === 'jasa-giro') currentData = ALL_DATA.filter(d => d.cat === 'jasa-giro');
-            else if (cat === 'bunga') currentData = ALL_DATA.filter(d => d.cat === 'bunga');
-            else if (cat === 'blud') currentData = ALL_DATA.filter(d => d.cat === 'blud');
+            else if (cat === 'retribusi') currentData = ALL_DATA.filter(d => ['jasa-umum','jasa-usaha','izin'].includes(d.cat));
+            else if (cat === 'jasa-umum') currentData = ALL_DATA.filter(d => d.cat === 'jasa-umum');
+            else if (cat === 'jasa-usaha') currentData = ALL_DATA.filter(d => d.cat === 'jasa-usaha');
+            else if (cat === 'izin') currentData = ALL_DATA.filter(d => d.cat === 'izin');
+            else if (cat === 'hasil') currentData = ALL_DATA.filter(d => d.cat === 'hasil');
+            else if (cat === 'lain') currentData = ALL_DATA.filter(d => ['jasa-giro','bunga','blud'].includes(d.cat));
             
             updateStats();
             renderCharts();
@@ -481,35 +600,39 @@
         function openDetail(index) {
             let d = currentData[index];
             
-            document.getElementById('modalTitle').textContent = d.nama;
+            document.getElementById('modalTitle').innerHTML = `📋 ${d.nama}`;
             document.getElementById('modalTarget').textContent = fmt(d.target);
+            document.getElementById('modalJan').textContent = fmtShort(d.jan);
+            document.getElementById('modalFeb').textContent = fmtShort(d.feb);
+            document.getElementById('modalMar').textContent = fmtShort(d.mar);
             document.getElementById('modalSdMar').textContent = fmtShort(d.sdMar);
-            document.getElementById('modalPct').textContent = pct(d.sdMar, d.target) + '%';
 
             if (modalChart) modalChart.destroy();
             modalChart = new Chart(document.getElementById('modalChart'), {
-                type: 'doughnut',
+                type: 'bar',
                 data: {
-                    labels: ['Realisasi', 'Sisa'],
+                    labels: ['Januari', 'Februari', 'Maret'],
                     datasets: [{
-                        data: [d.sdMar || 0, Math.max(0, d.target - (d.sdMar || 0))],
-                        backgroundColor: ['#38a169', '#e2e8f0'],
-                        borderWidth: 2,
-                        borderColor: '#fff'
+                        data: [d.jan/1e9, d.feb/1e9, d.mar/1e9],
+                        backgroundColor: ['#805ad5','#38a169','#f6e05e'],
+                        borderRadius: 6
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { callback: v => v + ' M' } } }
                 }
             });
 
             document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
             document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
         }
 
         document.getElementById('modalOverlay').addEventListener('click', function(e) {
