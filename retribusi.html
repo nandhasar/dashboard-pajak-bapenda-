@@ -260,12 +260,6 @@
             font-size: 0.85rem;
         }
 
-        .sub-item-badge {
-            font-size: 0.7rem;
-            padding: 3px 8px;
-            border-radius: 10px;
-        }
-
         .sub-item-detail {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -291,7 +285,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.7);
-            display: none; /* Hidden by default */
+            display: none;
             justify-content: center;
             align-items: center;
             z-index: 9999;
@@ -322,12 +316,13 @@
             color: white;
             font-weight: 500;
             z-index: 9999;
-            display: none; /* Hidden by default */
+            display: none;
         }
 
         .toast.show { display: flex; gap: 8px; align-items: center; }
         .toast.success { background: #48bb78; }
         .toast.error { background: #e53e3e; }
+        .toast.info { background: #3182ce; }
 
         /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
@@ -367,7 +362,7 @@
             </div>
             <div class="stat-card green">
                 <div class="stat-icon">📊</div>
-                <div class="stat-label">REALISASI SD MAR</div>
+                <div class="stat-label">REALISASI SD MARET</div>
                 <div class="stat-value" id="totalRealisasi">-</div>
             </div>
             <div class="stat-card orange">
@@ -410,6 +405,7 @@
                             <th class="text-right">Target</th>
                             <th class="text-right">Jan</th>
                             <th class="text-right">Feb</th>
+                            <th class="text-right">Mar</th>
                             <th class="text-right">SD Mar</th>
                             <th class="text-center">%</th>
                             <th>Progress</th>
@@ -417,9 +413,8 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <!-- Data akan dimuat di sini -->
                         <tr>
-                            <td colspan="9" class="text-center" style="padding: 40px;">
+                            <td colspan="10" class="text-center" style="padding: 40px;">
                                 <div class="spinner" style="margin: 0 auto;"></div>
                                 <div style="margin-top: 12px;">Memuat data...</div>
                             </td>
@@ -431,16 +426,16 @@
     </div>
 
     <!-- Modal Detail -->
-    <div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalTitle">📋 Detail Retribusi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Summary Stats -->
-                    <div class="row" id="modalStats">
+                    <div class="row mb-3" id="modalStats">
                         <div class="col-6 col-md-3">
                             <div class="detail-stat">
                                 <div class="detail-stat-label">Target</div>
@@ -468,7 +463,7 @@
                     </div>
 
                     <!-- Monthly Chart -->
-                    <div class="chart-container" style="height: 200px; margin: 15px 0;">
+                    <div class="chart-container mb-3" style="height: 200px;">
                         <canvas id="modalChart"></canvas>
                     </div>
 
@@ -489,12 +484,13 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-box">
             <div class="spinner"></div>
-            <p>Memuat data...</p>
+            <p id="loadingText">Memuat data...</p>
         </div>
     </div>
 
     <!-- Toast -->
     <div class="toast" id="toast">
+        <span id="toastIcon">✅</span>
         <span id="toastMessage">Berhasil!</span>
     </div>
 
@@ -502,11 +498,17 @@
     
     <script>
         // ============================================================
-        // KONFIGURASI
+        // KONFIGURASI - SESUAIKAN DENGAN URL ANDA
         // ============================================================
         
+        // Ganti dengan URL Google Apps Script Anda
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwhRvEc9q5OEUZ1-bb8uFqLkbi14hh2_XqfadYms1kXYTNvJQazSWSpttZxxOTgUxk2Vg/exec';
-        const GRAPH_COLORS = ['#e53e3e', '#3182ce', '#38a169', '#d69e2e', '#805ad5', '#dd6b20', '#319795', '#d53f8c', '#667eea', '#f6ad55', '#68d391', '#fc8181'];
+
+        const GRAPH_COLORS = [
+            '#e53e3e', '#3182ce', '#38a169', '#d69e2e', '#805ad5', 
+            '#dd6b20', '#319795', '#d53f8c', '#667eea', '#f6ad55', 
+            '#68d391', '#fc8181'
+        ];
 
         // ============================================================
         // STATE
@@ -516,6 +518,7 @@
         let barChart = null;
         let pieChart = null;
         let modalChart = null;
+        let modalInstance = null;
 
         // ============================================================
         // FORMAT FUNCTIONS
@@ -525,7 +528,7 @@
             if (!num || num === 0) return 'Rp 0';
             if (num >= 1000000000) return 'Rp ' + (num / 1000000000).toFixed(2) + ' M';
             if (num >= 1000000) return 'Rp ' + (num / 1000000).toFixed(2) + ' Jt';
-            if (num >= 1000) return 'Rp ' + (num / 1000).toFixed(2) + ' Rb';
+            if (num >= 1000) return 'Rp ' + (num / 1000).toFixed(0) + ' Rb';
             return 'Rp ' + num.toLocaleString('id-ID');
         }
 
@@ -544,18 +547,31 @@
         // ============================================================
         
         async function loadData() {
-            showLoading(true);
+            showLoading(true, 'Menghubungi server...');
             
             try {
-                const response = await fetch(`${WEB_APP_URL}?action=getData`);
+                console.log('🔍 Fetching data from:', WEB_APP_URL);
                 
-                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                const response = await fetch(`${WEB_APP_URL}?action=getData`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
                 
                 const result = await response.json();
+                console.log('📥 Data received:', result);
                 
-                if (result.status !== 'success') throw new Error(result.message || 'Gagal mengambil data');
+                if (result.status !== 'success') {
+                    throw new Error(result.message || 'Gagal mengambil data dari server');
+                }
                 
                 allData = result.data;
+                console.log('📊 Parsed data:', allData);
                 
                 if (result.lastUpdated) {
                     const date = new Date(result.lastUpdated);
@@ -569,15 +585,16 @@
                 showToast('✅ Data berhasil dimuat!', 'success');
                 
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ Error:', error);
                 showToast('❌ Error: ' + error.message, 'error');
                 
-                // Tampilkan pesan error di tabel jika gagal memuat data
                 document.getElementById('tableBody').innerHTML = `
                     <tr>
-                        <td colspan="9" class="text-center" style="padding: 40px;">
-                            <div style="color: #dc3545;">❌ Gagal memuat data. Silakan coba lagi.</div>
+                        <td colspan="10" class="text-center" style="padding: 40px;">
+                            <div style="color: #dc3545;">❌ Gagal memuat data</div>
                             <small class="text-muted">${error.message}</small>
+                            <br><br>
+                            <button class="btn btn-sm btn-primary" onclick="loadData()">🔄 Coba Lagi</button>
                         </td>
                     </tr>
                 `;
@@ -595,11 +612,15 @@
             
             const { summary, dinasList } = allData;
             
-            let totalTarget = summary.totalTarget || 0;
-            let totalSdMar = summary.totalSdMar || 0;
+            let totalTarget = 0;
+            let totalSdMar = 0;
             
-            // Jika summary tidak ada, hitung ulang dari dinasList
-            if (totalTarget === 0 && totalSdMar === 0) {
+            if (summary) {
+                totalTarget = summary.totalTarget || 0;
+                totalSdMar = summary.totalSdMar || 0;
+            }
+            
+            if (totalTarget === 0 && totalSdMar === 0 && dinasList) {
                 dinasList.forEach(d => {
                     totalTarget += d.target || 0;
                     totalSdMar += d.sdMar || 0;
@@ -620,29 +641,46 @@
         // ============================================================
         
         function renderCharts() {
-            if (!allData) return;
+            if (!allData || !allData.dinasList || allData.dinasList.length === 0) {
+                console.log('⚠️ Tidak ada data untuk render chart');
+                return;
+            }
             
             const { dinasList } = allData;
             
-            // Ambil nama dinas yang lebih pendek untuk label chart agar tidak tumpang tindih
-            const labels = dinasList.map(d => d.nama.length > 25 ? d.nama.substring(0, 25) + '..' : d.nama);
+            const labels = dinasList.map(d => {
+                const name = d.nama || 'Unknown';
+                return name.length > 20 ? name.substring(0, 20) + '..' : name;
+            });
             
-            // Konversi ke Milyar (untuk chart bar)
-            const targets = dinasList.map(d => d.target / 1000000);
-            const realizasis = dinasList.map(d => d.sdMar / 1000000);
+            const targets = dinasList.map(d => (d.target || 0) / 1000000000); // Dalam Miliar
+            const realizasis = dinasList.map(d => (d.sdMar || 0) / 1000000000);
 
-            if (barChart) barChart.destroy();
-            if (pieChart) pieChart.destroy();
+            if (barChart) { barChart.destroy(); barChart = null; }
+            if (pieChart) { pieChart.destroy(); pieChart = null; }
 
-            // Bar Chart
             const barCtx = document.getElementById('barChart').getContext('2d');
             barChart = new Chart(barCtx, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Target', data: targets, backgroundColor: GRAPH_COLORS[1] + '80', borderRadius: 5 }, // Biru
-                        { label: 'Realisasi', data: realizasis, backgroundColor: GRAPH_COLORS[2] + '80', borderRadius: 5 } // Hijau
+                        { 
+                            label: 'Target (M)', 
+                            data: targets, 
+                            backgroundColor: 'rgba(49, 130, 206, 0.8)', 
+                            borderColor: 'rgba(49, 130, 206, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5 
+                        },
+                        { 
+                            label: 'Realisasi SD Mar (M)', 
+                            data: realizasis, 
+                            backgroundColor: 'rgba(72, 187, 120, 0.8)', 
+                            borderColor: 'rgba(72, 187, 120, 1)',
+                            borderWidth: 1,
+                            borderRadius: 5 
+                        }
                     ]
                 },
                 options: {
@@ -651,35 +689,33 @@
                     plugins: { 
                         legend: { position: 'top' },
                         tooltip: {
-                           callbacks: {
-                               label: function(context) {
-                                   let label = context.dataset.label || '';
-                                   if (label) label += ': ';
-                                   label += formatRupiah(context.raw * 1000000); // Tampilkan nilai asli
-                                   return label;
-                               }
-                           }
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    label += 'Rp ' + (context.raw * 1000000000).toLocaleString('id-ID');
+                                    return label;
+                                }
+                            }
                         }
                     },
                     scales: {
                         y: { 
                             beginAtZero: true, 
-                            ticks: { callback: v => v + ' Jt' },
-                            title: { display: true, text: 'Dalam Milyar Rupiah' }
+                            ticks: { callback: v => v + ' M' }
                         }
                     }
                 }
             });
 
-            // Pie Chart
             const pieCtx = document.getElementById('pieChart').getContext('2d');
             pieChart = new Chart(pieCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: dinasList.map(d => d.nama),
+                    labels: labels,
                     datasets: [{ 
-                        data: targets, // Gunakan target untuk proporsi
-                        backgroundColor: GRAPH_COLORS,
+                        data: targets,
+                        backgroundColor: GRAPH_COLORS.slice(0, labels.length),
                         borderColor: '#fff',
                         borderWidth: 2
                     }]
@@ -690,21 +726,23 @@
                     plugins: {
                         legend: { 
                             position: 'right', 
-                            labels: { font: { size: 9 }, padding: 5 } 
+                            labels: { font: { size: 10 }, padding: 8 } 
                         },
                         tooltip: {
-                           callbacks: {
-                               label: function(context) {
-                                   let label = context.label || '';
-                                   if (label) label += ': ';
-                                   label += formatRupiah(context.raw * 1000000); // Tampilkan nilai asli
-                                   return label;
-                               }
-                           }
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) label += ': ';
+                                    label += 'Rp ' + (context.raw * 1000000000).toLocaleString('id-ID');
+                                    return label;
+                                }
+                            }
                         }
                     }
                 }
             });
+            
+            console.log('✅ Charts berhasil dirender');
         }
 
         // ============================================================
@@ -712,8 +750,8 @@
         // ============================================================
         
         function renderTable() {
-            if (!allData || !allData.dinasList) {
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" class="text-center" style="padding: 40px;">Tidak ada data</td></tr>';
+            if (!allData || !allData.dinasList || allData.dinasList.length === 0) {
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="10" class="text-center" style="padding: 40px;">Tidak ada data</td></tr>';
                 return;
             }
             
@@ -723,26 +761,35 @@
             let html = '';
             
             dinasList.forEach((item, index) => {
-                const persen = parseFloat(hitungPersen(item.sdMar, item.target));
+                const nama = item.nama || 'Unknown';
+                const nomor = item.nomor || (index + 1);
+                const target = item.target || 0;
+                const jan = item.jan || 0;
+                const feb = item.feb || 0;
+                const mar = item.mar || 0;
+                const sdMar = item.sdMar || 0;
+                
+                const persen = parseFloat(hitungPersen(sdMar, target));
                 let badgeClass, progressColor, status;
                 
-                if (persen >= 75) { badgeClass = 'badge-success'; progressColor = '#48bb78'; status = 'Baik'; }
-                else if (persen >= 50) { badgeClass = 'badge-warning'; progressColor = '#ed8936'; status = 'Sedang'; }
+                if (persen >= 50) { badgeClass = 'badge-success'; progressColor = '#48bb78'; status = 'Baik'; }
+                else if (persen >= 25) { badgeClass = 'badge-warning'; progressColor = '#ed8936'; status = 'Sedang'; }
                 else { badgeClass = 'badge-danger'; progressColor = '#e53e3e'; status = 'Kurang'; }
                 
                 html += `
-                    <tr class="clickable" onclick="openDetail('${item.nomor}', '${item.nama}')">
+                    <tr class="clickable" onclick="openDetail(${index})">
                         <td><strong>${index + 1}</strong></td>
                         <td>
-                            <strong>${item.nama}</strong>
-                            <div style="font-size: 0.7rem; color: #718096;">${item.nomor}</div>
+                            <strong>${nama}</strong>
+                            <div style="font-size: 0.7rem; color: #718096;">${nomor}</div>
                         </td>
-                        <td class="text-right">${formatRupiah(item.target)}</td>
-                        <td class="text-right">${formatRupiah(item.jan)}</td>
-                        <td class="text-right">${formatRupiah(item.feb)}</td>
-                        <td class="text-right">${formatRupiah(item.sdMar)}</td>
-                        <td class="text-center"><strong>${persen === 0 ? '-' : persen + '%'}</strong></td>
-                        <td style="width: 120px;">
+                        <td class="text-right">${formatRupiah(target)}</td>
+                        <td class="text-right">${formatRupiah(jan)}</td>
+                        <td class="text-right">${formatRupiah(feb)}</td>
+                        <td class="text-right">${formatRupiah(mar)}</td>
+                        <td class="text-right" style="font-weight: bold; color: #276749;">${formatRupiah(sdMar)}</td>
+                        <td class="text-center"><strong>${persen.toFixed(2)}%</strong></td>
+                        <td style="width: 100px;">
                             <div class="progress-bar-container">
                                 <div class="progress-bar" style="width: ${Math.min(persen, 100)}%; background: ${progressColor};"></div>
                             </div>
@@ -752,44 +799,68 @@
                 `;
             });
             
-            tbody.innerHTML = html || '<tr><td colspan="9" class="text-center" style="padding: 40px;">Tidak ada data</td></tr>';
+            tbody.innerHTML = html;
+            console.log('✅ Tabel berhasil dirender dengan ' + dinasList.length + ' baris');
         }
 
         // ============================================================
         // OPEN DETAIL MODAL
         // ============================================================
         
-        function openDetail(nomor, nama) {
-            const dinas = allData.dinasList.find(d => d.nomor === nomor);
+        function openDetail(index) {
+            console.log('🔍 Membuka detail untuk index:', index);
             
+            if (!allData || !allData.dinasList) return;
+            
+            const dinas = allData.dinasList[index];
             if (!dinas) return;
             
-            const modalEl = new bootstrap.Modal(document.getElementById('detailModal'));
+            console.log('📋 Data dinas:', dinas);
             
-            document.getElementById('modalTitle').innerHTML = `📋 Detail: ${nama}`;
+            const nama = dinas.nama || 'Unknown';
+            const target = dinas.target || 0;
+            const jan = dinas.jan || 0;
+            const feb = dinas.feb || 0;
+            const mar = dinas.mar || 0;
+            const subItems = dinas.subItems || [];
             
-            document.getElementById('modalTarget').textContent = formatRupiah(dinas.target);
-            document.getElementById('modalJan').textContent = formatRupiah(dinas.jan);
-            document.getElementById('modalFeb').textContent = formatRupiah(dinas.feb);
-            document.getElementById('modalMar').textContent = formatRupiah(dinas.mar);
+            document.getElementById('modalTitle').innerHTML = `📋 ${nama}`;
+            document.getElementById('modalTarget').textContent = formatRupiah(target);
+            document.getElementById('modalJan').textContent = formatRupiah(jan);
+            document.getElementById('modalFeb').textContent = formatRupiah(feb);
+            document.getElementById('modalMar').textContent = formatRupiah(mar);
             
-            modalEl.show();
+            renderSubItems(subItems);
+            renderModalChart(jan, feb, mar);
             
-            if (modalChart) modalChart.destroy();
+            if (modalChart) { modalChart.destroy(); modalChart = null; }
             
-            const modalCtx = document.getElementById('modalChart').getContext('2d');
-            modalChart = new Chart(modalCtx, {
+            const modalEl = document.getElementById('detailModal');
+            modalInstance = new bootstrap.Modal(modalEl);
+            modalInstance.show();
+            
+            console.log('✅ Modal berhasil ditampilkan');
+        }
+
+        // ============================================================
+        // RENDER MODAL CHART
+        // ============================================================
+        
+        function renderModalChart(jan, feb, mar) {
+            const ctx = document.getElementById('modalChart').getContext('2d');
+            
+            modalChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Januari', 'Februari', 'Maret'],
                     datasets: [{
                         label: 'Realisasi',
                         data: [
-                            (dinas.jan || 0) / 1000000,
-                            (dinas.feb || 0) / 1000000,
-                            (dinas.mar || 0) / 1000000
+                            jan / 1000000000,
+                            feb / 1000000000,
+                            mar / 1000000000
                         ],
-                        backgroundColor: [GRAPH_COLORS[1], GRAPH_COLORS[2], GRAPH_COLORS[3]], // Biru, Hijau, Kuning
+                        backgroundColor: ['#3182ce', '#38a169', '#48bb78'],
                         borderRadius: 5
                     }]
                 },
@@ -799,22 +870,27 @@
                     plugins: { 
                         legend: { display: false },
                         tooltip: {
-                           callbacks: {
-                               label: function(context) {
-                                   return formatRupiah(context.raw * 1000000);
-                               }
-                           }
+                            callbacks: {
+                                label: function(context) {
+                                    return formatRupiah(context.raw * 1000000000);
+                                }
+                            }
                         }
                     },
                     scales: {
-                        y: { beginAtZero: true, ticks: { callback: v => v + ' Jt' } }
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { callback: v => v + ' M' }
+                        }
                     }
                 }
             });
-            
-            renderSubItems(dinas.subItems);
         }
 
+        // ============================================================
+        // RENDER SUB ITEMS
+        // ============================================================
+        
         function renderSubItems(subItems) {
             const container = document.getElementById('subItemsList');
             
@@ -825,7 +901,14 @@
             
             let html = '';
             subItems.forEach((item, idx) => {
-                const persen = hitungPersen(item.sdMar, item.target);
+                const nama = item.nama || 'Unknown';
+                const target = item.target || 0;
+                const jan = item.jan || 0;
+                const feb = item.feb || 0;
+                const mar = item.mar || 0;
+                const sdMar = item.sdMar || 0;
+                const persen = hitungPersen(sdMar, target);
+                
                 let badgeClass = 'badge-success';
                 if (persen < 25) badgeClass = 'badge-danger';
                 else if (persen < 50) badgeClass = 'badge-warning';
@@ -833,30 +916,31 @@
                 html += `
                     <div class="sub-item-card">
                         <div class="sub-item-header">
-                            <span class="sub-item-nama">${item.nama}</span>
+                            <span class="sub-item-nama">${idx + 1}. ${nama}</span>
                             <span class="badge ${badgeClass}">${persen}%</span>
                         </div>
                         <div class="sub-item-detail">
                             <div class="sub-item-detail-item">
                                 <div class="sub-item-detail-label">TARGET</div>
-                                <div class="sub-item-detail-value">${formatRupiah(item.target)}</div>
+                                <div class="sub-item-detail-value">${formatRupiah(target)}</div>
                             </div>
                             <div class="sub-item-detail-item">
                                 <div class="sub-item-detail-label">JAN</div>
-                                <div class="sub-item-detail-value">${formatRupiah(item.jan)}</div>
+                                <div class="sub-item-detail-value">${formatRupiah(jan)}</div>
                             </div>
                             <div class="sub-item-detail-item">
                                 <div class="sub-item-detail-label">FEB</div>
-                                <div class="sub-item-detail-value">${formatRupiah(item.feb)}</div>
+                                <div class="sub-item-detail-value">${formatRupiah(feb)}</div>
                             </div>
                             <div class="sub-item-detail-item">
                                 <div class="sub-item-detail-label">SD MAR</div>
-                                <div class="sub-item-detail-value">${formatRupiah(item.sdMar)}</div>
+                                <div class="sub-item-detail-value">${formatRupiah(sdMar)}</div>
                             </div>
                         </div>
                     </div>
                 `;
             });
+            
             container.innerHTML = html;
         }
 
@@ -864,25 +948,50 @@
         // HELPER FUNCTIONS
         // ============================================================
         
-        function showLoading(show) {
-            document.getElementById('loadingOverlay').classList.toggle('show', show);
+        function showLoading(show, text = 'Memproses...') {
+            const overlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            
+            if (show) {
+                overlay.classList.add('show');
+                if (loadingText) loadingText.textContent = text;
+            } else {
+                overlay.classList.remove('show');
+            }
         }
 
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = message;
-            // Reset class before adding new ones
-            toast.className = 'toast'; 
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
+            };
+            
+            toastIcon.textContent = icons[type] || icons.success;
+            toastMessage.textContent = message;
+            
+            toast.className = 'toast';
             toast.classList.add(type);
-            toast.classList.add('show'); 
-            setTimeout(() => toast.classList.remove('show'), 4000);
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
         }
 
         // ============================================================
         // INIT
         // ============================================================
         
-        document.addEventListener('DOMContentLoaded', loadData);
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Halaman dimuat, memulai loadData...');
+            loadData();
+        });
     </script>
 </body>
 </html>
