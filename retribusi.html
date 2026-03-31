@@ -109,18 +109,21 @@
         .data-table .number { font-family: 'Courier New', monospace; font-weight: 500; text-align: right; }
         .data-table .opd-name { font-weight: 600; color: #2d3748; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .category-badge { display: inline-block; padding: 3px 8px; border-radius: 15px; font-size: 0.65rem; font-weight: 600; }
-        .category-badge.jasa-giro { background: #bee3f8; color: #2b6cb0; }
-        .category-badge.bunga { background: #c6f6d5; color: #276749; }
-        .category-badge.blud { background: #fbb6ce; color: #97216b; }
         .category-badge.jasa-umum { background: #c6f6d5; color: #276749; }
         .category-badge.jasa-usaha { background: #feebc8; color: #975a16; }
         .category-badge.izin { background: #e9d8fd; color: #6b46c1; }
         .category-badge.hasil { background: #fbd38d; color: #744210; }
+        .category-badge.jasa-giro { background: #bee3f8; color: #2b6cb0; }
+        .category-badge.bunga { background: #90cdf4; color: #2a4365; }
+        .category-badge.denda { background: #f687b3; color: #97216b; }
+        .category-badge.sewa { background: #fbd38d; color: #744210; }
+        .category-badge.lain { background: #b794f4; color: #553c9a; }
+        .category-badge.blud { background: #fbb6ce; color: #97216b; }
         .percentage-badge { display: inline-block; padding: 3px 8px; border-radius: 15px; font-size: 0.7rem; font-weight: 600; }
-        .percentage-badge.excellent { background: linear-gradient(135deg, #c6f6d5, #9ae6b4); color: #276749; }
-        .percentage-badge.good { background: linear-gradient(135deg, #bee3f8, #90cdf4); color: #2b6cb0; }
-        .percentage-badge.warning { background: linear-gradient(135deg, #feebc8, #fbd38d); color: #975a16; }
-        .percentage-badge.danger { background: linear-gradient(135deg, #fed7d7, #feb2b2); color: #c53030; }
+        .percentage-badge.excellent { background: #c6f6d5; color: #276749; }
+        .percentage-badge.good { background: #bee3f8; color: #2b6cb0; }
+        .percentage-badge.warning { background: #feebc8; color: #975a16; }
+        .percentage-badge.danger { background: #fed7d7; color: #c53030; }
 
         .footer { text-align: center; padding: 20px; color: #718096; font-size: 0.8rem; }
 
@@ -284,370 +287,414 @@
 
     <!-- Modal -->
     <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h2 id="modalTitle">📋 Detail OPD</h2>
-                <button class="modal-close" onclick="closeModal()">×</button>
+            <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">📋 Detail OPD</h2>
+            <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <div class="modal-stat-label">Target</div>
+                    <div class="modal-stat-value" id="modalTarget">-</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-label">Januari</div>
+                    <div class="modal-stat-value" id="modalJan">-</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-label">Februari</div>
+                    <div class="modal-stat-value" id="modalFeb">-</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-label">Maret</div>
+                    <div class="modal-stat-value" id="modalMar">-</div>
+                </div>
+                <div class="modal-stat highlight">
+                    <div class="modal-stat-label">SD Mar</div>
+                    <div class="modal-stat-value" id="modalSdMar">-</div>
+                </div>
             </div>
-            <div class="modal-body">
-                <div class="modal-stats">
-                    <div class="modal-stat">
-                        <div class="modal-stat-label">Target</div>
-                        <div class="modal-stat-value" id="modalTarget">-</div>
-                    </div>
-                    <div class="modal-stat">
-                        <div class="modal-stat-label">Januari</div>
-                        <div class="modal-stat-value" id="modalJan">-</div>
-                    </div>
-                    <div class="modal-stat">
-                        <div class="modal-stat-label">Februari</div>
-                        <div class="modal-stat-value" id="modalFeb">-</div>
-                    </div>
-                    <div class="modal-stat">
-                        <div class="modal-stat-label">Maret</div>
-                        <div class="modal-stat-value" id="modalMar">-</div>
-                    </div>
-                    <div class="modal-stat highlight">
-                        <div class="modal-stat-label">SD Mar</div>
-                        <div class="modal-stat-value" id="modalSdMar">-</div>
-                    </div>
-                </div>
-                <div class="modal-chart">
-                    <canvas id="modalChart"></canvas>
-                </div>
+            <div class="modal-chart">
+                <canvas id="modalChart"></canvas>
             </div>
         </div>
     </div>
+</div>
 
-    <footer class="footer">
-        <p>💼 <strong>BAPENDA Kabupaten Lombok Tengah</strong></p>
-        <p>© 2026 - Dashboard Retribusi & PAD Lain</p>
-    </footer>
+<footer class="footer">
+    <p>💼 <strong>BAPENDA Kabupaten Lombok Tengah</strong></p>
+    <p>© 2026 - Dashboard Retribusi & PAD Lain</p>
+</footer>
 
-    <script>
-        // ============================================================
-        // DATA LENGKAP - LOMBOK TENGAH 2026
-        // ============================================================
+<script>
+    // ============================================================
+    // DATA LENGKAP - LOMBOK TENGAH 2026
+    // ============================================================
+    
+    const ALL_DATA = [
+        // ========== 4.1.02 RETRIBUSI JASA UMUM ==========
+        { id: 1, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'BPKAD - Retribusi Daerah', target: 1931600000, jan: 120900000, feb: 139500000, mar: 48000000, sdMar: 308400000 },
+        { id: 2, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DISHUB - Retribusi Parkir', target: 671100000, jan: 19974000, feb: 22708000, mar: 0, sdMar: 42682000 },
+        { id: 3, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DLH - Retribusi Persampahan', target: 394074000, jan: 27113000, feb: 36350000, mar: 38581000, sdMar: 102044000 },
+        { id: 4, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DLH - Retribusi Lab', target: 5000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 5, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'PARIWISATA - Retribusi Rekreasi', target: 237600000, jan: 15000000, feb: 14000000, mar: 0, sdMar: 29000000 },
+        { id: 6, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DINKES - Retribusi Puskesmas', target: 3280330600, jan: 202949000, feb: 1098187728, mar: 911796800, sdMar: 2212933528 },
+        { id: 7, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DINKES - Ret Tempat Kesehatan Lain', target: 3454046000, jan: 324507000, feb: 187633000, mar: 0, sdMar: 512140000 },
         
-               const ALL_DATA = [
-            // ========== 4.1.02 RETRIBUSI JASA UMUM ==========
-            { id: 1, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'BPKAD - Retribusi Daerah', target: 1931600000, jan: 120900000, feb: 139500000, mar: 48000000, sdMar: 308400000 },
-            { id: 2, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DISHUB - Retribusi Parkir', target: 671100000, jan: 19974000, feb: 22708000, mar: 0, sdMar: 42682000 },
-            { id: 3, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DLH - Retribusi Persampahan', target: 394074000, jan: 27113000, feb: 36350000, mar: 38581000, sdMar: 102044000 },
-            { id: 4, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DLH - Retribusi Lab', target: 5000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 5, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'PARIWISATA - Retribusi Rekreasi', target: 237600000, jan: 15000000, feb: 14000000, mar: 0, sdMar: 29000000 },
-            { id: 6, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DINKES - Retribusi Puskesmas', target: 3280330600, jan: 202949000, feb: 1098187728, mar: 911796800, sdMar: 2212933528 },
-            { id: 7, cat: 'jasa-umum', rek: '4.1.02.01', nama: 'DINKES - Ret Tempat Kesehatan Lain', target: 3454046000, jan: 324507000, feb: 187633000, mar: 0, sdMar: 512140000 },
-            
-            // ========== 4.1.02 RETRIBUSI JASA USAHA ==========
-            { id: 8, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'PUPR - Retribusi Alat Berat', target: 348981000, jan: 28102500, feb: 16000000, mar: 0, sdMar: 44102500 },
-            { id: 9, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'PERKIM - Retribusi Kekayaan', target: 90000000, jan: 0, feb: 17940000, mar: 0, sdMar: 17940000 },
-            { id: 10, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISTANI - Retribusi Pasar Grosir', target: 80400000, jan: 1965000, feb: 1404000, mar: 1395000, sdMar: 4764000 },
-            { id: 11, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISTANI - Retribusi RPH', target: 64240000, jan: 805000, feb: 1278000, mar: 805000, sdMar: 2888000 },
-            { id: 12, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISTANI - Retribusi Penjualan', target: 101000000, jan: 1500000, feb: 0, mar: 0, sdMar: 1500000 },
-            { id: 13, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISKANLUT - Retribusi Pelelangan', target: 67000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 14, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISKANLUT - Retribusi Produksi', target: 53000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 15, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Los', target: 6059392000, jan: 140148000, feb: 131855000, mar: 0, sdMar: 272003000 },
-            { id: 16, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Pelataran', target: 276051000, jan: 2094000, feb: 1768000, mar: 0, sdMar: 3862000 },
-            { id: 17, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Sewa', target: 342000000, jan: 11580000, feb: 11455000, mar: 0, sdMar: 23035000 },
-            { id: 18, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Dikontrakkan', target: 417024000, jan: 42062000, feb: 37496000, mar: 0, sdMar: 79558000 },
-            
-            // ========== 4.1.02 RETRIBUSI PERIZINAN TERTENTU ==========
-            { id: 19, cat: 'izin', rek: '4.1.02.03', nama: 'DPMPTSP - Retribusi PBG', target: 2244313000, jan: 739741433, feb: 353408490, mar: 363517559, sdMar: 1456667482 },
-            { id: 20, cat: 'izin', rek: '4.1.02.03', nama: 'DISNAKER - Retribusi TKA', target: 747884000, jan: 101462400, feb: 20246400, mar: 154290100, sdMar: 275998900 },
-            
-            // ========== 4.1.03 HASIL PENGELOLAAN KEKAYAAN ==========
-            { id: 21, cat: 'hasil', rek: '4.1.03', nama: 'BPKAD - Dividen BUMD', target: 13197306000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            
-            // ========== 4.1.04 LAIN-LAIN PAD YANG SAH ==========
-            // 4.1.04.05 Jasa Giro
-            { id: 22, cat: 'jasa-giro', rek: '4.1.04.05', nama: 'BPKAD - Jasa Giro Kas Daerah', target: 1250000000, jan: 514915287.77, feb: 513245837.37, mar: 15303557.72, sdMar: 1043464682.86 },
-            
-            // 4.1.04.07 Pendapatan Bunga
-            { id: 23, cat: 'bunga', rek: '4.1.04.07', nama: 'BPKAD - Pendapatan Bunga', target: 1900000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            
-            // 4.1.04.16 Pendapatan BLUD - DINKES
-            { id: 24, cat: 'blud', rek: '4.1.04.16.002', nama: 'DINKES - BLUD Non Kapitasi', target: 625400000, jan: 0, feb: 0, mar: 0, sdMar: 15606574453 },
-            { id: 25, cat: 'blud', rek: '4.1.04.16.004', nama: 'DINKES - BLUD Dana Kapitasi JKN FKTP', target: 171567507273, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 26, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Praya', target: 4617692438, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 27, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Batunyala', target: 1944620609, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 28, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Bonjeruk', target: 2124096000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 29, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Langko', target: 1520902600, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 30, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Mujur', target: 2078712000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 31, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Puyung', target: 2450982675, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 32, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Muncan', target: 2472708000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 33, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Pringgarata', target: 2209900000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 34, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Pengadang', target: 2646360018, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 35, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Aik Darek', target: 2518000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 36, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Penujak', target: 1740000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 37, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Ubung', target: 2943586800, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 38, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Bagu', target: 2190922416, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 39, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Teratak', target: 2202000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 40, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Batujai', target: 1266664656, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 41, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Mantang', target: 2562019438, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 42, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Teruwai', target: 1803060000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 43, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Mangkung', target: 1879076880, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 44, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Awang', target: 440967653, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 45, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Sengkol', target: 3287668621, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 46, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Batujangkih', target: 1252278806, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 47, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Darek', target: 2237790390, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 48, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Tanak Beak', target: 1210734000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 49, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Wajageseng', target: 1080000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 50, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Ganti', target: 2520000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 51, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Kuta', target: 1578207000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 52, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Kopang', target: 2642184000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 53, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Janapria', target: 2766600000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 54, cat: 'blud', rek: '4.1.04.16.004', nama: '  Kapitasi Puskesmas Aik Mual', target: 3073000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 55, cat: 'blud', rek: '4.1.04.16.004', nama: 'DINKES - BLUD KSPI Pihak Lain', target: 63524985000, jan: 0, feb: 0, mar: 0, sdMar: 1010000 },
-            
-            // 4.1.04.16 Pendapatan BLUD - RSUD
-            { id: 56, cat: 'blud', rek: '4.1.04.16.002', nama: 'RSUD Praya - BLUD Jasa Layanan', target: 90592835000, jan: 6023345953.77, feb: 9598325051.41, mar: 0, sdMar: 15621671005.18 },
-            { id: 57, cat: 'blud', rek: '4.1.04.16.004', nama: 'RSUD Praya - BLUD KSPI Pihak Lain', target: 264250000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
-            { id: 58, cat: 'blud', rek: '4.1.04.16.006', nama: 'RSUD Praya - BLUD Jasa Giro', target: 95000000, jan: 0, feb: 0, mar: 0, sdMar: 0 }
-        ];
-
-        // ============================================================
-        // VARIABLES
-        // ============================================================
+        // ========== 4.1.02 RETRIBUSI JASA USAHA ==========
+        { id: 8, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'PUPR - Retribusi Alat Berat', target: 348981000, jan: 28102500, feb: 16000000, mar: 0, sdMar: 44102500 },
+        { id: 9, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'PERKIM - Retribusi Kekayaan', target: 90000000, jan: 0, feb: 17940000, mar: 0, sdMar: 17940000 },
+        { id: 10, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISTANI - Retribusi Pasar Grosir', target: 80400000, jan: 1965000, feb: 1404000, mar: 1395000, sdMar: 4764000 },
+        { id: 11, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISTANI - Retribusi RPH', target: 64240000, jan: 805000, feb: 1278000, mar: 805000, sdMar: 2888000 },
+        { id: 12, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISTANI - Retribusi Penjualan', target: 101000000, jan: 1500000, feb: 0, mar: 0, sdMar: 1500000 },
+        { id: 13, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISKANLUT - Retribusi Pelelangan', target: 67000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 14, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISKANLUT - Retribusi Produksi', target: 53000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 15, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Los', target: 6059392000, jan: 140148000, feb: 131855000, mar: 0, sdMar: 272003000 },
+        { id: 16, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Pelataran', target: 276051000, jan: 2094000, feb: 1768000, mar: 0, sdMar: 3862000 },
+        { id: 17, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Sewa', target: 342000000, jan: 11580000, feb: 11455000, mar: 0, sdMar: 23035000 },
+        { id: 18, cat: 'jasa-usaha', rek: '4.1.02.02', nama: 'DISPERINDAG - Retribusi Dikontrakkan', target: 417024000, jan: 42062000, feb: 37496000, mar: 0, sdMar: 79558000 },
         
-        let currentData = ALL_DATA;
-        let barChart, pieChart, modalChart;
-        const COLORS = ['#805ad5','#38a169','#3182ce','#d69e2e','#e53e3e','#319795','#dd6b20','#d53f8c','#667eea','#48bb78','#f56565','#9f7aea','#4fd1c5','#ed8936','#9f7aea','#2b6cb0','#2c5282','#276749','#22543d','#742a2a','#97216b','#702459','#521b41'];
-
-        // ============================================================
-        // FORMATTERS
-        // ============================================================
+        // ========== 4.1.02 RETRIBUSI PERIZINAN TERTENTU ==========
+        { id: 19, cat: 'izin', rek: '4.1.02.03', nama: 'DPMPTSP - Retribusi PBG', target: 2244313000, jan: 739741433, feb: 353408490, mar: 363517559, sdMar: 1456667482 },
+        { id: 20, cat: 'izin', rek: '4.1.02.03', nama: 'DISNAKER - Retribusi TKA', target: 747884000, jan: 101462400, feb: 20246400, mar: 154290100, sdMar: 275998900 },
         
-        function fmt(num) {
-            if (!num && num !== 0) return 'Rp 0';
-            num = Math.abs(num);
-            if (num >= 1e12) return 'Rp ' + (num/1e12).toFixed(2) + ' T';
-            if (num >= 1e9) return 'Rp ' + (num/1e9).toFixed(2) + ' M';
-            if (num >= 1e6) return 'Rp ' + (num/1e6).toFixed(0) + ' Jt';
-            return 'Rp ' + num.toLocaleString('id-ID');
-        }
-
-        function fmtShort(num) {
-            if (!num && num !== 0) return 'Rp 0';
-            num = Math.abs(num);
-            if (num >= 1e12) return 'Rp ' + (num/1e12).toFixed(1) + ' T';
-            if (num >= 1e9) return 'Rp ' + (num/1e9).toFixed(1) + ' M';
-            if (num >= 1e6) return 'Rp ' + (num/1e6).toFixed(0) + ' Jt';
-            return 'Rp ' + num.toLocaleString('id-ID');
-        }
-
-        function pct(r, t) {
-            if (!t || t === 0) return 0;
-            return ((r/t)*100).toFixed(2);
-        }
-
-        // ============================================================
-        // INIT
-        // ============================================================
+        // ========== 4.1.03 HASIL PENGELOLAAN KEKAYAAN ==========
+        { id: 21, cat: 'hasil', rek: '4.1.03', nama: 'BPKAD - Dividen BUMD', target: 13197306000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
         
-        function initDashboard() {
-            updateStats();
-            renderCharts();
-            renderTable();
-        }
-
-        function updateStats() {
-            let tTarget = 0, tSdMar = 0;
-            currentData.forEach(d => {
-                tTarget += d.target || 0;
-                tSdMar += d.sdMar || 0;
-            });
-            
-            document.getElementById('statTarget').textContent = fmt(tTarget);
-            document.getElementById('statRealisasi').textContent = fmt(tSdMar);
-            document.getElementById('statPersen').textContent = pct(tSdMar, tTarget) + '%';
-            document.getElementById('statSisa').textContent = fmt(tTarget - tSdMar);
-            document.getElementById('statCount').textContent = currentData.length + ' Item';
-        }
-
-        // ============================================================
-        // CHARTS
-        // ============================================================
+        // ========== 4.1.04 LAIN-LAIN PAD YANG SAH ==========
         
-        function renderCharts() {
-            let labels = currentData.map(d => d.nama.length > 18 ? d.nama.substring(0,18)+'..' : d.nama);
-            let targets = currentData.map(d => (d.target||0)/1e9);
-            let realizasis = currentData.map(d => (d.sdMar||0)/1e9);
-
-            if (barChart) barChart.destroy();
-            if (pieChart) pieChart.destroy();
-
-            barChart = new Chart(document.getElementById('barChart'), {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Target', data: targets, backgroundColor: 'rgba(128,90,213,0.8)', borderRadius: 4 },
-                        { label: 'Realisasi', data: realizasis, backgroundColor: 'rgba(56,161,105,0.8)', borderRadius: 4 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } },
-                    scales: { y: { beginAtZero: true, ticks: { callback: v => v + ' M' } } }
-                }
-            });
-
-            pieChart = new Chart(document.getElementById('pieChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: targets,
-                        backgroundColor: COLORS.slice(0, currentData.length),
-                        borderWidth: 2,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right', labels: { font: { size: 9 } } } }
-                }
-            });
-        }
-
-        // ============================================================
-        // TABLE
-        // ============================================================
+        // 4.1.04.01 Pendapatan Denda Keterlambatan
+        { id: 22, cat: 'denda', rek: '4.1.04.01', nama: 'BPKAD - Pendapatan Denda', target: 0, jan: 0, feb: 0, mar: 0, sdMar: 0 },
         
-        function getBadgeClass(cat) {
-            if (cat === 'jasa-umum') return 'jasa-umum';
-            if (cat === 'jasa-usaha') return 'jasa-usaha';
-            if (cat === 'izin') return 'izin';
-            if (cat === 'hasil') return 'hasil';
-            if (cat === 'jasa-giro') return 'jasa-giro';
-            if (cat === 'bunga') return 'bunga';
-            if (cat === 'blud') return 'blud';
-            return 'jasa-umum';
-        }
-
-        function getBadgeLabel(cat) {
-            if (cat === 'jasa-umum') return 'Ret Jasa Umum';
-            if (cat === 'jasa-usaha') return 'Ret Jasa Usaha';
-            if (cat === 'izin') return 'Ret Perizinan';
-            if (cat === 'hasil') return 'Hasil Kekayaan';
-            if (cat === 'jasa-giro') return 'Jasa Giro';
-            if (cat === 'bunga') return 'Pend Bunga';
-            if (cat === 'blud') return 'BLUD';
-            return cat;
-        }
-
-        function renderTable() {
-            let tbody = document.getElementById('tableBody');
-            let html = '';
-            
-            currentData.forEach((d, i) => {
-                let p = parseFloat(pct(d.sdMar, d.target));
-                
-                let pctBadge = 'good';
-                if (d.target === 0) pctBadge = 'danger';
-                else if (p >= 50) pctBadge = 'excellent';
-                else if (p >= 25) pctBadge = 'good';
-                else pctBadge = 'warning';
-
-                let isSub = d.nama.startsWith('  ');
-
-                html += `
-                    <tr onclick="openDetail(${i})" style="${isSub ? 'background: #faf5ff;' : ''}">
-                        <td><strong>${i+1}</strong></td>
-                        <td class="opd-name" style="${isSub ? 'padding-left: 25px; color: #6b46c1;' : ''}">${d.nama}</td>
-                        <td><span class="category-badge ${getBadgeClass(d.cat)}">${getBadgeLabel(d.cat)}</span></td>
-                        <td class="number">${fmt(d.target)}</td>
-                        <td class="number">${fmtShort(d.jan)}</td>
-                        <td class="number">${fmtShort(d.feb)}</td>
-                        <td class="number">${fmtShort(d.mar)}</td>
-                        <td class="number" style="font-weight: 700; color: #276749;">${fmtShort(d.sdMar)}</td>
-                        <td class="text-center"><span class="percentage-badge ${pctBadge}">${p}%</span></td>
-                    </tr>
-                `;
-            });
-            
-            tbody.innerHTML = html;
-        }
-
-        // ============================================================
-        // FILTER
-        // ============================================================
+        // 4.1.04.02 Pendapatan Denda atas Keterlambatan Pelaksanaan Kontrak
+        { id: 23, cat: 'denda', rek: '4.1.04.02', nama: 'BPKAD - Denda Kontrak', target: 50000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
         
-        function filterData(cat) {
-            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            if (cat === 'all') currentData = ALL_DATA;
-            else if (cat === 'retribusi') currentData = ALL_DATA.filter(d => ['jasa-umum','jasa-usaha','izin'].includes(d.cat));
-            else if (cat === 'jasa-umum') currentData = ALL_DATA.filter(d => d.cat === 'jasa-umum');
-            else if (cat === 'jasa-usaha') currentData = ALL_DATA.filter(d => d.cat === 'jasa-usaha');
-            else if (cat === 'izin') currentData = ALL_DATA.filter(d => d.cat === 'izin');
-            else if (cat === 'hasil') currentData = ALL_DATA.filter(d => d.cat === 'hasil');
-            else if (cat === 'lain') currentData = ALL_DATA.filter(d => ['jasa-giro','bunga','blud'].includes(d.cat));
-            
-            updateStats();
-            renderCharts();
-            renderTable();
-        }
-
-        // ============================================================
-        // MODAL
-        // ============================================================
+        // 4.1.04.03 Pendapatan Denda atas Keterlambatan Pelaksanaan pekerjaan
+        { id: 24, cat: 'denda', rek: '4.1.04.03', nama: 'BPKAD - Denda Pekerjaan', target: 0, jan: 0, feb: 0, mar: 0, sdMar: 0 },
         
-        function openDetail(index) {
-            let d = currentData[index];
-            
-            document.getElementById('modalTitle').innerHTML = `📋 ${d.nama}`;
-            document.getElementById('modalTarget').textContent = fmt(d.target);
-            document.getElementById('modalJan').textContent = fmtShort(d.jan);
-            document.getElementById('modalFeb').textContent = fmtShort(d.feb);
-            document.getElementById('modalMar').textContent = fmtShort(d.mar);
-            document.getElementById('modalSdMar').textContent = fmtShort(d.sdMar);
+        // 4.1.04.04 Pendapatan Denda atas Keterlambatan Pemeliharaan jalan
+        { id: 25, cat: 'denda', rek: '4.1.04.04', nama: 'PUPR - Denda Pemeliharaan Jalan', target: 0, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        
+        // 4.1.04.05 Jasa Giro
+        { id: 26, cat: 'jasa-giro', rek: '4.1.04.05', nama: 'BPKAD - Jasa Giro Kas Daerah', target: 1250000000, jan: 514915287.77, feb: 513245837.37, mar: 15303557.72, sdMar: 1043464682.86 },
+        
+        // 4.1.04.06 Pendapatan Bunga dari Deposito
+        { id: 27, cat: 'bunga', rek: '4.1.04.06', nama: 'BPKAD - Pendapatan Bunga Deposito', target: 0, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        
+        // 4.1.04.07 Pendapatan Bunga dari Penempatan Uang
+        { id: 28, cat: 'bunga', rek: '4.1.04.07', nama: 'BPKAD - Pendapatan Bunga Penempatan', target: 1900000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        
+        // 4.1.04.08 Pendapatan Sewa Tanah dan Bangunan
+        { id: 29, cat: 'sewa', rek: '4.1.04.08', nama: 'BPKAD - Sewa Tanah dan Bangunan', target: 750000000, jan: 125000000, feb: 0, mar: 0, sdMar: 125000000 },
+        { id: 30, cat: 'sewa', rek: '4.1.04.08', nama: 'DKUKMP - Sewa Kios Pasar', target: 350000000, jan: 30000000, feb: 30000000, mar: 0, sdMar: 60000000 },
+        
+        // 4.1.04.09 Pendapatan dari Pengembalian
+        { id: 31, cat: 'lain', rek: '4.1.04.09', nama: 'BPKAD - Pengembalian Kelebihan Bayar', target: 0, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        
+        // 4.1.04.10 Pendapatan Ganti Rugi atas Kerugian
+        { id: 32, cat: 'lain', rek: '4.1.04.10', nama: 'BPKAD - Ganti Rugi Kerugian Daerah', target: 0, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        
+        // 4.1.04.11 Pendapatan dari Penjualan BMD
+        { id: 33, cat: 'lain', rek: '4.1.04.11', nama: 'BPKAD - Penjualan BMD', target: 100000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        
+        // 4.1.04.12 Pendapatan dari Penjualan Scrap
+        { id: 34, cat: 'lain', rek: '4.1.04.12', nama: 'BPKAD - Penjualan Scrap', target: 0, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        
+        // 4.1.04.13 Pendapatan dari Tagihan Piutang
+        { id: 35, cat: 'lain', rek: '4.1.04.13', nama: 'BPKAD - Tagihan Piutang', target: 0, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        
+        // 4.1.04.14 Pendapatan dari Angsuran/Cicilan
+        { id: 36, cat: 'lain', rek: '4.1.04.14', nama: 'BPKAD - Angsuran/Cicilan', target: 0, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        
+        // 4.1.04.15 Pendapatan BLUD - DINKES
+        { id: 37, cat: 'blud', rek: '4.1.04.15.002', nama: 'DINKES - BLUD Non Kapitasi', target: 625400000, jan: 0, feb: 0, mar: 0, sdMar: 15606574453 },
+        { id: 38, cat: 'blud', rek: '4.1.04.15.004', nama: 'DINKES - BLUD Kapitasi JKN FKTP', target: 171567507273, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 39, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Praya', target: 4617692438, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 40, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Batunyala', target: 1944620609, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 41, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Bonjeruk', target: 2124096000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 42, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Langko', target: 1520902600, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 43, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Mujur', target: 2078712000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 44, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Puyung', target: 2450982675, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 45, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Muncan', target: 2472708000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 46, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Pringgarata', target: 2209900000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 47, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Pengadang', target: 2646360018, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 48, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Aik Darek', target: 2518000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 49, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Penujak', target: 1740000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 50, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Ubung', target: 2943586800, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 51, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Bagu', target: 2190922416, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 52, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Teratak', target: 2202000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 53, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Batujai', target: 1266664656, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 54, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Mantang', target: 2562019438, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 55, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Teruwai', target: 1803060000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 56, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Mangkung', target: 1879076880, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 57, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Awang', target: 440967653, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 58, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Sengkol', target: 3287668621, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 59, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Batujangkih', target: 1252278806, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 60, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Darek', target: 2237790390, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 61, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Tanak Beak', target: 1210734000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 62, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Wajageseng', target: 1080000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 63, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Ganti', target: 2520000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 64, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Kuta', target: 1578207000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 65, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Kopang', target: 2642184000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 66, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Janapria', target: 2766600000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 67, cat: 'blud', rek: '4.1.04.15.004', nama: '  Kapitasi Puskesmas Aik Mual', target: 3073000000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 68, cat: 'blud', rek: '4.1.04.15.004', nama: 'DINKES - BLUD KSPI Pihak Lain', target: 63524985000, jan: 0, feb: 0, mar: 0, sdMar: 1010000 },
+        
+        // 4.1.04.16 Pendapatan BLUD - RSUD
+        { id: 69, cat: 'blud', rek: '4.1.04.16.002', nama: 'RSUD Praya - BLUD Jasa Layanan', target: 90592835000, jan: 6023345953.77, feb: 9598325051.41, mar: 0, sdMar: 15621671005.18 },
+        { id: 70, cat: 'blud', rek: '4.1.04.16.004', nama: 'RSUD Praya - BLUD KSPI Pihak Lain', target: 264250000, jan: 0, feb: 0, mar: 0, sdMar: 0 },
+        { id: 71, cat: 'blud', rek: '4.1.04.16.006', nama: 'RSUD Praya - BLUD Jasa Giro', target: 95000000, jan: 0, feb: 0, mar: 0, sdMar: 0 }
+    ];
 
-            if (modalChart) modalChart.destroy();
-            modalChart = new Chart(document.getElementById('modalChart'), {
-                type: 'bar',
-                data: {
-                    labels: ['Januari', 'Februari', 'Maret'],
-                    datasets: [{
-                        data: [d.jan/1e9, d.feb/1e9, d.mar/1e9],
-                        backgroundColor: ['#805ad5','#38a169','#f6e05e'],
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { callback: v => v + ' M' } } }
-                }
-            });
+    // ============================================================
+    // VARIABLES
+    // ============================================================
+    
+    let currentData = ALL_DATA;
+    let barChart, pieChart, modalChart;
+    const COLORS = ['#805ad5','#38a169','#3182ce','#d69e2e','#e53e3e','#319795','#dd6b20','#d53f8c','#667eea','#48bb78','#f56565','#9f7aea','#4fd1c5','#ed8936'];
 
-            document.getElementById('modalOverlay').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+    // ============================================================
+    // FORMATTERS
+    // ============================================================
+    
+    function fmt(num) {
+        if (!num && num !== 0) return 'Rp 0';
+        num = Math.abs(num);
+        if (num >= 1e12) return 'Rp ' + (num/1e12).toFixed(2) + ' T';
+        if (num >= 1e9) return 'Rp ' + (num/1e9).toFixed(2) + ' M';
+        if (num >= 1e6) return 'Rp ' + (num/1e6).toFixed(0) + ' Jt';
+        return 'Rp ' + num.toLocaleString('id-ID');
+    }
 
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
+    function fmtShort(num) {
+        if (!num && num !== 0) return 'Rp 0';
+        num = Math.abs(num);
+        if (num >= 1e12) return 'Rp ' + (num/1e12).toFixed(1) + ' T';
+        if (num >= 1e9) return 'Rp ' + (num/1e9).toFixed(1) + ' M';
+        if (num >= 1e6) return 'Rp ' + (num/1e6).toFixed(0) + ' Jt';
+        return 'Rp ' + num.toLocaleString('id-ID');
+    }
 
-        document.getElementById('modalOverlay').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
+    function pct(r, t) {
+        if (!t || t === 0) return 0;
+        return ((r/t)*100).toFixed(2);
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    
+    function initDashboard() {
+        updateStats();
+        renderCharts();
+        renderTable();
+    }
+
+    function updateStats() {
+        let tTarget = 0, tSdMar = 0;
+        currentData.forEach(d => {
+            tTarget += d.target || 0;
+            tSdMar += d.sdMar || 0;
+        });
+        
+        document.getElementById('statTarget').textContent = fmt(tTarget);
+        document.getElementById('statRealisasi').textContent = fmt(tSdMar);
+        document.getElementById('statPersen').textContent = pct(tSdMar, tTarget) + '%';
+        document.getElementById('statSisa').textContent = fmt(tTarget - tSdMar);
+        document.getElementById('statCount').textContent = currentData.length + ' Item';
+    }
+
+    // ============================================================
+    // CHARTS
+    // ============================================================
+    
+    function renderCharts() {
+        let labels = currentData.map(d => d.nama.length > 18 ? d.nama.substring(0,18)+'..' : d.nama);
+        let targets = currentData.map(d => (d.target||0)/1e9);
+        let realizasis = currentData.map(d => (d.sdMar||0)/1e9);
+
+        if (barChart) barChart.destroy();
+        if (pieChart) pieChart.destroy();
+
+        barChart = new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Target', data: targets, backgroundColor: 'rgba(128,90,213,0.8)', borderRadius: 4 },
+                    { label: 'Realisasi', data: realizasis, backgroundColor: 'rgba(56,161,105,0.8)', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: { y: { beginAtZero: true, ticks: { callback: v => v + ' M' } } }
+            }
         });
 
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeModal();
+        pieChart = new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: targets,
+                    backgroundColor: COLORS.slice(0, currentData.length),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'right', labels: { font: { size: 9 } } } }
+            }
+        });
+    }
+
+    // ============================================================
+    // TABLE
+    // ============================================================
+    
+    function getBadgeClass(cat) {
+        if (cat === 'jasa-umum') return 'jasa-umum';
+        if (cat === 'jasa-usaha') return 'jasa-usaha';
+        if (cat === 'izin') return 'izin';
+        if (cat === 'hasil') return 'hasil';
+        if (cat === 'jasa-giro') return 'jasa-giro';
+        if (cat === 'bunga') return 'bunga';
+        if (cat === 'denda') return 'denda';
+        if (cat === 'sewa') return 'sewa';
+        if (cat === 'lain') return 'lain';
+        if (cat === 'blud') return 'blud';
+        return 'lain';
+    }
+
+    function getBadgeLabel(cat) {
+        if (cat === 'jasa-umum') return 'Ret Jasa Umum';
+        if (cat === 'jasa-usaha') return 'Ret Jasa Usaha';
+        if (cat === 'izin') return 'Ret Perizinan';
+        if (cat === 'hasil') return 'Hasil Kekayaan';
+        if (cat === 'jasa-giro') return 'Jasa Giro';
+        if (cat === 'bunga') return 'Pend Bunga';
+        if (cat === 'denda') return 'Denda';
+        if (cat === 'sewa') return 'Sewa BMD';
+        if (cat === 'lain') return 'Lain-Lain';
+        if (cat === 'blud') return 'BLUD';
+        return cat;
+    }
+
+    function renderTable() {
+        let tbody = document.getElementById('tableBody');
+        let html = '';
+        
+        currentData.forEach((d, i) => {
+            let p = parseFloat(pct(d.sdMar, d.target));
+            
+            let pctBadge = 'good';
+            if (d.target === 0) pctBadge = 'danger';
+            else if (p >= 50) pctBadge = 'excellent';
+            else if (p >= 25) pctBadge = 'good';
+            else pctBadge = 'warning';
+
+            let isSub = d.nama.startsWith('  ');
+
+            html += `
+                <tr onclick="openDetail(${i})" style="${isSub ? 'background: #faf5ff;' : ''}">
+                    <td><strong>${i+1}</strong></td>
+                    <td class="opd-name" style="${isSub ? 'padding-left: 25px; color: #6b46c1;' : ''}">${d.nama}</td>
+                    <td><span class="category-badge ${getBadgeClass(d.cat)}">${getBadgeLabel(d.cat)}</span></td>
+                    <td class="number">${fmt(d.target)}</td>
+                    <td class="number">${fmtShort(d.jan)}</td>
+                    <td class="number">${fmtShort(d.feb)}</td>
+                    <td class="number">${fmtShort(d.mar)}</td>
+                    <td class="number" style="font-weight: 700; color: #276749;">${fmtShort(d.sdMar)}</td>
+                    <td class="text-center"><span class="percentage-badge ${pctBadge}">${p}%</span></td>
+                </tr>
+            `;
+        });
+        
+        tbody.innerHTML = html;
+    }
+
+    // ============================================================
+    // FILTER
+    // ============================================================
+    
+    function filterData(cat) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        if (cat === 'all') currentData = ALL_DATA;
+        else if (cat === 'retribusi') currentData = ALL_DATA.filter(d => ['jasa-umum','jasa-usaha','izin'].includes(d.cat));
+        else if (cat === 'jasa-umum') currentData = ALL_DATA.filter(d => d.cat === 'jasa-umum');
+        else if (cat === 'jasa-usaha') currentData = ALL_DATA.filter(d => d.cat === 'jasa-usaha');
+        else if (cat === 'izin') currentData = ALL_DATA.filter(d => d.cat === 'izin');
+        else if (cat === 'hasil') currentData = ALL_DATA.filter(d => d.cat === 'hasil');
+        else if (cat === 'lain') currentData = ALL_DATA.filter(d => ['jasa-giro','bunga','denda','sewa','lain','blud'].includes(d.cat));
+        
+        updateStats();
+        renderCharts();
+        renderTable();
+    }
+
+    // ============================================================
+    // MODAL
+    // ============================================================
+    
+    function openDetail(index) {
+        let d = currentData[index];
+        
+        document.getElementById('modalTitle').innerHTML = `📋 ${d.nama}`;
+        document.getElementById('modalTarget').textContent = fmt(d.target);
+        document.getElementById('modalJan').textContent = fmtShort(d.jan);
+        document.getElementById('modalFeb').textContent = fmtShort(d.feb);
+        document.getElementById('modalMar').textContent = fmtShort(d.mar);
+        document.getElementById('modalSdMar').textContent = fmtShort(d.sdMar);
+
+        if (modalChart) modalChart.destroy();
+        modalChart = new Chart(document.getElementById('modalChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Januari', 'Februari', 'Maret'],
+                datasets: [{
+                    data: [d.jan/1e9, d.feb/1e9, d.mar/1e9],
+                    backgroundColor: ['#805ad5','#38a169','#f6e05e'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { callback: v => v + ' M' } } }
+            }
         });
 
-        // ============================================================
-        // START
-        // ============================================================
-        
-        document.addEventListener('DOMContentLoaded', initDashboard);
-    </script>
+        document.getElementById('modalOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    // ============================================================
+    // START
+    // ============================================================
+    
+    document.addEventListener('DOMContentLoaded', initDashboard);
+</script>
 </body>
 </html>
