@@ -159,19 +159,15 @@
             padding: 10px 12px;
             text-align: left;
             font-weight: 600;
-            cursor: pointer;
             white-space: nowrap;
         }
-
-        th:hover { background: #2d3748; }
 
         td {
             padding: 10px 12px;
             border-bottom: 1px solid #e2e8f0;
-            cursor: pointer;
         }
 
-        tr:hover { background: #f7fafc; }
+        tr.clickable { cursor: pointer; }
         tr.clickable:hover { background: #ebf8ff; }
 
         .text-right { text-align: right; }
@@ -202,37 +198,60 @@
             transition: width 0.5s ease;
         }
 
-        /* ========== MODAL ========== */
-        .modal-content { border-radius: 15px; border: none; }
+        /* ========== MODAL - PERBAIKI ========== */
+        .modal .modal-content {
+            border-radius: 15px;
+            border: none;
+            animation: modalSlideIn 0.3s ease;
+        }
 
-        .modal-header {
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal .modal-header {
             background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
             color: white;
             border-radius: 15px 15px 0 0;
             padding: 18px 22px;
         }
 
-        .modal-header .btn-close { filter: brightness(0) invert(1); }
+        .modal .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+            opacity: 0.8;
+        }
 
-        .modal-body { padding: 22px; }
+        .modal .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .modal .modal-body { padding: 22px; }
 
         .detail-stat {
             background: #f7fafc;
             border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
             text-align: center;
+            border: 1px solid #e2e8f0;
         }
 
-        .detail-stat-label { color: #718096; font-size: 0.75rem; margin-bottom: 3px; }
-        .detail-stat-value { font-size: 1.1rem; font-weight: 700; color: #1a202c; }
+        .detail-stat-label { color: #718096; font-size: 0.8rem; margin-bottom: 5px; }
+        .detail-stat-value { font-size: 1.2rem; font-weight: 700; color: #1a202c; }
 
         /* Sub Items */
         .sub-items-header {
             background: #edf2f7;
-            padding: 8px 12px;
+            padding: 10px 15px;
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-weight: 600;
             font-size: 0.9rem;
             display: flex;
@@ -244,38 +263,45 @@
             background: #fff;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .sub-item-card:hover {
+            border-color: #cbd5e0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .sub-item-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .sub-item-nama {
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
+            color: #2d3748;
         }
 
         .sub-item-detail {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            font-size: 0.75rem;
+            gap: 10px;
+            font-size: 0.8rem;
         }
 
         .sub-item-detail-item {
             text-align: center;
-            padding: 5px;
+            padding: 8px;
             background: #f7fafc;
             border-radius: 5px;
         }
 
-        .sub-item-detail-label { color: #718096; font-size: 0.65rem; }
-        .sub-item-detail-value { font-weight: 600; color: #1a202c; }
+        .sub-item-detail-label { color: #718096; font-size: 0.7rem; margin-bottom: 3px; }
+        .sub-item-detail-value { font-weight: 600; color: #1a202c; font-size: 0.85rem; }
 
         /* ========== LOADING ========== */
         .loading-overlay {
@@ -311,15 +337,16 @@
             position: fixed;
             bottom: 25px;
             right: 25px;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 15px 25px;
+            border-radius: 10px;
             color: white;
             font-weight: 500;
-            z-index: 9999;
+            z-index: 10000;
             display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        .toast.show { display: flex; gap: 8px; align-items: center; }
+        .toast.show { display: flex; gap: 10px; align-items: center; }
         .toast.success { background: #48bb78; }
         .toast.error { background: #e53e3e; }
         .toast.info { background: #3182ce; }
@@ -380,7 +407,7 @@
         <!-- Charts -->
         <div class="charts-grid">
             <div class="chart-card">
-                <div class="chart-title">📊 Target vs Realisasi per Dinas (Milyar)</div>
+                <div class="chart-title">📊 Target vs Realisasi per Dinas (Miliar)</div>
                 <div class="chart-container">
                     <canvas id="barChart"></canvas>
                 </div>
@@ -425,45 +452,45 @@
         </div>
     </div>
 
-    <!-- Modal Detail -->
-    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal Detail - PERBAIKI: Hapus aria-hidden -->
+    <div class="modal fade" id="detailModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalTitle">📋 Detail Retribusi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Summary Stats -->
-                    <div class="row mb-3" id="modalStats">
+                    <div class="row mb-3">
                         <div class="col-6 col-md-3">
                             <div class="detail-stat">
-                                <div class="detail-stat-label">Target</div>
+                                <div class="detail-stat-label">TARGET</div>
                                 <div class="detail-stat-value" id="modalTarget">-</div>
                             </div>
                         </div>
                         <div class="col-6 col-md-3">
                             <div class="detail-stat">
-                                <div class="detail-stat-label">Januari</div>
+                                <div class="detail-stat-label">JANUARI</div>
                                 <div class="detail-stat-value" id="modalJan">-</div>
                             </div>
                         </div>
                         <div class="col-6 col-md-3">
                             <div class="detail-stat">
-                                <div class="detail-stat-label">Februari</div>
+                                <div class="detail-stat-label">FEBRUARI</div>
                                 <div class="detail-stat-value" id="modalFeb">-</div>
                             </div>
                         </div>
                         <div class="col-6 col-md-3">
                             <div class="detail-stat">
-                                <div class="detail-stat-label">Maret</div>
+                                <div class="detail-stat-label">MARET</div>
                                 <div class="detail-stat-value" id="modalMar">-</div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Monthly Chart -->
-                    <div class="chart-container mb-3" style="height: 200px;">
+                    <div style="height: 200px; margin-bottom: 20px;">
                         <canvas id="modalChart"></canvas>
                     </div>
 
@@ -498,10 +525,9 @@
     
     <script>
         // ============================================================
-        // KONFIGURASI - SESUAIKAN DENGAN URL ANDA
+        // KONFIGURASI
         // ============================================================
         
-        // Ganti dengan URL Google Apps Script Anda
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwhRvEc9q5OEUZ1-bb8uFqLkbi14hh2_XqfadYms1kXYTNvJQazSWSpttZxxOTgUxk2Vg/exec';
 
         const GRAPH_COLORS = [
@@ -518,7 +544,6 @@
         let barChart = null;
         let pieChart = null;
         let modalChart = null;
-        let modalInstance = null;
 
         // ============================================================
         // FORMAT FUNCTIONS
@@ -529,11 +554,6 @@
             if (num >= 1000000000) return 'Rp ' + (num / 1000000000).toFixed(2) + ' M';
             if (num >= 1000000) return 'Rp ' + (num / 1000000).toFixed(2) + ' Jt';
             if (num >= 1000) return 'Rp ' + (num / 1000).toFixed(0) + ' Rb';
-            return 'Rp ' + num.toLocaleString('id-ID');
-        }
-
-        function formatRupiahFull(num) {
-            if (!num || num === 0) return 'Rp 0';
             return 'Rp ' + num.toLocaleString('id-ID');
         }
 
@@ -550,32 +570,25 @@
             showLoading(true, 'Menghubungi server...');
             
             try {
-                console.log('🔍 Fetching data from:', WEB_APP_URL);
-                
                 const response = await fetch(`${WEB_APP_URL}?action=getData`, {
                     method: 'GET',
                     mode: 'cors'
                 });
-                
-                console.log('📡 Response status:', response.status);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP Error: ${response.status}`);
                 }
                 
                 const result = await response.json();
-                console.log('📥 Data received:', result);
                 
                 if (result.status !== 'success') {
-                    throw new Error(result.message || 'Gagal mengambil data dari server');
+                    throw new Error(result.message || 'Gagal mengambil data');
                 }
                 
                 allData = result.data;
-                console.log('📊 Parsed data:', allData);
                 
                 if (result.lastUpdated) {
-                    const date = new Date(result.lastUpdated);
-                    document.getElementById('lastUpdate').textContent = 'Updated: ' + date.toLocaleString('id-ID');
+                    document.getElementById('lastUpdate').textContent = 'Updated: ' + new Date(result.lastUpdated).toLocaleString('id-ID');
                 }
                 
                 updateStats();
@@ -585,7 +598,7 @@
                 showToast('✅ Data berhasil dimuat!', 'success');
                 
             } catch (error) {
-                console.error('❌ Error:', error);
+                console.error('Error:', error);
                 showToast('❌ Error: ' + error.message, 'error');
                 
                 document.getElementById('tableBody').innerHTML = `
@@ -620,7 +633,7 @@
                 totalSdMar = summary.totalSdMar || 0;
             }
             
-            if (totalTarget === 0 && totalSdMar === 0 && dinasList) {
+            if (totalTarget === 0 && dinasList) {
                 dinasList.forEach(d => {
                     totalTarget += d.target || 0;
                     totalSdMar += d.sdMar || 0;
@@ -628,12 +641,11 @@
             }
             
             const persenTotal = hitungPersen(totalSdMar, totalTarget);
-            const sisaTarget = totalTarget - totalSdMar;
             
             document.getElementById('totalTarget').textContent = formatRupiah(totalTarget);
             document.getElementById('totalRealisasi').textContent = formatRupiah(totalSdMar);
             document.getElementById('totalPersen').textContent = persenTotal + '%';
-            document.getElementById('sisaTarget').textContent = formatRupiah(sisaTarget);
+            document.getElementById('sisaTarget').textContent = formatRupiah(totalTarget - totalSdMar);
         }
 
         // ============================================================
@@ -641,24 +653,27 @@
         // ============================================================
         
         function renderCharts() {
-            if (!allData || !allData.dinasList || allData.dinasList.length === 0) {
-                console.log('⚠️ Tidak ada data untuk render chart');
-                return;
-            }
+            if (!allData || !allData.dinasList || allData.dinasList.length === 0) return;
             
             const { dinasList } = allData;
             
-            const labels = dinasList.map(d => {
+            // Filter hanya dinas dengan data
+            const filteredDinas = dinasList.filter(d => d.target > 0);
+            
+            if (filteredDinas.length === 0) return;
+            
+            const labels = filteredDinas.map(d => {
                 const name = d.nama || 'Unknown';
-                return name.length > 20 ? name.substring(0, 20) + '..' : name;
+                return name.length > 18 ? name.substring(0, 18) + '..' : name;
             });
             
-            const targets = dinasList.map(d => (d.target || 0) / 1000000000); // Dalam Miliar
-            const realizasis = dinasList.map(d => (d.sdMar || 0) / 1000000000);
+            const targets = filteredDinas.map(d => (d.target || 0) / 1000000000);
+            const realizasis = filteredDinas.map(d => (d.sdMar || 0) / 1000000000);
 
             if (barChart) { barChart.destroy(); barChart = null; }
             if (pieChart) { pieChart.destroy(); pieChart = null; }
 
+            // Bar Chart
             const barCtx = document.getElementById('barChart').getContext('2d');
             barChart = new Chart(barCtx, {
                 type: 'bar',
@@ -666,19 +681,15 @@
                     labels: labels,
                     datasets: [
                         { 
-                            label: 'Target (M)', 
+                            label: 'Target', 
                             data: targets, 
                             backgroundColor: 'rgba(49, 130, 206, 0.8)', 
-                            borderColor: 'rgba(49, 130, 206, 1)',
-                            borderWidth: 1,
                             borderRadius: 5 
                         },
                         { 
-                            label: 'Realisasi SD Mar (M)', 
+                            label: 'Realisasi', 
                             data: realizasis, 
                             backgroundColor: 'rgba(72, 187, 120, 0.8)', 
-                            borderColor: 'rgba(72, 187, 120, 1)',
-                            borderWidth: 1,
                             borderRadius: 5 
                         }
                     ]
@@ -686,19 +697,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) label += ': ';
-                                    label += 'Rp ' + (context.raw * 1000000000).toLocaleString('id-ID');
-                                    return label;
-                                }
-                            }
-                        }
-                    },
+                    plugins: { legend: { position: 'top' } },
                     scales: {
                         y: { 
                             beginAtZero: true, 
@@ -708,6 +707,7 @@
                 }
             });
 
+            // Pie Chart
             const pieCtx = document.getElementById('pieChart').getContext('2d');
             pieChart = new Chart(pieCtx, {
                 type: 'doughnut',
@@ -715,7 +715,7 @@
                     labels: labels,
                     datasets: [{ 
                         data: targets,
-                        backgroundColor: GRAPH_COLORS.slice(0, labels.length),
+                        backgroundColor: GRAPH_COLORS.slice(0, filteredDinas.length),
                         borderColor: '#fff',
                         borderWidth: 2
                     }]
@@ -724,25 +724,10 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { 
-                            position: 'right', 
-                            labels: { font: { size: 10 }, padding: 8 } 
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) label += ': ';
-                                    label += 'Rp ' + (context.raw * 1000000000).toLocaleString('id-ID');
-                                    return label;
-                                }
-                            }
-                        }
+                        legend: { position: 'right', labels: { font: { size: 10 }, padding: 8 } }
                     }
                 }
             });
-            
-            console.log('✅ Charts berhasil dirender');
         }
 
         // ============================================================
@@ -788,7 +773,7 @@
                         <td class="text-right">${formatRupiah(feb)}</td>
                         <td class="text-right">${formatRupiah(mar)}</td>
                         <td class="text-right" style="font-weight: bold; color: #276749;">${formatRupiah(sdMar)}</td>
-                        <td class="text-center"><strong>${persen.toFixed(2)}%</strong></td>
+                        <td class="text-center"><strong>${persen}%</strong></td>
                         <td style="width: 100px;">
                             <div class="progress-bar-container">
                                 <div class="progress-bar" style="width: ${Math.min(persen, 100)}%; background: ${progressColor};"></div>
@@ -800,22 +785,17 @@
             });
             
             tbody.innerHTML = html;
-            console.log('✅ Tabel berhasil dirender dengan ' + dinasList.length + ' baris');
         }
 
         // ============================================================
-        // OPEN DETAIL MODAL
+        // OPEN DETAIL MODAL - PERBAIKI
         // ============================================================
         
         function openDetail(index) {
-            console.log('🔍 Membuka detail untuk index:', index);
-            
             if (!allData || !allData.dinasList) return;
             
             const dinas = allData.dinasList[index];
             if (!dinas) return;
-            
-            console.log('📋 Data dinas:', dinas);
             
             const nama = dinas.nama || 'Unknown';
             const target = dinas.target || 0;
@@ -824,42 +804,31 @@
             const mar = dinas.mar || 0;
             const subItems = dinas.subItems || [];
             
+            // Update modal content
             document.getElementById('modalTitle').innerHTML = `📋 ${nama}`;
             document.getElementById('modalTarget').textContent = formatRupiah(target);
             document.getElementById('modalJan').textContent = formatRupiah(jan);
             document.getElementById('modalFeb').textContent = formatRupiah(feb);
             document.getElementById('modalMar').textContent = formatRupiah(mar);
             
+            // Render sub items
             renderSubItems(subItems);
-            renderModalChart(jan, feb, mar);
             
-            if (modalChart) { modalChart.destroy(); modalChart = null; }
+            // Hapus chart modal lama
+            if (modalChart) {
+                modalChart.destroy();
+                modalChart = null;
+            }
             
-            const modalEl = document.getElementById('detailModal');
-            modalInstance = new bootstrap.Modal(modalEl);
-            modalInstance.show();
-            
-            console.log('✅ Modal berhasil ditampilkan');
-        }
-
-        // ============================================================
-        // RENDER MODAL CHART
-        // ============================================================
-        
-        function renderModalChart(jan, feb, mar) {
+            // Render modal chart
             const ctx = document.getElementById('modalChart').getContext('2d');
-            
             modalChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Januari', 'Februari', 'Maret'],
                     datasets: [{
                         label: 'Realisasi',
-                        data: [
-                            jan / 1000000000,
-                            feb / 1000000000,
-                            mar / 1000000000
-                        ],
+                        data: [jan / 1000000000, feb / 1000000000, mar / 1000000000],
                         backgroundColor: ['#3182ce', '#38a169', '#48bb78'],
                         borderRadius: 5
                     }]
@@ -867,24 +836,26 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return formatRupiah(context.raw * 1000000000);
-                                }
-                            }
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            ticks: { callback: v => v + ' M' }
-                        }
+                        y: { beginAtZero: true, ticks: { callback: v => v + ' M' } }
                     }
                 }
             });
+            
+            // TUTUP MODAL LAMA DULU SEBELUM BUKA YANG BARU
+            const existingModal = bootstrap.Modal.getInstance(document.getElementById('detailModal'));
+            if (existingModal) {
+                existingModal.hide();
+                // Tunggu sebentar untuk modal lama tertutup
+                setTimeout(() => {
+                    const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+                    modal.show();
+                }, 300);
+            } else {
+                const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+                modal.show();
+            }
         }
 
         // ============================================================
@@ -965,33 +936,21 @@
             const toastIcon = document.getElementById('toastIcon');
             const toastMessage = document.getElementById('toastMessage');
             
-            const icons = {
-                success: '✅',
-                error: '❌',
-                info: 'ℹ️',
-                warning: '⚠️'
-            };
+            const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
             
             toastIcon.textContent = icons[type] || icons.success;
             toastMessage.textContent = message;
             
-            toast.className = 'toast';
-            toast.classList.add(type);
-            toast.classList.add('show');
+            toast.className = 'toast ' + type + ' show';
             
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 4000);
+            setTimeout(() => toast.classList.remove('show'), 4000);
         }
 
         // ============================================================
         // INIT
         // ============================================================
         
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Halaman dimuat, memulai loadData...');
-            loadData();
-        });
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>
