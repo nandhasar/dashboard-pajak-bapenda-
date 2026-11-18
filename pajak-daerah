@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Realisasi Pajak Daerah - Kabupaten Lombok Tengah 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy-950: #091326;
+            --navy-900: #0f172a;
+            --navy-800: #1e293b;
+            --navy-700: #1e3a8a;
+            --blue-600: #2563eb;
+            --blue-500: #3b82f6;
+            --blue-50: #eff6ff;
+            --emerald-600: #059669;
+            --emerald-500: #10b981;
+            --emerald-50: #ecfdf5;
+            --amber-600: #d97706;
+            --amber-50: #fffbeb;
+            --rose-600: #e11d48;
+            --rose-50: #fff1f2;
+            --violet-600: #7c3aed;
+            --violet-50: #f5f3ff;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+            --card-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+            --card-shadow-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.1), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--slate-50);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.04) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.04) 0px, transparent 50%);
+            color: var(--slate-800);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ==================== HEADER ==================== */
+        .header {
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            color: white;
+            padding: 14px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            max-width: 1380px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 14px;
+            padding: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            object-fit: contain;
+        }
+
+        .header-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .header-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .header-text h1 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            line-height: 1.25;
+        }
+
+        .header-text h2 {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--slate-300);
+            letter-spacing: 0.03em;
+            margin-top: 2px;
+        }
+
+        .badge-now {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(16, 185, 129, 0.16);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #6ee7b7;
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 600;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.78rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-home {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: white;
+        }
+
+        .btn-home:hover {
+            background: rgba(255, 255, 255, 0.16);
+            transform: translateY(-1px);
+        }
+
+        .btn-refresh {
+            background: var(--emerald-600);
+            color: white;
+            box-shadow: 0 2px 10px rgba(5, 150, 105, 0.3);
+        }
+
+        .btn-refresh:hover {
+            background: var(--emerald-500);
+            transform: translateY(-1px);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
+        .container {
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 24px 20px 40px;
+        }
+
+        /* ==================== LOADING & ERROR ==================== */
+        .loading-overlay {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            color: var(--slate-500);
+            gap: 14px;
+        }
+
+        .loading-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid var(--slate-200);
+            border-top: 3px solid var(--blue-600);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-box {
+            background: var(--rose-50);
+            border: 1px solid #fecdd3;
+            color: var(--rose-600);
+            padding: 16px 20px;
+            border-radius: 14px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* ==================== HERO BANNER ==================== */
+        .info-banner {
+            background: linear-gradient(135deg, var(--navy-900) 0%, #172554 55%, #064e3b 100%);
+            color: white;
+            padding: 22px 26px;
+            border-radius: 18px;
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.25);
+            position: relative;
+            overflow: hidden;
+            gap: 16px;
+            animation: fadeInDown 0.5s ease;
+        }
+
+        .info-banner::after {
+            content: '';
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.22) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .banner-left h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 4px;
+        }
+
+        .banner-left p {
+            color: var(--slate-300);
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .banner-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1;
+        }
+
+        .month-selector {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .month-selector option {
+            background: var(--navy-900);
+            color: white;
+        }
+
+        .info-banner .year-badge {
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--navy-900);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ==================== KPI STATS CARDS ==================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s ease;
+            animation: fadeInUp 0.5s ease backwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.05s; }
+        .stat-card:nth-child(2) { animation-delay: 0.1s; }
+        .stat-card:nth-child(3) { animation-delay: 0.15s; }
+        .stat-card:nth-child(4) { animation-delay: 0.2s; }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: var(--slate-300);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .stat-card.primary .stat-icon { background: var(--blue-50); color: var(--blue-600); }
+        .stat-card.success .stat-icon { background: var(--emerald-50); color: var(--emerald-600); }
+        .stat-card.warning .stat-icon { background: var(--amber-50); color: var(--amber-600); }
+        .stat-card.info .stat-icon { background: var(--violet-50); color: var(--violet-600); }
+
+        .stat-badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .stat-card.primary .stat-badge { background: var(--blue-50); color: var(--blue-600); }
+        .stat-card.success .stat-badge { background: var(--emerald-50); color: var(--emerald-600); }
+        .stat-card.warning .stat-badge { background: var(--amber-50); color: var(--amber-600); }
+        .stat-card.info .stat-badge { background: var(--violet-50); color: var(--violet-600); }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--slate-500);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--slate-900);
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-subtitle {
+            font-size: 0.74rem;
+            color: var(--slate-400);
+            font-weight: 500;
+        }
+
+        .kpi-progress-wrap {
+            width: 100%;
+            height: 6px;
+            background: var(--slate-100);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .kpi-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--amber-600), var(--emerald-500));
+            border-radius: 999px;
+            width: 0%;
+            transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* ==================== CHARTS SECTION ==================== */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1.65fr 1fr;
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .chart-card {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: var(--card-shadow);
+            animation: fadeInUp 0.6s ease backwards;
+            transition: all 0.25s ease;
+        }
+
+        .chart-card:hover {
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--slate-100);
+            gap: 10px;
+        }
+
+        .chart-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .chart-title {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--slate-900);
+        }
+
+        .chart-desc {
+            font-size: 0.75rem;
+            color: var(--slate-400);
+        }
+
+        .chart-pill {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--blue-600);
+            background: var(--blue-50);
+            padding: 4px 10px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* ==================== COMPARISON SECTION ==================== */
+        .comparison-section {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 22px;
+            animation: fadeInUp 0.6s ease backwards;
+            animation-delay: 0.25s;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--slate-900);
+        }
+
+        .section-hint {
+            font-size: 0.75rem;
+            color: var(--slate-400);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+        }
+
+        .comparison-item {
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            padding: 16px;
+            border-radius: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .comparison-item:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow);
+            border-color: var(--blue-500);
+        }
+
+        .comparison-item.current {
+            background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+            border: 1.5px solid var(--emerald-500);
+        }
+
+        .comparison-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comparison-month {
+            font-size: 0.78rem;
+            color: var(--slate-600);
+            font-weight: 700;
+        }
+
+        .comparison-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--slate-900);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .comparison-prev {
+            font-size: 0.72rem;
+            color: var(--slate-500);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .comparison-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .comparison-change.positive {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .comparison-change.negative {
+            background: #ffe4e6;
+            color: #9f1239;
+        }
+
+        /* ==================== DATA TABLES ==================== */
+        .table-section {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 22px;
+            animation: fadeInUp 0.6s ease backwards;
+            animation-delay: 0.3s;
+        }
+
+        .table-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--slate-100);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .table-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--slate-900);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--slate-200);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 680px;
+        }
+
+        .data-table thead {
+            background: var(--navy-900);
+        }
+
+        .data-table th {
+            color: var(--slate-100);
+            padding: 13px 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }
+
+        .data-table th.num-col {
+            text-align: right;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--slate-100);
+            transition: background-color 0.15s ease;
+            cursor: pointer;
+        }
+
+        .data-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: var(--blue-50);
+        }
+
+        .data-table td {
+            padding: 12px 14px;
+            font-size: 0.82rem;
+            color: var(--slate-600);
+            vertical-align: middle;
+        }
+
+        .data-table tfoot tr {
+            background: var(--slate-100);
+            border-top: 2px solid var(--slate-300);
+        }
+
+        .data-table tfoot td {
+            padding: 13px 14px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--slate-900);
+        }
+
+        .data-table .number {
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .data-table .tax-name {
+            font-weight: 600;
+            color: var(--slate-800);
+            max-width: 240px;
+        }
+
+        .progress-cell {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .mini-bar {
+            width: 54px;
+            height: 6px;
+            background: var(--slate-200);
+            border-radius: 999px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .mini-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+        }
+
+        .percentage-badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-align: center;
+            min-width: 56px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .percentage-badge.excellent { background: #d1fae5; color: #065f46; }
+        .percentage-badge.good { background: #dbeafe; color: #1e40af; }
+        .percentage-badge.warning { background: #fef3c7; color: #92400e; }
+        .percentage-badge.danger { background: #ffe4e6; color: #9f1239; }
+
+        /* ==================== MODAL ==================== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            animation: fadeIn 0.2s ease;
+            backdrop-filter: blur(6px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 100%;
+            width: 560px;
+            max-height: 88vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--slate-200);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
+            color: white;
+            padding: 18px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-header h2 {
+            font-size: 1.02rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.14);
+            border: none;
+            color: white;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .modal-body {
+            padding: 22px;
+        }
+
+        .modal-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .modal-stat {
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            padding: 12px 10px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .modal-stat.highlight {
+            background: var(--blue-50);
+            border-color: #93c5fd;
+        }
+
+        .modal-stat-label {
+            font-size: 0.7rem;
+            color: var(--slate-500);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .modal-stat-value {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: var(--slate-900);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-section-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--slate-800);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--slate-200);
+        }
+
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .month-item {
+            background: var(--slate-50);
+            border: 1px solid var(--slate-200);
+            padding: 10px 8px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .month-item.has-value {
+            background: var(--emerald-50);
+            border-color: #a7f3d0;
+        }
+
+        .month-name {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--slate-500);
+            margin-bottom: 3px;
+        }
+
+        .month-value {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--slate-900);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 9px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--slate-100);
+        }
+
+        .comparison-table th {
+            background: var(--slate-50);
+            font-weight: 700;
+            color: var(--slate-600);
+            font-size: 0.72rem;
+        }
+
+        .comparison-table .number {
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .change-positive { color: var(--emerald-600); font-weight: 700; }
+        .change-negative { color: var(--rose-600); font-weight: 700; }
+
+        /* ==================== FOOTER ==================== */
+        .footer {
+            text-align: center;
+            padding: 24px 16px 32px;
+            color: var(--slate-500);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--slate-200);
+            margin-top: 12px;
+        }
+
+        .footer strong {
+            color: var(--slate-700);
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                padding: 10px 14px;
+            }
+            .logo {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+            }
+            .header-text h1 {
+                font-size: 0.9rem;
+            }
+            .header-text h2 {
+                font-size: 0.7rem;
+            }
+            .btn-text {
+                display: none;
+            }
+            .btn {
+                padding: 8px 10px;
+            }
+            .container {
+                padding: 16px 12px 28px;
+            }
+            .info-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 18px;
+            }
+            .banner-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .stat-card {
+                padding: 14px;
+            }
+            .stat-value {
+                font-size: 1.15rem;
+            }
+            .chart-container {
+                height: 240px;
+            }
+            .month-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .modal-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="https://lomboktengahkab.go.id/uploads/images/LOGO_KABUPATEN_LOMBOK_TENGAH.png" alt="Logo Kabupaten Lombok Tengah">
+            </div>
+            <div class="header-text">
+                <div class="header-title-row">
+                    <h1>BAPENDA Lombok Tengah</h1>
+                    <span class="badge-now"><span class="badge-dot"></span> Live 2026</span>
+                </div>
+                <h2>PEMERINTAH KABUPATEN LOMBOK TENGAH</h2>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-refresh" onclick="loadData()" title="Muat Ulang Data">
+                    <span>🔄</span><span class="btn-text">Refresh</span>
+                </button>
+                <a href="index.html" class="btn btn-home" title="Kembali ke Beranda">
+                    <span>🏠</span><span class="btn-text">Beranda</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Loading -->
+        <div id="loading" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p style="font-weight: 600;">Menyinkronkan data dari Google Sheets...</p>
+        </div>
+
+        <!-- Error -->
+        <div id="error" class="error-box" style="display: none;">
+            ⚠️ Gagal memuat data. Pastikan koneksi internet stabil dan Google Sheets sudah dipublikasikan.
+        </div>
+
+        <!-- Content -->
+        <div id="content" style="display: none;">
+            <!-- Hero Banner -->
+            <section class="info-banner">
+                <div class="banner-left">
+                    <h3>📊 Monitoring Realisasi Pajak Daerah</h3>
+                    <p>
+                        <span>Klik grafik atau baris tabel untuk rincian bulanan</span>
+                        <span>•</span>
+                        <span id="lastUpdatedText">Memuat waktu...</span>
+                    </p>
+                </div>
+                <div class="banner-right">
+                    <select id="monthFilter" class="month-selector" onchange="handleMonthChange(this.value)" aria-label="Pilih Periode Bulan"></select>
+                    <div class="year-badge">TA 2026</div>
+                </div>
+            </section>
+
+            <!-- KPI Stats Cards -->
+            <section class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-top">
+                        <div class="stat-icon">💰</div>
+                        <span class="stat-badge">TARGET</span>
+                    </div>
+                    <div class="stat-label">Target Pajak Daerah 2026</div>
+                    <div class="stat-value" id="target2026">Rp 0</div>
+                    <div class="stat-subtitle" id="realisasiSubtitle">Periode S/D</div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-top">
+                        <div class="stat-icon">📊</div>
+                        <span class="stat-badge">REALISASI</span>
+                    </div>
+                    <div class="stat-label">Realisasi Kumulatif</div>
+                    <div class="stat-value" id="realisasi2026">Rp 0</div>
+                    <div class="stat-subtitle">Total Penerimaan Daerah</div>
+                </div>
+
+                <div class="stat-card warning">
+                    <div class="stat-top">
+                        <div class="stat-icon">🎯</div>
+                        <span class="stat-badge">CAPAIAN</span>
+                    </div>
+                    <div class="stat-label">Persentase Capaian</div>
+                    <div class="stat-value" id="persen2026">0%</div>
+                    <div class="kpi-progress-wrap">
+                        <div class="kpi-progress-fill" id="capaianProgressBar"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card info">
+                    <div class="stat-top">
+                        <div class="stat-icon">📈</div>
+                        <span class="stat-badge">YoY vs 2025</span>
+                    </div>
+                    <div class="stat-label">Pertumbuhan Periode Sama</div>
+                    <div class="stat-value" id="growthRate">0%</div>
+                    <div class="stat-subtitle" id="comparisonLabel">Periode S/D</div>
+                </div>
+            </section>
+
+            <!-- Charts -->
+            <section class="charts-grid">
+                <div class="chart-card" id="chartBarCard">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <h3 class="chart-title">Perbandingan Realisasi Bulanan</h3>
+                            <span class="chart-desc">Realisasi 2025 vs 2026 (Klik batang untuk detail)</span>
+                        </div>
+                        <span class="chart-pill">2025 vs 2026</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card" id="chartPieCard">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <h3 class="chart-title">Komposisi Pajak 2026</h3>
+                            <span class="chart-desc">Kontribusi per jenis pajak</span>
+                        </div>
+                        <span class="chart-pill">Proporsi</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Monthly Comparison Cards -->
+            <section class="comparison-section">
+                <div class="section-header">
+                    <h3 class="section-title" id="comparisonTitle">📈 Ringkasan Perbandingan Bulanan</h3>
+                    <span class="section-hint">Klik kartu bulan untuk rincian per jenis pajak</span>
+                </div>
+                <div class="comparison-grid" id="comparisonGrid"></div>
+            </section>
+
+            <!-- Data Table 2026 -->
+            <section class="table-section">
+                <div class="table-header-bar">
+                    <h3 class="table-title">📋 Rincian Realisasi Pajak Daerah 2026</h3>
+                    <span class="section-hint">Klik baris untuk melihat tren 12 bulan</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead id="tableHead2026">
+                            <tr>
+                                <th style="width: 48px;">No</th>
+                                <th>Jenis Pajak</th>
+                                <th class="num-col">Target 2026</th>
+                                <th class="num-col" id="thCol1">s/d Bulan Lalu</th>
+                                <th class="num-col" id="thCol2">Bulan Ini</th>
+                                <th class="num-col">Total s/d Ini</th>
+                                <th class="num-col">Capaian</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody2026"></tbody>
+                        <tfoot id="tableFoot2026"></tfoot>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Data Table 2025 -->
+            <section class="table-section">
+                <div class="table-header-bar">
+                    <h3 class="table-title">🗂️ Data Pembanding Realisasi 2025</h3>
+                    <span class="section-hint">Data historis tahun anggaran sebelumnya</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 48px;">No</th>
+                                <th>Jenis Pajak</th>
+                                <th class="num-col">Target 2025</th>
+                                <th class="num-col">Total Realisasi 2025</th>
+                                <th class="num-col">Capaian</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody2025"></tbody>
+                        <tfoot id="tableFoot2025"></tfoot>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal Detail -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">📊 Detail Pajak</h2>
+                <button class="modal-close" onclick="closeModal()" aria-label="Tutup">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-stats">
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">Target 2026</div>
+                        <div class="modal-stat-value" id="modalTarget">-</div>
+                    </div>
+                    <div class="modal-stat highlight">
+                        <div class="modal-stat-label">Total Realisasi</div>
+                        <div class="modal-stat-value" id="modalRealisasi">-</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">Persentase</div>
+                        <div class="modal-stat-value" id="modalPersen">-</div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h4 class="modal-section-title">📅 Realisasi Per Bulan (2026)</h4>
+                    <div class="month-grid" id="modalMonthGrid"></div>
+                </div>
+
+                <div class="modal-section">
+                    <h4 class="modal-section-title">📊 Perbandingan Tahunan (2025 vs 2026)</h4>
+                    <div class="table-responsive">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Keterangan</th>
+                                    <th style="text-align: right;">2025</th>
+                                    <th style="text-align: right;">2026</th>
+                                    <th style="text-align: right;">Selisih %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalComparisonTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p><strong>BAPENDA Kabupaten Lombok Tengah</strong> • Sistem Monitoring Realisasi Pajak Daerah</p>
+        <p style="margin-top: 4px; font-size: 0.74rem; color: #94a3b8;">© 2026 Pemerintah Kabupaten Lombok Tengah</p>
+    </footer>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        const SHEET_ID = '1BE7gPYSSlCnaIZ4Q7RvGx_L_2v46fQjkEnK3EC3VQz4';
+        const GID_2026 = '0';
+        const GID_2025 = '757965445';
+
+        // Data storage
+        let data2026 = [];
+        let data2025 = [];
+        let charts = {};
+        let currentMonth = new Date().getMonth(); // 0-11
+
+        const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const shortMonthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        // ==================== INIT MONTH SELECTOR ====================
+        function populateMonthSelector() {
+            const selector = document.getElementById('monthFilter');
+            if (!selector) return;
+            selector.innerHTML = monthNames.map((name, idx) =>
+                `<option value="${idx}" ${idx === currentMonth ? 'selected' : ''}>Periode: s/d ${name}</option>`
+            ).join('');
+        }
+
+        function handleMonthChange(val) {
+            currentMonth = parseInt(val, 10);
+            initDashboard();
+        }
+
+        // ==================== FORMATTERS ====================
+        function formatRupiahFull(num) {
+            if (num >= 1000000000) {
+                return 'Rp ' + (num / 1000000000).toFixed(2) + ' M';
+            } else if (num >= 1000000) {
+                return 'Rp ' + (num / 1000000).toFixed(2) + ' Jt';
+            } else if (num >= 1000) {
+                return 'Rp ' + (num / 1000).toFixed(0) + ' Rb';
+            }
+            return 'Rp ' + num.toLocaleString('id-ID');
+        }
+
+        function formatRupiahShort(num) {
+            if (num >= 1000000000) {
+                return (num / 1000000000).toFixed(2) + ' M';
+            } else if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + ' Jt';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(0) + ' Rb';
+            }
+            return num.toLocaleString('id-ID');
+        }
+
+        // ==================== FETCH DATA ====================
+        async function fetchSheetData(gid) {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const csv = await response.text();
+            return parseCSV(csv);
+        }
+
+        function parseCSV(csv) {
+            const lines = csv.split('\n');
+            const result = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
+
+                const values = [];
+                let current = '';
+                let inQuotes = false;
+
+                for (let char of lines[i]) {
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        values.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                values.push(current.trim());
+
+                if (!values[0] || values[0].trim() === '') continue;
+
+                const row = {
+                    name: values[0].trim(),
+                    target: parseFloat(values[1]) || 0,
+                    bulan: []
+                };
+
+                for (let j = 2; j <= 13; j++) {
+                    row.bulan.push(parseFloat(values[j]) || 0);
+                }
+
+                row.total = row.bulan.reduce((a, b) => a + b, 0);
+                row.percentage = row.target > 0 ? (row.total / row.target) * 100 : 0;
+
+                result.push(row);
+            }
+
+            return result;
+        }
+
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const content = document.getElementById('content');
+
+            loading.style.display = 'flex';
+            error.style.display = 'none';
+            content.style.display = 'none';
+
+            try {
+                [data2026, data2025] = await Promise.all([
+                    fetchSheetData(GID_2026),
+                    fetchSheetData(GID_2025)
+                ]);
+
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('lastUpdatedText').textContent = `Diperbarui pukul ${timeStr} WITA`;
+
+                loading.style.display = 'none';
+                content.style.display = 'block';
+
+                initDashboard();
+            } catch (err) {
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                console.error('Failed to load data:', err);
+            }
+        }
+
+        // ==================== CALCULATIONS ====================
+        function getTotalTarget(data) {
+            return data.reduce((sum, item) => sum + item.target, 0);
+        }
+
+        function getMonthTotal(data, monthIndex) {
+            return data.reduce((sum, item) => sum + (item.bulan[monthIndex] || 0), 0);
+        }
+
+        function getTotalSampaiBulan(data, bulanIdx) {
+            return data.reduce((sum, item) => {
+                let totalItem = 0;
+                for (let i = 0; i <= bulanIdx; i++) {
+                    totalItem += item.bulan[i] || 0;
+                }
+                return sum + totalItem;
+            }, 0);
+        }
+
+        function getItemTotalSampaiBulan(item, bulanIdx) {
+            let total = 0;
+            for (let i = 0; i <= bulanIdx; i++) {
+                total += item.bulan[i] || 0;
+            }
+            return total;
+        }
+
+        // ==================== ANIMATED COUNTER ====================
+        function animateCounter(element, target, duration = 1200) {
+            let start = 0;
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentVal = start + (target - start) * easeOut;
+
+                element.textContent = formatRupiahFull(progress < 1 ? Math.floor(currentVal) : target);
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                }
+            }
+
+            requestAnimationFrame(updateCounter);
+        }
+
+        // ==================== INITIALIZE DASHBOARD ====================
+        function initDashboard() {
+            const currentMonthName = monthNames[currentMonth];
+
+            document.getElementById('realisasiSubtitle').textContent = `Periode Jan – ${currentMonthName}`;
+            document.getElementById('comparisonLabel').textContent = `Jan – ${currentMonthName} 2026 vs 2025`;
+            document.getElementById('comparisonTitle').textContent = `📈 Perbandingan Bulanan (Jan – ${currentMonthName})`;
+
+            const totalTarget2026 = getTotalTarget(data2026);
+            const totalRealisasi2026 = getTotalSampaiBulan(data2026, currentMonth);
+            const percentage2026 = totalTarget2026 > 0 ? ((totalRealisasi2026 / totalTarget2026) * 100).toFixed(2) : '0.00';
+
+            let total2026Period = 0;
+            let total2025Period = 0;
+            for (let i = 0; i <= currentMonth; i++) {
+                total2026Period += getMonthTotal(data2026, i);
+                total2025Period += getMonthTotal(data2025, i);
+            }
+
+            const growthRate = total2025Period > 0
+                ? (((total2026Period - total2025Period) / total2025Period) * 100).toFixed(1)
+                : 0;
+
+            animateCounter(document.getElementById('target2026'), totalTarget2026);
+            animateCounter(document.getElementById('realisasi2026'), totalRealisasi2026);
+            document.getElementById('persen2026').textContent = percentage2026 + '%';
+
+            const progressBar = document.getElementById('capaianProgressBar');
+            if (progressBar) {
+                progressBar.style.width = Math.min(parseFloat(percentage2026), 100) + '%';
+            }
+
+            const growthElement = document.getElementById('growthRate');
+            growthElement.textContent = (growthRate >= 0 ? '+' : '') + growthRate + '%';
+            growthElement.style.color = growthRate >= 0 ? '#059669' : '#e11d48';
+
+            initComparisonGrid(currentMonth);
+            initCharts(currentMonth);
+            initTables(currentMonth);
+        }
+
+        // ==================== COMPARISON GRID ====================
+        function initComparisonGrid(activeMonth) {
+            const grid = document.getElementById('comparisonGrid');
+            grid.innerHTML = '';
+
+            // Menampilkan hingga 4 bulan terakhir sampai bulan aktif
+            const startMonth = Math.max(0, activeMonth - 3);
+
+            for (let i = startMonth; i <= activeMonth; i++) {
+                const val2025 = getMonthTotal(data2025, i);
+                const val2026 = getMonthTotal(data2026, i);
+                const selisih = val2026 - val2025;
+                const change = val2025 > 0 ? ((selisih / val2025) * 100).toFixed(1) : 0;
+                const isCurrent = i === activeMonth;
+
+                const item = document.createElement('div');
+                item.className = `comparison-item ${isCurrent ? 'current' : ''}`;
+                item.onclick = () => showMonthDetail(i);
+                item.innerHTML = `
+                    <div class="comparison-top">
+                        <span class="comparison-month">${monthNames[i]}</span>
+                        <span class="comparison-change ${selisih >= 0 ? 'positive' : 'negative'}">
+                            ${selisih >= 0 ? '↑' : '↓'} ${Math.abs(change)}%
+                        </span>
+                    </div>
+                    <div class="comparison-value">${formatRupiahFull(val2026)}</div>
+                    <div class="comparison-prev">2025: ${formatRupiahFull(val2025)}</div>
+                `;
+                grid.appendChild(item);
+            }
+        }
+
+        // ==================== CHARTS ====================
+        function initCharts(activeMonth) {
+            if (charts.comparison) charts.comparison.destroy();
+            if (charts.pie) charts.pie.destroy();
+
+            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            const monthsLabels = [];
+            const data2025Values = [];
+            const data2026Values = [];
+
+            for (let i = 0; i <= activeMonth; i++) {
+                monthsLabels.push(shortMonthNames[i]);
+                data2025Values.push(getMonthTotal(data2025, i));
+                data2026Values.push(getMonthTotal(data2026, i));
+            }
+
+            const ctx1 = document.getElementById('comparisonChart').getContext('2d');
+            charts.comparison = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: monthsLabels,
+                    datasets: [
+                        {
+                            label: 'Tahun 2025',
+                            data: data2025Values,
+                            backgroundColor: '#cbd5e1',
+                            hoverBackgroundColor: '#94a3b8',
+                            borderRadius: 6,
+                            borderSkipped: false,
+                            barPercentage: 0.75,
+                            categoryPercentage: 0.7
+                        },
+                        {
+                            label: 'Tahun 2026',
+                            data: data2026Values,
+                            backgroundColor: '#10b981',
+                            hoverBackgroundColor: '#059669',
+                            borderRadius: 6,
+                            borderSkipped: false,
+                            barPercentage: 0.75,
+                            categoryPercentage: 0.7
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            showMonthDetail(elements[0].index);
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                boxWidth: 8,
+                                font: { size: 12, weight: '600' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 12,
+                            cornerRadius: 10,
+                            titleFont: { size: 13, weight: '700' },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.dataset.label + ': ' + formatRupiahFull(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            border: { display: false }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            border: { display: false },
+                            grid: {
+                                color: '#f1f5f9',
+                                borderDash: [4, 4]
+                            },
+                            ticks: {
+                                font: { size: 11 },
+                                callback: function(value) {
+                                    if (value >= 1000000000) return (value / 1000000000).toFixed(1) + ' M';
+                                    if (value >= 1000000) return (value / 1000000).toFixed(0) + ' Jt';
+                                    return value;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 900,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('pieChart').getContext('2d');
+            const taxNames = data2026.map(item => item.name);
+            const taxValues = data2026.map(item => getItemTotalSampaiBulan(item, activeMonth));
+
+            const colors = [
+                '#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899',
+                '#06b6d4', '#f97316', '#6366f1', '#14b8a6', '#e11d48',
+                '#84cc16', '#a855f7', '#0ea5e9', '#eab308', '#64748b'
+            ];
+
+            charts.pie = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: taxNames,
+                    datasets: [{
+                        data: taxValues,
+                        backgroundColor: colors.slice(0, taxNames.length),
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '66%',
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            showTaxDetail(elements[0].index);
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 10,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                boxWidth: 8,
+                                font: { size: 11, weight: '500' }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            padding: 12,
+                            cornerRadius: 10,
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
+                                    return ' ' + context.label + ': ' + formatRupiahFull(context.raw) + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 900,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+        // ==================== TABLES ====================
+        function getBadgeMeta(percentage) {
+            if (percentage >= 100) return { cls: 'excellent', color: '#10b981' };
+            if (percentage >= 50) return { cls: 'good', color: '#2563eb' };
+            if (percentage >= 25) return { cls: 'warning', color: '#f59e0b' };
+            return { cls: 'danger', color: '#e11d48' };
+        }
+
+        function initTables(activeMonth) {
+            const currMonthName = shortMonthNames[activeMonth];
+            const prevMonthName = activeMonth > 0 ? 's/d ' + shortMonthNames[activeMonth - 1] : '-';
+
+            document.getElementById('thCol1').textContent = prevMonthName;
+            document.getElementById('thCol2').textContent = currMonthName;
+
+            const tbody2026 = document.getElementById('tableBody2026');
+            const tfoot2026 = document.getElementById('tableFoot2026');
+            tbody2026.innerHTML = '';
+
+            let sumTarget2026 = 0;
+            let sumPrev2026 = 0;
+            let sumCurr2026 = 0;
+            let sumTotal2026 = 0;
+
+            data2026.forEach((item, index) => {
+                let totalSampaiPrev = 0;
+                for (let i = 0; i < activeMonth; i++) {
+                    totalSampaiPrev += item.bulan[i] || 0;
+                }
+
+                const nilaiBulanIni = item.bulan[activeMonth] || 0;
+                const totalSampaiIni = getItemTotalSampaiBulan(item, activeMonth);
+                const percentage = item.target > 0 ? (totalSampaiIni / item.target) * 100 : 0;
+                const badge = getBadgeMeta(percentage);
+
+                sumTarget2026 += item.target;
+                sumPrev2026 += totalSampaiPrev;
+                sumCurr2026 += nilaiBulanIni;
+                sumTotal2026 += totalSampaiIni;
+
+                const row = `
+                    <tr onclick="showTaxDetail(${index})">
+                        <td style="color: #94a3b8; font-weight: 600;">${index + 1}</td>
+                        <td class="tax-name">${item.name}</td>
+                        <td class="number">${formatRupiahFull(item.target)}</td>
+                        <td class="number">${formatRupiahShort(totalSampaiPrev)}</td>
+                        <td class="number" style="color: #059669; font-weight: 700;">${formatRupiahShort(nilaiBulanIni)}</td>
+                        <td class="number" style="color: #0f172a; font-weight: 700;">${formatRupiahShort(totalSampaiIni)}</td>
+                        <td>
+                            <div class="progress-cell">
+                                <div class="mini-bar">
+                                    <div class="mini-bar-fill" style="width: ${Math.min(percentage, 100)}%; background: ${badge.color};"></div>
+                                </div>
+                                <span class="percentage-badge ${badge.cls}">${percentage.toFixed(1)}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody2026.innerHTML += row;
+            });
+
+            const totalPct2026 = sumTarget2026 > 0 ? (sumTotal2026 / sumTarget2026) * 100 : 0;
+            const totalBadge2026 = getBadgeMeta(totalPct2026);
+            tfoot2026.innerHTML = `
+                <tr>
+                    <td colspan="2">TOTAL KESELURUHAN 2026</td>
+                    <td class="number">${formatRupiahFull(sumTarget2026)}</td>
+                    <td class="number">${formatRupiahShort(sumPrev2026)}</td>
+                    <td class="number" style="color: #059669;">${formatRupiahShort(sumCurr2026)}</td>
+                    <td class="number">${formatRupiahShort(sumTotal2026)}</td>
+                    <td style="text-align: right;">
+                        <span class="percentage-badge ${totalBadge2026.cls}">${totalPct2026.toFixed(1)}%</span>
+                    </td>
+                </tr>
+            `;
+
+            // Tabel 2025
+            const tbody2025 = document.getElementById('tableBody2025');
+            const tfoot2025 = document.getElementById('tableFoot2025');
+            tbody2025.innerHTML = '';
+
+            let sumTarget2025 = 0;
+            let sumTotal2025 = 0;
+
+            data2025.forEach((item, index) => {
+                const badge = getBadgeMeta(item.percentage);
+                sumTarget2025 += item.target;
+                sumTotal2025 += item.total;
+
+                const row = `
+                    <tr>
+                        <td style="color: #94a3b8; font-weight: 600;">${index + 1}</td>
+                        <td class="tax-name">${item.name}</td>
+                        <td class="number">${formatRupiahFull(item.target)}</td>
+                        <td class="number" style="color: #334155; font-weight: 700;">${formatRupiahFull(item.total)}</td>
+                        <td style="text-align: right;">
+                            <span class="percentage-badge ${badge.cls}">${item.percentage.toFixed(1)}%</span>
+                        </td>
+                    </tr>
+                `;
+                tbody2025.innerHTML += row;
+            });
+
+            const totalPct2025 = sumTarget2025 > 0 ? (sumTotal2025 / sumTarget2025) * 100 : 0;
+            const totalBadge2025 = getBadgeMeta(totalPct2025);
+            tfoot2025.innerHTML = `
+                <tr>
+                    <td colspan="2">TOTAL KESELURUHAN 2025</td>
+                    <td class="number">${formatRupiahFull(sumTarget2025)}</td>
+                    <td class="number">${formatRupiahFull(sumTotal2025)}</td>
+                    <td style="text-align: right;">
+                        <span class="percentage-badge ${totalBadge2025.cls}">${totalPct2025.toFixed(1)}%</span>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+        function openModal() {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        function showTaxDetail(index) {
+            const item2026 = data2026[index];
+            const item2025 = data2025.find(item => item.name === item2026.name) || { bulan: [] };
+            const totalItem2026 = getItemTotalSampaiBulan(item2026, currentMonth);
+            const pctItem = item2026.target > 0 ? ((totalItem2026 / item2026.target) * 100).toFixed(2) : '0.00';
+
+            document.getElementById('modalTitle').textContent = '📊 ' + item2026.name;
+            document.getElementById('modalTarget').textContent = formatRupiahFull(item2026.target);
+            document.getElementById('modalRealisasi').textContent = formatRupiahFull(totalItem2026);
+            document.getElementById('modalPersen').textContent = pctItem + '%';
+
+            const monthGrid = document.getElementById('modalMonthGrid');
+            monthGrid.innerHTML = '';
+
+            for (let i = 0; i < 12; i++) {
+                const value = item2026.bulan[i] || 0;
+                const hasValue = value > 0;
+                const isCurrent = i === currentMonth;
+
+                let style = '';
+                if (isCurrent) {
+                    style = 'background: #ecfdf5; border: 1.5px solid #10b981;';
+                }
+
+                monthGrid.innerHTML += `
+                    <div class="month-item ${hasValue ? 'has-value' : ''}" style="${style}">
+                        <div class="month-name">${shortMonthNames[i]}${isCurrent ? ' •' : ''}</div>
+                        <div class="month-value">${hasValue || isCurrent ? formatRupiahShort(value) : '-'}</div>
+                    </div>
+                `;
+            }
+
+            const compTable = document.getElementById('modalComparisonTable');
+            compTable.innerHTML = '';
+
+            for (let i = 0; i < 12; i++) {
+                const val2025 = item2025.bulan[i] || 0;
+                const val2026 = item2026.bulan[i] || 0;
+                const selisih = val2026 - val2025;
+                const change = val2025 > 0 ? ((selisih / val2025) * 100).toFixed(1) : 0;
+
+                if (val2025 > 0 || val2026 > 0) {
+                    compTable.innerHTML += `
+                        <tr>
+                            <td style="font-weight: 600; color: #334155;">${monthNames[i]}</td>
+                            <td class="number">${formatRupiahShort(val2025)}</td>
+                            <td class="number">${formatRupiahShort(val2026)}</td>
+                            <td class="number ${selisih >= 0 ? 'change-positive' : 'change-negative'}">
+                                ${selisih >= 0 ? '↑' : '↓'} ${Math.abs(change)}%
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+
+            openModal();
+        }
+
+        function showMonthDetail(monthIndex) {
+            const monthName = monthNames[monthIndex];
+            const val2025 = getMonthTotal(data2025, monthIndex);
+            const val2026 = getMonthTotal(data2026, monthIndex);
+            const selisih = val2026 - val2025;
+            const change = val2025 > 0 ? ((selisih / val2025) * 100).toFixed(1) : 0;
+
+            document.getElementById('modalTitle').textContent = '📅 Realisasi Bulan ' + monthName;
+            document.getElementById('modalTarget').textContent = formatRupiahFull(val2025) + ' (2025)';
+            document.getElementById('modalRealisasi').textContent = formatRupiahFull(val2026);
+            document.getElementById('modalPersen').textContent = (selisih >= 0 ? '+' : '') + change + '%';
+
+            const monthGrid = document.getElementById('modalMonthGrid');
+            monthGrid.innerHTML = '';
+
+            for (let i = 0; i < 12; i++) {
+                const value = getMonthTotal(data2026, i);
+                const isSelected = i === monthIndex;
+                monthGrid.innerHTML += `
+                    <div class="month-item ${value > 0 ? 'has-value' : ''}"
+                         style="${isSelected ? 'background: #eff6ff; border: 1.5px solid #2563eb;' : ''}">
+                        <div class="month-name">${shortMonthNames[i]}</div>
+                        <div class="month-value">${value > 0 ? formatRupiahShort(value) : '-'}</div>
+                    </div>
+                `;
+            }
+
+            const compTable = document.getElementById('modalComparisonTable');
+            compTable.innerHTML = '';
+
+            let no = 1;
+            for (const item2026 of data2026) {
+                const item2025 = data2025.find(item => item.name === item2026.name) || { bulan: [] };
+                const val2025Item = item2025.bulan[monthIndex] || 0;
+                const val2026Item = item2026.bulan[monthIndex] || 0;
+                const selisihItem = val2026Item - val2025Item;
+                const changeItem = val2025Item > 0 ? ((selisihItem / val2025Item) * 100).toFixed(1) : 0;
+
+                if (val2025Item > 0 || val2026Item > 0) {
+                    compTable.innerHTML += `
+                        <tr>
+                            <td style="font-weight: 500; color: #334155;">${no}. ${item2026.name}</td>
+                            <td class="number">${formatRupiahShort(val2025Item)}</td>
+                            <td class="number">${formatRupiahShort(val2026Item)}</td>
+                            <td class="number ${selisihItem >= 0 ? 'change-positive' : 'change-negative'}">
+                                ${selisihItem >= 0 ? '↑' : '↓'} ${Math.abs(changeItem)}%
+                            </td>
+                        </tr>
+                    `;
+                    no++;
+                }
+            }
+
+            compTable.innerHTML += `
+                <tr style="background: #f1f5f9; font-weight: 700;">
+                    <td>TOTAL</td>
+                    <td class="number">${formatRupiahShort(val2025)}</td>
+                    <td class="number">${formatRupiahShort(val2026)}</td>
+                    <td class="number ${selisih >= 0 ? 'change-positive' : 'change-negative'}">
+                        ${selisih >= 0 ? '↑' : '↓'} ${Math.abs(change)}%
+                    </td>
+                </tr>
+            `;
+
+            openModal();
+        }
+
+        // ==================== INITIALIZE ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            populateMonthSelector();
+            loadData();
+        });
+        setInterval(loadData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
